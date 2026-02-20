@@ -15,7 +15,7 @@ a file to 0G Storage"_ or _"build a chatbot on 0G Compute"_ and get correct, wor
 ### 1. Clone into your project
 
 ```bash
-git clone https://github.com/0gfoundation/agent-skills-0g .0g-skills
+git clone https://github.com/0gfoundation/0g-agent-skills .0g-skills
 ```
 
 ### 2. Connect your IDE
