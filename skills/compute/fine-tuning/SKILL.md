@@ -1,3 +1,9 @@
+---
+name: fine-tuning
+description: |
+  Fine-tune AI models on 0G's distributed GPU network. Use this skill for "fine-tune", "train model", "custom model", "model training".
+---
+
 # Model Fine-Tuning
 
 ## Metadata
@@ -9,13 +15,17 @@
 ## Purpose
 
 Fine-tune AI models on 0G's distributed GPU network. Upload training data, configure parameters,
-monitor training, and download the resulting model. **Currently testnet only.**
+monitor training, and download the resulting model. Available on **both testnet and mainnet**.
+
+> **Network note:** The `@0glabs/0g-serving-broker` SDK ^0.6.5 has a zero-address bug for the
+> mainnet fine-tuning contract. Use the CLI (`0g-compute-cli`) for mainnet fine-tuning until the SDK
+> is patched. The CLI's `setup-network` command handles network selection interactively.
 
 ## Prerequisites
 
 - Node.js >= 22
 - `@0glabs/0g-serving-broker` CLI installed globally
-- Testnet wallet with 0G tokens
+- Wallet with 0G tokens (testnet or mainnet)
 - Training dataset in required format
 - Configuration file for training parameters
 
@@ -34,7 +44,7 @@ monitor training, and download the resulting model. **Currently testnet only.**
 
 ### ALWAYS
 
-- Use testnet (fine-tuning not yet on mainnet)
+- Use the CLI for mainnet fine-tuning (SDK has zero-address bug for mainnet contract)
 - Verify provider availability before uploading data
 - Save the root hash from dataset upload
 - Save the task ID from task creation
@@ -49,13 +59,13 @@ monitor training, and download the resulting model. **Currently testnet only.**
 - Create a new task while previous task is running
 - Initiate refund during active fine-tuning
 - Forget to decrypt the downloaded model
-- Use mainnet for fine-tuning (not yet supported)
+- Use the SDK for mainnet fine-tuning until the zero-address bug is fixed
 - Hardcode private keys
 - Use ethers v5 syntax
 
 ## Task Status Lifecycle
 
-```
+```text
 Init -> SettingUp -> SetUp -> Training -> Trained -> Delivering -> Delivered -> UserAcknowledged -> Finished
                                                                                                      |
                                                                                                   Failed
@@ -77,14 +87,17 @@ Init -> SettingUp -> SetUp -> Training -> Trained -> Delivering -> Delivered -> 
 
 ```bash
 0g-compute-cli fine-tuning list-providers
-# Official testnet provider: 0xf07240Efa67755B5311bc75784a061eDB47165Dd
+# Testnet provider: 0xf07240Efa67755B5311bc75784a061eDB47165Dd
+# Mainnet provider: 0x940b4a... (confirmed live, Feb 2026)
 ```
 
 ### 2. List Available Models
 
 ```bash
 0g-compute-cli fine-tuning list-models
-# Available: distilbert-base-uncased (Text Classification)
+# Mainnet models (as of Feb 2026):
+#   - Qwen2.5-0.5B-Instruct
+#   - Qwen3-32B
 ```
 
 ### 3. Upload Dataset
@@ -98,7 +111,7 @@ Init -> SettingUp -> SetUp -> Training -> Trained -> Delivering -> Delivered -> 
 
 ```bash
 0g-compute-cli fine-tuning calculate-token \
-  --model distilbert-base-uncased \
+  --model Qwen2.5-0.5B-Instruct \
   --dataset-path ./my_dataset.json \
   --provider 0xf07240Efa67755B5311bc75784a061eDB47165Dd
 ```
@@ -116,7 +129,7 @@ Init -> SettingUp -> SetUp -> Training -> Trained -> Delivering -> Delivered -> 
 ```bash
 0g-compute-cli fine-tuning create-task \
   --provider 0xf07240Efa67755B5311bc75784a061eDB47165Dd \
-  --model distilbert-base-uncased \
+  --model Qwen2.5-0.5B-Instruct \
   --dataset 0xabc123... \
   --config-path ./config.json \
   --data-size 1000000

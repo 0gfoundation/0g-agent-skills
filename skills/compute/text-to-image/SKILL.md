@@ -1,16 +1,23 @@
+---
+name: text-to-image
+description: |
+  Generate images from text prompts using 0G Compute Network providers (z-image model, mainnet). Use this skill for generate image, text-to-image, image generation, create image.
+---
+
 # Text-to-Image Generation
 
 ## Metadata
 
 - **Category**: compute
 - **SDK**: `@0glabs/0g-serving-broker` ^0.6.5, `ethers` ^6.13.0
-- **Activation Triggers**: "generate image", "text-to-image", "Flux", "image generation", "create
+- **Activation Triggers**: "generate image", "text-to-image", "z-image", "image generation", "create
   image"
 
 ## Purpose
 
-Generate images from text prompts using 0G Compute Network providers running Flux Turbo. Supports
-multiple resolutions and batch generation.
+Generate images from text prompts using 0G Compute Network providers (model: `z-image`, mainnet
+only). Supports multiple resolutions and batch generation. Text-to-image is not available on
+testnet.
 
 ## Prerequisites
 

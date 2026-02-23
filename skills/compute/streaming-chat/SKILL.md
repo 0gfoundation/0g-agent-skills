@@ -1,3 +1,9 @@
+---
+name: streaming-chat
+description: |
+  Run conversational AI inference using 0G Compute Network providers. Use this skill for chatbot, inference, LLM, DeepSeek, streaming chat, AI chat.
+---
+
 # Streaming Chat Inference
 
 ## Metadata
@@ -9,7 +15,10 @@
 ## Purpose
 
 Run conversational AI inference using 0G Compute Network providers. Supports streaming and
-non-streaming modes with models like DeepSeek V3.1, Qwen, Gemma, and GPT-OSS.
+non-streaming modes. Available on both testnet and mainnet with different model sets. Testnet:
+qwen/qwen-2.5-7b-instruct. Mainnet: deepseek/deepseek-chat-v3-0324, openai/gpt-oss-120b,
+zai-org/GLM-5-FP8, qwen/qwen3-vl-30b-a3b-instruct. Models change frequently — use `listService()`
+for current availability.
 
 ## Prerequisites
 

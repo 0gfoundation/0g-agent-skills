@@ -1,3 +1,9 @@
+---
+name: upload-file
+description: |
+  Upload files to 0G decentralized storage using the ZgFile API and Indexer. Use this skill for upload file, store on 0G, ZgFile, save to storage.
+---
+
 # Upload File to 0G Storage
 
 ## Metadata

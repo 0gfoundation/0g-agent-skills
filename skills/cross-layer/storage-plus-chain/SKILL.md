@@ -1,3 +1,9 @@
+---
+name: storage-plus-chain
+description: |
+  Combine 0G Storage with 0G Chain smart contracts to create on-chain references to off-chain data. Use this skill for on-chain reference, NFT metadata on 0G, store hash on-chain, registry contract, chain and storage.
+---
+
 # Storage + Chain Integration
 
 ## Metadata
@@ -230,7 +236,7 @@ async function storeNFTMetadata(
 
 ## Architecture
 
-```
+```text
 ┌──────────────────────┐     ┌──────────────────────┐
 │    0G Chain           │     │    0G Storage         │
 │                       │     │                       │

@@ -1,3 +1,9 @@
+---
+name: deploy-contract
+description: |
+  Deploy Solidity smart contracts to 0G Chain using Hardhat, Foundry, or ethers v6 directly. Use this skill for "deploy contract", "Solidity", "0G Chain", "deploy smart contract".
+---
+
 # Deploy Contract to 0G Chain
 
 ## Metadata

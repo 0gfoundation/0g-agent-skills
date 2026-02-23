@@ -1,3 +1,9 @@
+---
+name: scaffold-project
+description: |
+  Initialize a new 0G dApp project with the correct SDK versions, TypeScript configuration, environment setup, and boilerplate code. Use this skill for "new project", "scaffold", "initialize", "create 0G app", "setup project".
+---
+
 # Scaffold 0G Project
 
 ## Metadata

@@ -1,3 +1,9 @@
+---
+name: download-file
+description: |
+  Download and verify files from 0G decentralized storage using a root hash. Use this skill for download file, retrieve from 0G, get file, fetch from storage.
+---
+
 # Download File from 0G Storage
 
 ## Metadata

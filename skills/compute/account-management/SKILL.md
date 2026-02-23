@@ -1,3 +1,9 @@
+---
+name: account-management
+description: |
+  Manage funds across the 0G Compute Network's dual-account system: Main Account and Provider Sub-Accounts. Use this skill for "deposit", "transfer funds", "refund", "check balance", "account balance".
+---
+
 # Account Management
 
 ## Metadata
@@ -29,7 +35,7 @@ and Provider Sub-Accounts (one per provider, funds locked for that provider's se
 
 ## Fund Flow
 
-```
+```text
 Your Wallet
     | deposit
     v

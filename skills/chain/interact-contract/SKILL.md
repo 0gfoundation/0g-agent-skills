@@ -1,3 +1,9 @@
+---
+name: interact-contract
+description: |
+  Read from and write to deployed smart contracts on 0G Chain using ethers v6. Use this skill for "call contract", "read contract", "interact", "write contract", "contract function".
+---
+
 # Interact with 0G Chain Contracts
 
 ## Metadata

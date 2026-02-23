@@ -1,3 +1,9 @@
+---
+name: merkle-verification
+description: |
+  Compute root hashes and verify data integrity for files stored on 0G Storage. Use this skill for verify file, merkle proof, data integrity, root hash, check file.
+---
+
 # Merkle Verification
 
 ## Metadata
