@@ -3,18 +3,20 @@
 ## Metadata
 
 - **Category**: compute
-- **SDK**: `@0glabs/0g-serving-broker` ^0.6.5 (CLI-based workflow)
-- **Activation Triggers**: "fine-tune", "train model", "custom model", "model training"
+- **SDK**: `@0gfoundation/0g-compute-ts-sdk` ^0.9.0 (CLI-based workflow)
+- **Activation Triggers**: "fine-tune", "train model", "custom model", "model training", "LoRA",
+  "adapter", "deploy adapter"
 
 ## Purpose
 
 Fine-tune AI models on 0G's distributed GPU network. Upload training data, configure parameters,
-monitor training, and download the resulting model. **Currently testnet only.**
+monitor training, and download the resulting model. Then deploy the result as a **LoRA adapter** on
+an inference provider and chat with it. **Training is currently testnet only.**
 
 ## Prerequisites
 
-- Node.js >= 22
-- `@0glabs/0g-serving-broker` CLI installed globally
+- Node.js >= 20 (the SDK declares `engines.node >= 20.0.0`)
+- `@0gfoundation/0g-compute-ts-sdk` installed (ships a `0g-compute-cli` binary)
 - Testnet wallet with 0G tokens
 - Training dataset in required format
 - Configuration file for training parameters
@@ -161,7 +163,7 @@ unzip ./my_model.zip -d ./my_fine_tuned_model/
 
 ```typescript
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 import 'dotenv/config';
 
 async function checkFineTuningAccount(providerAddress: string) {
@@ -172,12 +174,84 @@ async function checkFineTuningAccount(providerAddress: string) {
   // Transfer funds for fine-tuning
   await broker.ledger.transferFund(providerAddress, 'fine-tuning', ethers.parseEther('1'));
 
-  // Check sub-account (returns [subAccountTuple, refundsArray])
-  const [account, refunds] = await broker.fineTuning.getAccountWithDetail(providerAddress);
-  // Tuple: [0]=user, [1]=provider, [2]=balance, ...
-  console.log(`Fine-tuning balance: ${ethers.formatEther(account[2])} 0G`);
+  // IMPORTANT: fineTuning.getAccountWithDetail() resolves to an OBJECT
+  //   { account, refunds }
+  // It is NOT a tuple. Array-destructuring it throws "is not iterable".
+  // (The *inference* broker's method of the same name DOES return a tuple —
+  // the two are not interchangeable.)
+  const { account, refunds } = await broker.fineTuning.getAccountWithDetail(providerAddress);
+
+  console.log(`Fine-tuning balance: ${ethers.formatEther(account.balance)} 0G`);
+  console.log(`Pending refund:      ${ethers.formatEther(account.pendingRefund)} 0G`);
+  console.log(`Acknowledged:        ${account.acknowledged}`);
+  console.log(`Pending refunds:     ${refunds.length}`);
 }
 ```
+
+> `account` is a hybrid tuple/object whose positional layout is
+> `[user, provider, nonce, balance, pendingRefund, refunds, additionalInfo, deliverables, ...]` —
+> note `balance` is at index **3**, not 2. Use named access.
+
+## Deploying the Result as a LoRA Adapter
+
+Training produces an adapter, not a standalone model. To actually use it, deploy it onto an
+inference provider's GPU and then chat against it. These calls live on `broker.inference`, not
+`broker.fineTuning`.
+
+```typescript
+import { ethers } from 'ethers';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
+import 'dotenv/config';
+
+async function deployAndChat(providerAddress: string, taskId: string, baseModel: string) {
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+  const broker = await createZGComputeNetworkBroker(wallet);
+
+  // The broker may name the adapter differently from your local convention,
+  // so resolve the real name from the task id before deploying.
+  const adapterName = await broker.inference.resolveAdapterName(providerAddress, taskId, baseModel);
+
+  // Deploy and wait for it to become active
+  const deployment = await broker.inference.deployAdapter(providerAddress, baseModel, taskId, {
+    wait: true,
+    timeoutSeconds: 600,
+    onProgress: (state) => console.log(`  adapter state: ${state}`),
+  });
+  console.log('deploy response:', deployment);
+
+  // Confirm status before sending traffic
+  const status = await broker.inference.getAdapterStatus(providerAddress, adapterName);
+  console.log('adapter status:', status);
+
+  // Chat against the fine-tuned adapter
+  const reply = await broker.inference.chatWithFineTunedModel(
+    providerAddress,
+    adapterName,
+    'Summarise what you were fine-tuned to do.',
+  );
+  console.log('reply:', reply);
+
+  return reply;
+}
+```
+
+List what is already deployed on a provider:
+
+```typescript
+async function listAdapters(providerAddress: string) {
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+  const broker = await createZGComputeNetworkBroker(wallet);
+
+  const adapters = await broker.inference.listAdapters(providerAddress);
+  for (const a of adapters) console.log(a);
+  return adapters;
+}
+```
+
+If you already know the adapter's exact name, skip task/model resolution entirely with
+`deployAdapterByName(providerAddress, adapterName, options)`.
 
 ### Error Handling
 

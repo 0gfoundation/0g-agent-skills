@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: storage
-- **SDK**: `@0glabs/0g-ts-sdk` ^0.3.3, `ethers` ^6.13.0
+- **SDK**: `@0gfoundation/0g-storage-ts-sdk` ^1.2.12, `ethers` 6.13.1
 - **Activation Triggers**: "upload file", "store on 0G", "ZgFile", "save to storage"
 
 ## Purpose
@@ -15,7 +15,7 @@ later retrieval.
 ## Prerequisites
 
 - Node.js >= 18
-- `@0glabs/0g-ts-sdk` and `ethers` installed
+- `@0gfoundation/0g-storage-ts-sdk` and `ethers` installed
 - Funded wallet with 0G tokens
 - `.env` with `PRIVATE_KEY`, `RPC_URL`, `STORAGE_INDEXER`
 
@@ -37,12 +37,14 @@ later retrieval.
 - Close file handles after upload (`file.close()`)
 - Store root hashes — they are the ONLY way to retrieve files later
 - Use try/finally to ensure file handles are closed
+- Read the upload result by field: `result.txHash`, `result.rootHash`, `result.txSeq`
 - Load private keys from environment variables
 
 ### NEVER
 
 - Skip Merkle tree generation before upload
 - Forget to close `ZgFile` handles (causes memory leaks)
+- Treat the first element of the `upload()` result as a transaction-hash string — it is an object
 - Hardcode private keys in source code
 - Lose the root hash (data becomes irretrievable)
 
@@ -51,7 +53,7 @@ later retrieval.
 ### Basic File Upload
 
 ```typescript
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import { ethers } from 'ethers';
 import 'dotenv/config';
 
@@ -68,9 +70,18 @@ async function uploadFile(filePath: string): Promise<string> {
     const rootHash = tree!.rootHash();
     console.log('Root hash:', rootHash);
 
-    const [tx, uploadErr] = await indexer.upload(file, process.env.RPC_URL!, wallet);
+    // upload() resolves to [result, error]. `result` is an OBJECT, not a hash
+    // string, and it is a UNION of two shapes:
+    //   single file      -> { txHash,   rootHash,   txSeq  }
+    //   fragmented file  -> { txHashes, rootHashes, txSeqs }
+    // Narrow with an `in` check before reading either shape.
+    const [result, uploadErr] = await indexer.upload(file, process.env.RPC_URL!, wallet);
     if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
-    console.log('Upload tx:', tx);
+
+    const txHash = 'txHash' in result ? result.txHash : result.txHashes[0];
+    const uploadedRoot = 'rootHash' in result ? result.rootHash : result.rootHashes[0];
+    console.log('Upload tx:', txHash);
+    console.log('Root hash from upload:', uploadedRoot); // matches `rootHash` above
 
     return rootHash;
   } finally {
@@ -86,7 +97,7 @@ console.log('Stored with root hash:', rootHash);
 ### Upload from Buffer
 
 ```typescript
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import { ethers } from 'ethers';
 import * as fs from 'fs';
 import * as os from 'os';
@@ -125,7 +136,7 @@ const rootHash = await uploadBuffer(jsonData, 'data.json');
 ### Upload with Progress and Error Handling
 
 ```typescript
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import { ethers } from 'ethers';
 import * as fs from 'fs';
 import 'dotenv/config';
@@ -162,9 +173,10 @@ async function uploadWithValidation(filePath: string): Promise<string> {
     console.log('Root hash:', rootHash);
 
     console.log('Uploading to 0G Storage...');
-    const [tx, uploadErr] = await indexer.upload(file, process.env.RPC_URL!, wallet);
+    const [result, uploadErr] = await indexer.upload(file, process.env.RPC_URL!, wallet);
     if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
-    console.log('Upload complete! Tx:', tx);
+    const txHash = 'txHash' in result ? result.txHash : result.txHashes[0];
+    console.log('Upload complete! Tx:', txHash);
 
     return rootHash;
   } finally {

@@ -59,7 +59,7 @@ await indexer.download(rootHash, outputPath, true);
 ### Hash Verification
 
 ```typescript
-import { ZgFile } from '@0glabs/0g-ts-sdk';
+import { ZgFile } from '@0gfoundation/0g-storage-ts-sdk';
 
 async function verifyFile(filePath: string, expectedHash: string): Promise<boolean> {
   const file = await ZgFile.fromFilePath(filePath);
@@ -147,9 +147,10 @@ function checkRateLimit(): boolean {
 
 ```typescript
 async function ensureSufficientBalance(broker: any, minBalance: number) {
-  // getLedger() returns tuple: [0]=address, [1]=totalBalance, [2]=availableBalance
-  const account = await broker.ledger.getLedger();
-  const available = parseFloat(ethers.formatEther(account[2]));
+  // getLedger() -> [user, availableBalance, totalBalance, additionalInfo].
+  // Use named access: index 1 is available, index 2 is total.
+  const led = await broker.ledger.getLedger();
+  const available = parseFloat(ethers.formatEther(led.availableBalance));
   if (available < minBalance) {
     throw new Error(`Insufficient balance: ${available} 0G available, ${minBalance} 0G required`);
   }
