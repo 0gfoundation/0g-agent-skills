@@ -58,7 +58,7 @@ Open your project in Claude Code and try:
 Claude should:
 
 1. Reference the upload-file skill
-2. Generate code using `@0glabs/0g-ts-sdk`
+2. Generate code using `@0gfoundation/0g-storage-ts-sdk`
 3. Include proper Merkle tree generation and file handle cleanup
 4. Use `.env` for private keys (never hardcoded)
 

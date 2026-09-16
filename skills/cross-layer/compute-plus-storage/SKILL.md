@@ -3,7 +3,8 @@
 ## Metadata
 
 - **Category**: cross-layer
-- **SDK**: `@0glabs/0g-serving-broker` ^0.6.5, `@0glabs/0g-ts-sdk` ^0.3.3, `ethers` ^6.13.0
+- **SDK**: `@0gfoundation/0g-compute-ts-sdk` ^0.9.0, `@0gfoundation/0g-storage-ts-sdk` ^1.2.12,
+  `ethers` 6.13.1
 - **Activation Triggers**: "AI with storage", "generate and store", "transcribe and store",
   "inference with storage", "AI pipeline"
 
@@ -15,7 +16,7 @@ AI and persist results to decentralized storage, or load data from storage and p
 ## Prerequisites
 
 - Node.js >= 18
-- `@0glabs/0g-serving-broker`, `@0glabs/0g-ts-sdk`, and `ethers` installed
+- `@0gfoundation/0g-compute-ts-sdk`, `@0gfoundation/0g-storage-ts-sdk`, and `ethers` installed
 - Funded and acknowledged compute provider
 - Funded wallet for storage operations
 - `.env` with `PRIVATE_KEY`, `RPC_URL`, `STORAGE_INDEXER`, `PROVIDER_ADDRESS`
@@ -60,8 +61,8 @@ AI and persist results to decentralized storage, or load data from storage and p
 
 ```typescript
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';

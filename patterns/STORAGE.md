@@ -34,7 +34,7 @@ Architecture, SDK reference, and best practices for 0G decentralized storage.
 ### Upload Pattern
 
 ```typescript
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import { ethers } from 'ethers';
 import 'dotenv/config';
 
@@ -51,9 +51,9 @@ try {
   const rootHash = tree!.rootHash();
   console.log('Root hash:', rootHash);
 
-  const [tx, uploadErr] = await indexer.upload(file, process.env.RPC_URL!, wallet);
+  const [result, uploadErr] = await indexer.upload(file, process.env.RPC_URL!, wallet);
   if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
-  console.log('Upload tx:', tx);
+  console.log('Upload tx:', result.txHash);
 
   return rootHash;
 } finally {
@@ -64,7 +64,7 @@ try {
 ### Download Pattern
 
 ```typescript
-import { Indexer } from '@0glabs/0g-ts-sdk';
+import { Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 
 const indexer = new Indexer(process.env.STORAGE_INDEXER!);
 
@@ -80,7 +80,7 @@ try {
 ### Upload from Buffer
 
 ```typescript
-import { ZgFile } from '@0glabs/0g-ts-sdk';
+import { ZgFile } from '@0gfoundation/0g-storage-ts-sdk';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -108,7 +108,7 @@ try {
 ### Computing Root Hash
 
 ```typescript
-import { ZgFile } from '@0glabs/0g-ts-sdk';
+import { ZgFile } from '@0gfoundation/0g-storage-ts-sdk';
 
 const file = await ZgFile.fromFilePath(filePath);
 try {

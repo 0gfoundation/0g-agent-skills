@@ -1,4 +1,4 @@
-import { Indexer } from '@0glabs/0g-ts-sdk';
+import { Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 import 'dotenv/config';

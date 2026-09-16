@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
@@ -16,7 +16,7 @@ async function generateAndStore(providerAddress: string, prompt: string, size = 
 
   // --- Step 1: Generate image with AI ---
   console.log('Initializing compute broker...');
-  const broker = await createZGComputeNetworkBroker(wallet as any);
+  const broker = await createZGComputeNetworkBroker(wallet);
   const { endpoint, model } = await broker.inference.getServiceMetadata(providerAddress);
   console.log(`Using model: ${model}`);
 
@@ -71,9 +71,12 @@ async function generateAndStore(providerAddress: string, prompt: string, size = 
     if (treeErr) throw new Error(`Merkle tree error: ${treeErr}`);
     rootHash = tree!.rootHash()!;
 
-    const [tx, uploadErr] = await indexer.upload(file, process.env.RPC_URL, wallet as any);
+    const [result, uploadErr] = await indexer.upload(file, process.env.RPC_URL, wallet);
     if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
-    console.log('Upload tx:', tx);
+    // upload() returns a union: the singular shape for one file, the plural
+    // shape ({ txHashes, rootHashes, txSeqs }) when the file was fragmented.
+    const txHash = 'txHash' in result ? result.txHash : result.txHashes[0];
+    console.log('Upload tx:', txHash);
   } finally {
     await file.close();
     fs.unlinkSync(tempPath); // Clean up temp file

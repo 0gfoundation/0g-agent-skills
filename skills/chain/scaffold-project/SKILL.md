@@ -3,7 +3,8 @@
 ## Metadata
 
 - **Category**: chain
-- **SDK**: `ethers` ^6.13.0, `@0glabs/0g-ts-sdk` ^0.3.3, `@0glabs/0g-serving-broker` ^0.6.5
+- **SDK**: `ethers` 6.13.1, `@0gfoundation/0g-storage-ts-sdk` ^1.2.12,
+  `@0gfoundation/0g-compute-ts-sdk` ^0.9.0
 - **Activation Triggers**: "new project", "scaffold", "initialize", "create 0G app", "setup project"
 
 ## Purpose
@@ -29,7 +30,7 @@ environment setup, and boilerplate code for storage, compute, and/or chain inter
 
 ### ALWAYS
 
-- Use ethers v6 (^6.13.0), never v5
+- Use ethers v6 (6.13.1), never v5
 - Use `evmVersion: "cancun"` for Hardhat/Foundry configs
 - Create `.env` with placeholder values (never real keys)
 - Add `.env` to `.gitignore`
@@ -52,7 +53,7 @@ mkdir my-0g-app && cd my-0g-app
 npm init -y
 
 # Install all 0G SDKs
-npm install @0glabs/0g-ts-sdk @0glabs/0g-serving-broker ethers dotenv
+npm install @0gfoundation/0g-storage-ts-sdk @0gfoundation/0g-compute-ts-sdk ethers dotenv
 
 # Install dev dependencies
 npm install -D typescript tsx @types/node
@@ -121,13 +122,13 @@ dist/
 ### Storage-Only Project
 
 ```bash
-npm install @0glabs/0g-ts-sdk ethers dotenv
+npm install @0gfoundation/0g-storage-ts-sdk ethers dotenv
 npm install -D typescript tsx @types/node
 ```
 
 ```typescript
 // src/index.ts
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import { ethers } from 'ethers';
 import 'dotenv/config';
 
@@ -146,14 +147,14 @@ main().catch(console.error);
 ### Compute-Only Project
 
 ```bash
-npm install @0glabs/0g-serving-broker ethers dotenv
+npm install @0gfoundation/0g-compute-ts-sdk ethers dotenv
 npm install -D typescript tsx @types/node
 ```
 
 ```typescript
 // src/index.ts
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 import 'dotenv/config';
 
 async function main() {
@@ -212,12 +213,12 @@ export default config;
 
 ## Project Type Reference
 
-| Project Type    | Dependencies                          | Use Case        |
-| --------------- | ------------------------------------- | --------------- |
-| Full-Stack      | All 3 SDKs                            | Complete dApp   |
-| Storage Only    | `@0glabs/0g-ts-sdk`, `ethers`         | File/KV storage |
-| Compute Only    | `@0glabs/0g-serving-broker`, `ethers` | AI inference    |
-| Smart Contracts | `hardhat`, toolbox, `ethers`          | On-chain logic  |
+| Project Type    | Dependencies                                | Use Case        |
+| --------------- | ------------------------------------------- | --------------- |
+| Full-Stack      | All 3 SDKs                                  | Complete dApp   |
+| Storage Only    | `@0gfoundation/0g-storage-ts-sdk`, `ethers` | File/KV storage |
+| Compute Only    | `@0gfoundation/0g-compute-ts-sdk`, `ethers` | AI inference    |
+| Smart Contracts | `hardhat`, toolbox, `ethers`                | On-chain logic  |
 
 ## Anti-Patterns
 
@@ -244,7 +245,7 @@ import { providers } from 'ethers'; // v5 pattern!
 | `Cannot find module`     | Dependencies not installed | Run `npm install`              |
 | `invalid opcode`         | Wrong evmVersion           | Set `evmVersion: "cancun"`     |
 | `PRIVATE_KEY not set`    | Missing `.env` file        | Create `.env` with credentials |
-| `ethers v5 import error` | Wrong ethers version       | `npm install ethers@^6.13.0`   |
+| `ethers v5 import error` | Wrong ethers version       | `npm install ethers@6.13.1`    |
 
 ## Related Skills
 
