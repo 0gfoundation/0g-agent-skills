@@ -1,4 +1,4 @@
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import { ethers } from 'ethers';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -30,9 +30,12 @@ async function register(filePath: string, metadata: string): Promise<{ rootHash:
     rootHash = tree!.rootHash()!;
     console.log('Root hash:', rootHash);
 
-    const [tx, uploadErr] = await indexer.upload(file, process.env.RPC_URL, wallet as any);
+    const [result, uploadErr] = await indexer.upload(file, process.env.RPC_URL, wallet);
     if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
-    console.log('Upload tx:', tx);
+    // upload() returns a union: the singular shape for one file, the plural
+    // shape ({ txHashes, rootHashes, txSeqs }) when the file was fragmented.
+    const txHash = 'txHash' in result ? result.txHash : result.txHashes[0];
+    console.log('Upload tx:', txHash);
   } finally {
     await file.close();
   }

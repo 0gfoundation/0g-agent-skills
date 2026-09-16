@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: cross-layer
-- **SDK**: `@0glabs/0g-ts-sdk` ^0.3.3, `ethers` ^6.13.0
+- **SDK**: `@0gfoundation/0g-storage-ts-sdk` ^1.2.12, `ethers` 6.13.1
 - **Activation Triggers**: "on-chain reference", "NFT metadata on 0G", "store hash on-chain",
   "registry contract", "chain and storage"
 
@@ -15,7 +15,7 @@ Common patterns include NFT metadata storage, content registries, and verifiable
 ## Prerequisites
 
 - Node.js >= 18
-- `@0glabs/0g-ts-sdk` and `ethers` installed
+- `@0gfoundation/0g-storage-ts-sdk` and `ethers` installed
 - Hardhat configured with `evmVersion: "cancun"`
 - Funded wallet with 0G tokens
 - `.env` with `PRIVATE_KEY`, `RPC_URL`, `STORAGE_INDEXER`
@@ -91,7 +91,7 @@ contract StorageRegistry {
 ### Upload and Register
 
 ```typescript
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import { ethers } from 'ethers';
 import 'dotenv/config';
 

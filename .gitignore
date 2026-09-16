@@ -31,6 +31,9 @@ ci/.tmp/
 # Examples
 examples/**/node_modules/
 examples/**/.env
+# Example lockfiles are not tracked: CI installs them with `npm install`, and
+# pinning them here would churn on every upstream SDK release.
+examples/**/package-lock.json
 
 # Logs
 *.log

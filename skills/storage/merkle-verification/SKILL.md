@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: storage
-- **SDK**: `@0glabs/0g-ts-sdk` ^0.3.3
+- **SDK**: `@0gfoundation/0g-storage-ts-sdk` ^1.2.12
 - **Activation Triggers**: "verify file", "merkle proof", "data integrity", "root hash", "check
   file"
 
@@ -15,7 +15,7 @@ proofs to cryptographically verify that downloaded data matches what was origina
 ## Prerequisites
 
 - Node.js >= 18
-- `@0glabs/0g-ts-sdk` installed
+- `@0gfoundation/0g-storage-ts-sdk` installed
 
 ## Quick Workflow
 
@@ -43,7 +43,7 @@ proofs to cryptographically verify that downloaded data matches what was origina
 ### Compute Root Hash
 
 ```typescript
-import { ZgFile } from '@0glabs/0g-ts-sdk';
+import { ZgFile } from '@0gfoundation/0g-storage-ts-sdk';
 
 async function computeRootHash(filePath: string): Promise<string> {
   const file = await ZgFile.fromFilePath(filePath);
@@ -64,7 +64,7 @@ console.log('Root hash:', hash);
 ### Verify File Integrity
 
 ```typescript
-import { ZgFile } from '@0glabs/0g-ts-sdk';
+import { ZgFile } from '@0gfoundation/0g-storage-ts-sdk';
 
 async function verifyFile(filePath: string, expectedHash: string): Promise<boolean> {
   const file = await ZgFile.fromFilePath(filePath);
@@ -95,7 +95,7 @@ if (!isValid) {
 ### Verified Download (Automatic Verification)
 
 ```typescript
-import { Indexer } from '@0glabs/0g-ts-sdk';
+import { Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 
 async function downloadAndVerify(rootHash: string, outputPath: string): Promise<void> {
   const indexer = new Indexer(process.env.STORAGE_INDEXER!);

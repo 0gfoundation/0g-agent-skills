@@ -43,14 +43,18 @@ After installing skills, set up your 0G development environment:
 
 ```bash
 # Storage
-npm install @0glabs/0g-ts-sdk ethers dotenv
+npm install @0gfoundation/0g-storage-ts-sdk ethers@6.13.1 dotenv
 
 # Compute
-npm install @0glabs/0g-serving-broker ethers dotenv
+npm install @0gfoundation/0g-compute-ts-sdk ethers@6.13.1 dotenv
 
 # Both
-npm install @0glabs/0g-ts-sdk @0glabs/0g-serving-broker ethers dotenv
+npm install @0gfoundation/0g-storage-ts-sdk @0gfoundation/0g-compute-ts-sdk ethers@6.13.1 dotenv
 ```
+
+> Pin `ethers` to exactly `6.13.1` — the storage SDK has an exact peer dependency on it, so a caret
+> range fails to install. The predecessor packages `@0glabs/0g-ts-sdk` and
+> `@0glabs/0g-serving-broker` are deprecated; use the `@0gfoundation/*` names above.
 
 ### 2. Create .env
 
@@ -74,8 +78,8 @@ Ask your AI assistant:
 
 > "Help me upload a file to 0G Storage"
 
-It should generate correct code using `@0glabs/0g-ts-sdk` with proper Merkle tree handling and file
-cleanup.
+It should generate correct code using `@0gfoundation/0g-storage-ts-sdk` with proper Merkle tree
+handling and file cleanup.
 
 ## Updating
 

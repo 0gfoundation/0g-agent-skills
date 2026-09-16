@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 import 'dotenv/config';
 
 async function chat(providerAddress: string, userMessage: string): Promise<string> {
@@ -8,7 +8,7 @@ async function chat(providerAddress: string, userMessage: string): Promise<strin
 
   const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY, provider);
-  const broker = await createZGComputeNetworkBroker(wallet as any);
+  const broker = await createZGComputeNetworkBroker(wallet);
 
   // Get provider endpoint and model
   const { endpoint, model } = await broker.inference.getServiceMetadata(providerAddress);

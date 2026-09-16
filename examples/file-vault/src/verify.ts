@@ -1,4 +1,4 @@
-import { ZgFile } from '@0glabs/0g-ts-sdk';
+import { ZgFile } from '@0gfoundation/0g-storage-ts-sdk';
 import * as fs from 'fs';
 
 async function verify(filePath: string): Promise<string> {

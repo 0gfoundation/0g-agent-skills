@@ -10,9 +10,9 @@
     "chat": "npx tsx src/chat.ts"
   },
   "dependencies": {
-    "@0glabs/0g-serving-broker": "^0.6.5",
+    "@0gfoundation/0g-compute-ts-sdk": "^0.9.0",
     "dotenv": "^16.4.0",
-    "ethers": "^6.13.0"
+    "ethers": "6.13.1"
   },
   "devDependencies": {
     "tsx": "^4.7.0",

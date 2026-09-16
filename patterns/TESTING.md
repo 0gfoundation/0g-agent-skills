@@ -25,7 +25,7 @@ Testing strategies, mock patterns, and testnet workflows for 0G applications.
 import { describe, it, expect, vi } from 'vitest';
 
 // Mock the 0G SDK
-vi.mock('@0glabs/0g-ts-sdk', () => ({
+vi.mock('@0gfoundation/0g-storage-ts-sdk', () => ({
   ZgFile: {
     fromFilePath: vi.fn().mockResolvedValue({
       merkleTree: vi.fn().mockResolvedValue([{ rootHash: () => '0xabc123' }, null]),
@@ -40,7 +40,7 @@ vi.mock('@0glabs/0g-ts-sdk', () => ({
 
 describe('Storage Upload', () => {
   it('should return root hash after upload', async () => {
-    const { ZgFile, Indexer } = await import('@0glabs/0g-ts-sdk');
+    const { ZgFile, Indexer } = await import('@0gfoundation/0g-storage-ts-sdk');
     const file = await ZgFile.fromFilePath('test.txt');
     const [tree] = await file.merkleTree();
     expect(tree.rootHash()).toBe('0xabc123');
@@ -51,7 +51,7 @@ describe('Storage Upload', () => {
 ### Mock Compute Broker
 
 ```typescript
-vi.mock('@0glabs/0g-serving-broker', () => ({
+vi.mock('@0gfoundation/0g-compute-ts-sdk', () => ({
   createZGComputeNetworkBroker: vi.fn().mockResolvedValue({
     inference: {
       listService: vi
@@ -177,7 +177,7 @@ forge test
 ```typescript
 import { describe, it, expect } from 'vitest';
 import { ethers } from 'ethers';
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 
 // Only run in integration test mode
 describe.skipIf(!process.env.RUN_INTEGRATION)('Storage Integration', () => {

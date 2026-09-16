@@ -2,6 +2,11 @@
 
 Generate images with AI on 0G Compute and store them on 0G decentralized storage.
 
+> **Network note:** at last verification the `text-to-image` service type existed on **0G mainnet
+> only** — testnet carried no image provider. `.env.example` therefore defaults to mainnet. Run
+> `npm run discover` first; if it reports zero providers, you are pointed at a network that has
+> none. Mainnet inference spends real 0G, so start with a single small image.
+
 ## Setup
 
 ```bash
@@ -42,14 +47,14 @@ npx tsx src/generate-and-store.ts <provider-address> "A futuristic city at sunse
 ┌───────────────┐     ┌───────────────┐
 │  0G Compute   │────>│  0G Storage   │
 │               │     │               │
-│  Flux Turbo   │     │  Root Hash    │
+│  image model  │     │  Root Hash    │
 │  (image gen)  │     │  (permanent)  │
 └───────────────┘     └───────────────┘
     Generate              Persist
 ```
 
 1. **Discover** — Find text-to-image providers on the 0G network.
-2. **Generate** — Send a prompt to Flux Turbo, get back an image.
+2. **Generate** — Send a prompt to the discovered image provider, get back an image.
 3. **Store** — Upload the generated image to 0G Storage for permanent, decentralized hosting.
 
 ## Key Concepts

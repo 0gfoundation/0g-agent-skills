@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: storage
-- **SDK**: `@0glabs/0g-ts-sdk` ^0.3.3, `ethers` ^6.13.0
+- **SDK**: `@0gfoundation/0g-storage-ts-sdk` ^1.2.12, `ethers` 6.13.1
 - **Activation Triggers**: "download file", "retrieve from 0G", "get file", "fetch from storage"
 
 ## Purpose
@@ -14,7 +14,7 @@ downloads with Merkle proof validation to ensure data integrity.
 ## Prerequisites
 
 - Node.js >= 18
-- `@0glabs/0g-ts-sdk` installed
+- `@0gfoundation/0g-storage-ts-sdk` installed
 - Root hash of the file to download
 - `.env` with `STORAGE_INDEXER`
 
@@ -44,7 +44,7 @@ downloads with Merkle proof validation to ensure data integrity.
 ### Basic Download
 
 ```typescript
-import { Indexer } from '@0glabs/0g-ts-sdk';
+import { Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import 'dotenv/config';
 
 async function downloadFile(rootHash: string, outputPath: string): Promise<void> {
@@ -68,7 +68,7 @@ await downloadFile('0xabc123...', './downloads/my-file.pdf');
 ### Download with Validation
 
 ```typescript
-import { Indexer } from '@0glabs/0g-ts-sdk';
+import { Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 import 'dotenv/config';

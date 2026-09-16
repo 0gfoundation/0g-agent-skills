@@ -1,4 +1,4 @@
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
 import { ethers } from 'ethers';
 import * as fs from 'fs';
 import 'dotenv/config';
@@ -27,10 +27,13 @@ async function upload(filePath: string): Promise<string> {
     console.log('Root hash:', rootHash);
 
     console.log('Uploading to 0G Storage...');
-    const [tx, uploadErr] = await indexer.upload(file, process.env.RPC_URL, wallet as any);
+    const [result, uploadErr] = await indexer.upload(file, process.env.RPC_URL, wallet);
     if (uploadErr) throw new Error(`Upload failed: ${uploadErr.message}`);
 
-    console.log('Upload complete! Tx:', tx);
+    // upload() returns a union: the singular shape for one file, the plural
+    // shape ({ txHashes, rootHashes, txSeqs }) when the file was fragmented.
+    const txHash = 'txHash' in result ? result.txHash : result.txHashes[0];
+    console.log('Upload complete! Tx:', txHash);
     return rootHash;
   } finally {
     await file.close();

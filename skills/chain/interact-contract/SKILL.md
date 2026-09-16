@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: chain
-- **SDK**: `ethers` ^6.13.0
+- **SDK**: `ethers` 6.13.1
 - **Activation Triggers**: "call contract", "read contract", "interact", "write contract", "contract
   function"
 
@@ -15,7 +15,7 @@ state-changing transactions, event listening, and gas estimation.
 ## Prerequisites
 
 - Node.js >= 18
-- `ethers` ^6.13.0 installed
+- `ethers` 6.13.1 installed
 - Contract ABI and address
 - `.env` with `PRIVATE_KEY`, `RPC_URL`
 
