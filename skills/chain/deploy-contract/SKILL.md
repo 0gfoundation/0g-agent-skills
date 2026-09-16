@@ -3,13 +3,13 @@
 ## Metadata
 
 - **Category**: chain
-- **SDK**: `ethers` ^6.13.0, Hardhat or Foundry
+- **SDK**: `ethers` 6.13.1, Hardhat or Foundry
 - **Activation Triggers**: "deploy contract", "Solidity", "0G Chain", "deploy smart contract"
 
 ## Purpose
 
-Deploy Solidity smart contracts to 0G Chain using Hardhat, Foundry, or ethers v6 directly. All
-contracts must be compiled with `evmVersion: "cancun"`.
+Deploy Solidity smart contracts to 0G Chain using Hardhat, Foundry, or ethers v6 directly. Compile
+with `evmVersion: "cancun"` — 0G Chain supports it and it produces the smallest bytecode.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ contracts must be compiled with `evmVersion: "cancun"`.
 ## Quick Workflow
 
 1. Write Solidity contract
-2. Configure compiler with `evmVersion: "cancun"`
+2. Configure compiler with `evmVersion: "cancun"` (recommended — see below)
 3. Compile contract
 4. Deploy to 0G testnet
 5. Verify on block explorer (optional)
@@ -30,7 +30,7 @@ contracts must be compiled with `evmVersion: "cancun"`.
 
 ### ALWAYS
 
-- Set `evmVersion: "cancun"` in compiler configuration
+- Set `evmVersion: "cancun"` in compiler configuration — smallest bytecode on 0G Chain
 - Use ethers v6 syntax (NOT v5)
 - Test on testnet before deploying to mainnet
 - Wait for deployment confirmation (`waitForDeployment()`)
@@ -38,7 +38,6 @@ contracts must be compiled with `evmVersion: "cancun"`.
 
 ### NEVER
 
-- Use any evmVersion other than `"cancun"` for 0G Chain
 - Use ethers v5 patterns (`.deployed()`, `contract.address`, etc.)
 - Deploy to mainnet without testnet testing
 - Hardcode private keys
@@ -167,9 +166,10 @@ await contract.waitForDeployment();
 ## Anti-Patterns
 
 ```typescript
-// BAD: Missing evmVersion
+// SUBOPTIMAL: no evmVersion — solc may target an older EVM than 0G supports,
+// producing larger, more expensive bytecode. It still deploys and runs.
 // hardhat.config.ts
-solidity: '0.8.24'; // WRONG — needs cancun setting
+solidity: '0.8.24';
 
 // BAD: ethers v5 deployment check
 await contract.deployed(); // v5! Use waitForDeployment()
@@ -181,15 +181,34 @@ console.log(contract.address); // v5! Use await contract.getAddress()
 await Contract.deploy(42); // May fail with insufficient funds
 ```
 
+## Choosing an EVM Target
+
+0G Chain is Cancun-capable, so `cancun` is the right default: solc can emit `MCOPY` for memory
+copies, which shrinks the deployed bytecode and lowers deploy gas.
+
+It is **not** a compatibility requirement. The same contract was compiled at four targets and
+deployed to both 0G testnet (16602) and mainnet (16661); every one deployed successfully and
+returned correct values from both a `pure` function and a memory-copy function:
+
+| `evmVersion` | Deploys & runs on 0G | Bytecode |
+| ------------ | -------------------- | -------- |
+| `cancun`     | yes                  | 1437 B   |
+| `shanghai`   | yes                  | 1479 B   |
+| `paris`      | yes                  | 1527 B   |
+| `london`     | yes                  | 1527 B   |
+
+So prefer `cancun` to save gas, but an older target inherited from a dependency or an existing
+toolchain will not break deployment. If you see `invalid opcode`, look for a cause other than
+`evmVersion` — that symptom is not produced by targeting an older EVM here.
+
 ## Common Errors & Fixes
 
-| Error                                       | Cause                   | Fix                        |
-| ------------------------------------------- | ----------------------- | -------------------------- |
-| `invalid opcode`                            | Wrong evmVersion        | Set `evmVersion: "cancun"` |
-| `insufficient funds`                        | Wallet empty            | Fund from faucet           |
-| `nonce too low`                             | Pending transaction     | Wait or increment nonce    |
-| `contract creation code storage out of gas` | Complex contract        | Increase gas limit         |
-| `cannot estimate gas`                       | Constructor will revert | Check constructor args     |
+| Error                                       | Cause                   | Fix                     |
+| ------------------------------------------- | ----------------------- | ----------------------- |
+| `insufficient funds`                        | Wallet empty            | Fund from faucet        |
+| `nonce too low`                             | Pending transaction     | Wait or increment nonce |
+| `contract creation code storage out of gas` | Complex contract        | Increase gas limit      |
+| `cannot estimate gas`                       | Constructor will revert | Check constructor args  |
 
 ## Related Skills
 

@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: compute
-- **SDK**: `@0glabs/0g-serving-broker` ^0.6.5, `ethers` ^6.13.0
+- **SDK**: `@0gfoundation/0g-compute-ts-sdk` ^0.9.0, `ethers` 6.13.1
 - **Activation Triggers**: "deposit", "transfer funds", "refund", "check balance", "account balance"
 
 ## Purpose
@@ -14,7 +14,7 @@ and Provider Sub-Accounts (one per provider, funds locked for that provider's se
 ## Prerequisites
 
 - Node.js >= 22
-- `@0glabs/0g-serving-broker` and `ethers` installed
+- `@0gfoundation/0g-compute-ts-sdk` and `ethers` installed
 - Wallet with 0G tokens
 - `.env` with `PRIVATE_KEY`, `RPC_URL`
 
@@ -50,16 +50,22 @@ Your Wallet
 
 ### ALWAYS
 
-- Check balance before making inference requests
+- Check `availableBalance` (not `totalBalance`) before making inference requests
+- Read ledger fields by name: `led.availableBalance`, `led.totalBalance`
 - Transfer funds to provider sub-account before using their services
+- Fund each provider sub-account with at least **1 0G**
+- Call `checkProviderSignerStatus()` before `acknowledged()` on a provider's first use
 - Wait 24 hours between refund request and completion
 - Keep buffer in sub-accounts for uninterrupted service
 - Acknowledge provider before first use (`acknowledgeProviderSigner`)
 - Use correct `processResponse()` param order: `(providerAddress, chatID, usageData)`
-- Extract ChatID from `ZG-Res-Key` header first, body as fallback (chatbot only)
+- Extract ChatID from `ZG-Res-Key` header first, body as fallback
 
 ### NEVER
 
+- Treat `getLedger()[2]` as available balance — index 2 is **total**, index 1 is **available**
+- Call `acknowledged(provider)` before that provider's sub-account exists — it reverts with
+  `AccountNotExists`
 - Initiate refund during active fine-tuning jobs
 - Lock all funds in sub-accounts (keep Main Account balance)
 - Forget the 24-hour lock period for refunds
@@ -72,7 +78,7 @@ Your Wallet
 
 ```typescript
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 import 'dotenv/config';
 
 async function checkBalance() {
@@ -80,16 +86,24 @@ async function checkBalance() {
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
   const broker = await createZGComputeNetworkBroker(wallet);
 
-  // getLedger() returns a tuple array: [address, totalBalance, availableBalance, ...]
-  const account = await broker.ledger.getLedger();
+  // getLedger() returns a hybrid tuple/object:
+  //   [user, availableBalance, totalBalance, additionalInfo]
+  // Index 1 is AVAILABLE and index 2 is TOTAL — prefer named access so the
+  // order can never bite you.
+  const led = await broker.ledger.getLedger();
 
-  console.log(`Address: ${account[0]}`);
-  console.log(`Total Balance: ${ethers.formatEther(account[1])} 0G`);
-  console.log(`Available: ${ethers.formatEther(account[2])} 0G`);
+  console.log(`Address:   ${led.user}`);
+  console.log(`Total:     ${ethers.formatEther(led.totalBalance)} 0G`);
+  console.log(`Available: ${ethers.formatEther(led.availableBalance)} 0G`);
+  console.log(`Locked:    ${ethers.formatEther(led.totalBalance - led.availableBalance)} 0G`);
 
-  return account;
+  return led;
 }
 ```
+
+`totalBalance` counts everything you have deposited, **including** funds already transferred into
+provider sub-accounts. `availableBalance` is what remains unlocked and spendable. Always base
+funding decisions on `availableBalance`.
 
 ### Deposit and Transfer
 
@@ -172,9 +186,9 @@ async function setupForProvider(providerAddress: string) {
   const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
   const broker = await createZGComputeNetworkBroker(wallet);
 
-  // 1. Check current balance (tuple: [0]=addr, [1]=total, [2]=available)
-  const account = await broker.ledger.getLedger();
-  const available = parseFloat(ethers.formatEther(account[2]));
+  // 1. Check current balance — availableBalance, never totalBalance
+  const led = await broker.ledger.getLedger();
+  const available = parseFloat(ethers.formatEther(led.availableBalance));
   console.log(`Available balance: ${available} 0G`);
 
   // 2. Deposit if needed
@@ -183,17 +197,87 @@ async function setupForProvider(providerAddress: string) {
     console.log('Deposited 10 0G');
   }
 
-  // 3. Transfer to provider
+  // 3. Transfer to provider. Use at least 1 0G — the SDK warns below that and
+  //    providers may reject requests against an underfunded sub-account.
   await broker.ledger.transferFund(providerAddress, 'inference', ethers.parseEther('5'));
   console.log('Transferred 5 0G to provider');
 
-  // 4. Acknowledge provider
-  await broker.inference.acknowledgeProviderSigner(providerAddress);
-  console.log('Provider acknowledged');
+  // 4. Acknowledge provider. checkProviderSignerStatus() is safe to call before
+  //    a sub-account exists; acknowledged() reverts with AccountNotExists.
+  const status = await broker.inference.checkProviderSignerStatus(providerAddress);
+  if (!status.isAcknowledged) {
+    await broker.inference.acknowledgeProviderSigner(providerAddress);
+    console.log('Provider acknowledged');
+  } else {
+    console.log(`Already acknowledged (TEE signer ${status.teeSignerAddress})`);
+  }
 
   console.log('Account setup complete — ready for inference');
 }
 ```
+
+### Background Auto-Funding
+
+Instead of checking balances by hand before every request, let the broker top up the sub-account on
+a timer. This runs in the background, so `getRequestHeaders()` takes no extra latency.
+
+```typescript
+async function withAutoFunding(providerAddress: string) {
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+  const broker = await createZGComputeNetworkBroker(wallet);
+
+  // requiredBalance = unsettledFee + bufferMultiplier * MIN_LOCKED_BALANCE
+  await broker.inference.startAutoFunding(providerAddress, {
+    interval: 30_000, // check every 30s (default)
+    bufferMultiplier: 2, // keep 2x the minimum locked balance (default)
+  });
+
+  try {
+    // ... issue as many inference requests as you like ...
+  } finally {
+    broker.inference.stopAutoFunding(providerAddress); // omit arg to stop all
+  }
+}
+```
+
+Auto-funding draws from the ledger's `availableBalance`. If that runs dry the SDK logs a warning
+telling you to `broker.ledger.depositFund(n)` — it cannot invent funds.
+
+### Revoking API Keys
+
+`getRequestHeaders()` mints a bearer token for the provider. Tokens come in two kinds:
+
+- **Persistent** — `tokenId` 0–254. Individually revocable; the slot stays occupied until you revoke
+  everything.
+- **Ephemeral** — `tokenId` 255. **Cannot** be revoked individually; only `revokeAllTokens()`
+  invalidates them.
+
+```typescript
+async function revokeOne(providerAddress: string, tokenId: number) {
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+  const broker = await createZGComputeNetworkBroker(wallet);
+
+  // Throws if tokenId is 255 (ephemeral) — use revokeAllTokens() for those.
+  await broker.inference.revokeApiKey(providerAddress, tokenId);
+  console.log(`Token ${tokenId} revoked; its API key is now invalid`);
+}
+
+async function revokeEverything(providerAddress: string) {
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+  const broker = await createZGComputeNetworkBroker(wallet);
+
+  // Bumps the generation counter and resets the revocation bitmap: every key
+  // (persistent AND ephemeral) becomes invalid and all 255 slots are reclaimed.
+  await broker.inference.revokeAllTokens(providerAddress);
+  console.log('All API keys for this provider revoked');
+}
+```
+
+Reach for `revokeAllTokens()` if a key may have leaked, or when you have exhausted the 255
+persistent slots and need to reclaim them.
 
 ### Error Handling
 
@@ -204,9 +288,9 @@ async function safeFundProvider(providerAddress: string, amount: number) {
   const broker = await createZGComputeNetworkBroker(wallet);
 
   try {
-    // Tuple: [0]=address, [1]=totalBalance, [2]=availableBalance
-    const account = await broker.ledger.getLedger();
-    const available = parseFloat(ethers.formatEther(account[2]));
+    // [user, availableBalance, totalBalance, additionalInfo] — use named access
+    const led = await broker.ledger.getLedger();
+    const available = parseFloat(ethers.formatEther(led.availableBalance));
 
     if (available < amount) {
       const depositNeeded = amount - available + 1; // +1 buffer
