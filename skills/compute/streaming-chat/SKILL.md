@@ -3,29 +3,47 @@
 ## Metadata
 
 - **Category**: compute
-- **SDK**: `@0glabs/0g-serving-broker` ^0.6.5, `ethers` ^6.13.0
-- **Activation Triggers**: "chatbot", "inference", "LLM", "DeepSeek", "streaming chat", "AI chat"
+- **SDK**: `@0gfoundation/0g-compute-ts-sdk` ^0.9.0, `ethers` 6.13.1
+- **Activation Triggers**: "chatbot", "inference", "LLM", "streaming chat", "AI chat", "GLM",
+  "Claude", "GPT", "Qwen", "DeepSeek"
 
 ## Purpose
 
-Run conversational AI inference using 0G Compute Network providers. Supports streaming and
-non-streaming modes with models like DeepSeek V3.1, Qwen, Gemma, and GPT-OSS.
+Run conversational AI inference using 0G Compute Network providers (`serviceType: chatbot`).
+Supports streaming and non-streaming modes. Some providers serve a single model; others are
+**multi-model routers** serving dozens behind one address.
+
+## Models
+
+Discover models at runtime — **never hardcode an id from this document**. The roster changes often.
+
+```typescript
+const { multiModel, defaultModel, models } =
+  await broker.inference.getProviderModels(providerAddress);
+```
+
+At last verification 0G mainnet had 9 `chatbot` providers. Their on-chain defaults included
+`zai-org/GLM-5-FP8`, `claude-opus-5`, `claude-fable-5`, `qwen3.7-plus`, `glm-5.3`,
+`openai/gpt-5.4-mini`, `openai/gpt-oss-20b` and 0G's own `0GM-1.0-35B-A3B`. Two of those providers
+are multi-model routers, together advertising well over 100 ids across the Claude, GPT, Gemini,
+DeepSeek, Qwen, GLM, Kimi and ERNIE families, with context windows from 32K to ~1.4M.
 
 ## Prerequisites
 
-- Node.js >= 22
-- `@0glabs/0g-serving-broker` and `ethers` installed
-- Funded and acknowledged provider
+- Node.js >= 20
+- `@0gfoundation/0g-compute-ts-sdk` and `ethers` installed
+- Funded and acknowledged provider (sub-account funded with at least 1 0G)
 - `.env` with `PRIVATE_KEY`, `RPC_URL`, `PROVIDER_ADDRESS`
 
 ## Quick Workflow
 
 1. Initialize broker
-2. Get service metadata (endpoint, model)
-3. Generate auth headers
-4. Make chat completion request
-5. Extract ChatID from `ZG-Res-Key` header (body fallback)
-6. **Call `processResponse(providerAddress, chatID, usageData)`** — CRITICAL
+2. (Optional) `getProviderModels(provider)` to pick a specific model
+3. Get service metadata: `getServiceMetadata(provider, model?)`
+4. Generate auth headers
+5. Make chat completion request
+6. Extract ChatID from the `ZG-Res-Key` header (body fallback)
+7. **Call `processResponse(providerAddress, chatID, usageData)`** — CRITICAL
 
 ## Core Rules
 
@@ -33,14 +51,22 @@ non-streaming modes with models like DeepSeek V3.1, Qwen, Gemma, and GPT-OSS.
 
 - Call `processResponse()` after EVERY inference request
 - Use correct param order: `processResponse(providerAddress, chatID, usageData)`
-- Extract ChatID from `ZG-Res-Key` header FIRST, use `data.id` as fallback (chatbot only)
+- Extract ChatID from `ZG-Res-Key` header FIRST, use `data.id` as fallback
+- Spread the headers from `getRequestHeaders()` (`...headers`) rather than naming individual headers
+  — the exact set is an implementation detail and has changed between SDK versions
+- Pass a model id to `getServiceMetadata(provider, model)` when targeting a multi-model provider
 - Acknowledge provider before first use
-- Check balance before making requests
+- Check `availableBalance` before making requests
+- Set a generous `max_tokens` for reasoning models — they spend budget on hidden reasoning tokens
+  and will return empty `content` if the cap is too low
 
 ### NEVER
 
 - Skip `processResponse()` — causes fee settlement failure
 - Reverse the parameter order of `processResponse()`
+- Use `data.id` when the `ZG-Res-Key` header is present — they differ (the header is a bare UUID,
+  `data.id` is prefixed `chatcmpl-<uuid>`), and the wrong id fails verification
+- Assume `getServiceMetadata()` gives you the only model a provider serves
 - Hardcode private keys
 - Use ethers v5 syntax
 
@@ -50,7 +76,7 @@ non-streaming modes with models like DeepSeek V3.1, Qwen, Gemma, and GPT-OSS.
 
 ```typescript
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 import 'dotenv/config';
 
 async function chat(userMessage: string): Promise<string> {
@@ -85,6 +111,67 @@ async function chat(userMessage: string): Promise<string> {
 // Usage
 const reply = await chat('What is 0G?');
 console.log(reply);
+```
+
+### Selecting a Model on a Multi-Model Provider
+
+Pass the model id as the second argument to `getServiceMetadata()`. The id is forwarded as-is; the
+provider validates it, bills that model's price, and rejects an unknown id server-side.
+
+```typescript
+async function chatWithModel(userMessage: string, wantedModel: string): Promise<string> {
+  const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
+  const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
+  const broker = await createZGComputeNetworkBroker(wallet);
+  const providerAddress = process.env.PROVIDER_ADDRESS!;
+
+  // Confirm the provider actually serves it before spending anything
+  const { multiModel, models } = await broker.inference.getProviderModels(providerAddress);
+  const match = models.find((m) => m.id === wantedModel || m.canonical_id === wantedModel);
+  if (!match) {
+    throw new Error(
+      `${providerAddress} does not serve "${wantedModel}". ` +
+        `multiModel=${multiModel}; available: ${models.map((m) => m.id).join(', ')}`,
+    );
+  }
+
+  // Omitting the 2nd arg would silently use the provider's DEFAULT model
+  const { endpoint, model } = await broker.inference.getServiceMetadata(providerAddress, match.id);
+  const headers = await broker.inference.getRequestHeaders(providerAddress, userMessage);
+
+  const response = await fetch(`${endpoint}/chat/completions`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...headers },
+    body: JSON.stringify({
+      model, // the resolved model, not `wantedModel`
+      messages: [{ role: 'user', content: userMessage }],
+      max_tokens: 1024,
+    }),
+  });
+
+  const data = await response.json();
+
+  let chatID = response.headers.get('ZG-Res-Key') || response.headers.get('zg-res-key');
+  if (!chatID) chatID = data.id;
+  await broker.inference.processResponse(providerAddress, chatID, JSON.stringify(data.usage));
+
+  return data.choices[0].message.content;
+}
+```
+
+Model metadata also tells you what a model can accept and what it costs, so you can choose without
+trial and error:
+
+```typescript
+for (const m of models) {
+  console.log({
+    id: m.id,
+    context: m.context_length,
+    inputs: m.architecture?.input_modalities, // e.g. ['text', 'image']
+    promptUsd: m.pricing_usd?.prompt, // decimal string per prompt token
+    completionUsd: m.pricing_usd?.completion,
+  });
+}
 ```
 
 ### Streaming Chat

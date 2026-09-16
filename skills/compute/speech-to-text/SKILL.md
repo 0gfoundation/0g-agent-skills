@@ -3,18 +3,44 @@
 ## Metadata
 
 - **Category**: compute
-- **SDK**: `@0glabs/0g-serving-broker` ^0.6.5, `ethers` ^6.13.0
+- **SDK**: `@0gfoundation/0g-compute-ts-sdk` ^0.9.0, `ethers` 6.13.1
 - **Activation Triggers**: "transcribe", "speech-to-text", "Whisper", "audio transcription"
 
 ## Purpose
 
-Transcribe audio files using 0G Compute Network providers running Whisper Large V3. Supports
+Transcribe audio files using 0G Compute Network providers (`serviceType: speech-to-text`). Supports
 multiple audio formats and output types (JSON, text, SRT subtitles).
+
+## Models
+
+At last verification 0G mainnet had one `speech-to-text` provider serving `openai/whisper-large-v3`.
+Testnet had none. Discover at runtime rather than hardcoding.
+
+## Billing: two usage shapes
+
+Speech-to-text providers bill in one of two ways, and the `usage` object in the response tells you
+which. Pass it through to `processResponse()` verbatim — do not normalise or reshape it:
+
+| Shape                                                  | Billing                            |
+| ------------------------------------------------------ | ---------------------------------- |
+| `{"type":"duration","seconds":N}`                      | per second, against `inputPrice`   |
+| `{"type":"tokens","input_tokens":N,"output_tokens":N}` | per token, input and output priced |
+
+```typescript
+// RIGHT — forward whatever the provider returned, unchanged
+await broker.inference.processResponse(
+  providerAddress,
+  chatID,
+  data.usage ? JSON.stringify(data.usage) : undefined,
+);
+```
+
+Because both shapes are possible, never hand-build the usage string or assume token fields exist.
 
 ## Prerequisites
 
-- Node.js >= 22
-- `@0glabs/0g-serving-broker` and `ethers` installed
+- Node.js >= 20
+- `@0gfoundation/0g-compute-ts-sdk` and `ethers` installed
 - Funded and acknowledged provider with `speech-to-text` service
 - Audio file in supported format (mp3, wav, ogg, flac, webm)
 - `.env` with `PRIVATE_KEY`, `RPC_URL`, `PROVIDER_ADDRESS`
@@ -37,11 +63,13 @@ multiple audio formats and output types (JSON, text, SRT subtitles).
 - Get ChatID from `ZG-Res-Key` header (no body fallback for speech)
 - Call `processResponse()` after every transcription
 - Use correct `processResponse()` param order: `(providerAddress, chatID, usageData)`
-- Include usage data if available in response
+- Forward the response's `usage` object verbatim — it may be duration-billed or token-billed
 - Acknowledge provider before first use
 
 ### NEVER
 
+- Assume the `usage` object has token fields — duration-billed providers return
+  `{"type":"duration","seconds":N}` instead
 - Send audio as base64 in JSON body (use FormData)
 - Skip `processResponse()` after transcription
 - Try to get ChatID from response body for speech-to-text
@@ -54,7 +82,7 @@ multiple audio formats and output types (JSON, text, SRT subtitles).
 
 ```typescript
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 import * as fs from 'fs';
 import 'dotenv/config';
 

@@ -6,7 +6,7 @@ This repo turns Claude Code, Cursor, and GitHub Copilot into expert 0G developer
 a file to 0G Storage"_ or _"build a chatbot on 0G Compute"_ and get correct, working TypeScript code
 — every time.
 
-**14 skills. 6 architecture references. 3 IDE setups. Zero build step.**
+**17 skills. 6 architecture references. 3 IDE setups. Zero build step.**
 
 ---
 
@@ -30,12 +30,18 @@ git clone https://github.com/0gfoundation/0g-agent-skills .0g-skills
 
 ```bash
 # Everything
-npm install @0glabs/0g-ts-sdk @0glabs/0g-serving-broker ethers dotenv
+npm install @0gfoundation/0g-storage-ts-sdk @0gfoundation/0g-compute-ts-sdk ethers@6.13.1 dotenv
 
 # Or just what you need
-npm install @0glabs/0g-ts-sdk ethers dotenv          # Storage only
-npm install @0glabs/0g-serving-broker ethers dotenv   # Compute only
+npm install @0gfoundation/0g-storage-ts-sdk ethers@6.13.1 dotenv   # Storage only
+npm install @0gfoundation/0g-compute-ts-sdk ethers@6.13.1 dotenv   # Compute only
 ```
+
+> **Pin `ethers` to exactly `6.13.1`.** The storage SDK declares an exact peer dependency on that
+> version, so a caret range resolves to a newer ethers and `npm install` fails with `ERESOLVE`.
+>
+> The older `@0glabs/0g-ts-sdk` and `@0glabs/0g-serving-broker` packages are **deprecated** on npm
+> and renamed to the `@0gfoundation/*` packages above.
 
 ### 4. Create `.env`
 
@@ -73,22 +79,25 @@ Ask your AI assistant anything. Try these:
 
 ### Compute — AI inference on decentralized GPUs
 
-| Skill                                                            | What it does                                                                                       | Say this to activate          |
-| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------- |
-| [Streaming Chat](skills/compute/streaming-chat/SKILL.md)         | Conversational AI with DeepSeek V3.1, Qwen, Gemma, GPT-OSS. Streaming + non-streaming.             | _"build a chatbot with 0G"_   |
-| [Text to Image](skills/compute/text-to-image/SKILL.md)           | Generate images from text prompts using Flux Turbo. Multiple resolutions, batch support.           | _"generate an image with 0G"_ |
-| [Speech to Text](skills/compute/speech-to-text/SKILL.md)         | Transcribe audio with Whisper Large V3. Outputs JSON, plain text, or SRT subtitles.                | _"transcribe audio with 0G"_  |
-| [Provider Discovery](skills/compute/provider-discovery/SKILL.md) | List providers, check TEE verification, acknowledge before first use.                              | _"find a compute provider"_   |
-| [Account Management](skills/compute/account-management/SKILL.md) | Deposit, transfer, refund, and withdraw across the dual-account system.                            | _"deposit funds for compute"_ |
-| [Fine-Tuning](skills/compute/fine-tuning/SKILL.md)               | Train custom models on distributed GPUs. Upload data, monitor, download results. **Testnet only.** | _"fine-tune a model on 0G"_   |
+| Skill                                                            | What it does                                                                                             | Say this to activate          |
+| ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------- |
+| [Streaming Chat](skills/compute/streaming-chat/SKILL.md)         | Conversational AI across GLM, Claude, GPT, Qwen, DeepSeek and 0GM models, including multi-model routers. | _"build a chatbot with 0G"_   |
+| [Text to Image](skills/compute/text-to-image/SKILL.md)           | Generate images from text prompts. Multiple resolutions, batch support.                                  | _"generate an image with 0G"_ |
+| [Image Editing](skills/compute/image-editing/SKILL.md)           | Prompt-driven edits to an existing image.                                                                | _"edit this image with 0G"_   |
+| [Video Generation](skills/compute/video-generation/SKILL.md)     | Text-to-video and image-to-video clips via an async submit/poll/download flow.                           | _"generate a video with 0G"_  |
+| [Embeddings](skills/compute/embeddings/SKILL.md)                 | Dense vectors for semantic search, clustering and RAG.                                                   | _"embed text with 0G"_        |
+| [Speech to Text](skills/compute/speech-to-text/SKILL.md)         | Transcribe audio with Whisper Large V3. Outputs JSON, plain text, or SRT subtitles.                      | _"transcribe audio with 0G"_  |
+| [Provider Discovery](skills/compute/provider-discovery/SKILL.md) | List providers and their full model catalogs, check TEE verification and live health metrics.            | _"find a compute provider"_   |
+| [Account Management](skills/compute/account-management/SKILL.md) | Deposit, transfer, refund, withdraw, auto-fund, and revoke API keys.                                     | _"deposit funds for compute"_ |
+| [Fine-Tuning](skills/compute/fine-tuning/SKILL.md)               | Train custom models on distributed GPUs, then deploy the result as a LoRA adapter.                       | _"fine-tune a model on 0G"_   |
 
 ### Chain — Smart contracts on 0G's EVM L1
 
-| Skill                                                        | What it does                                                                                   | Say this to activate            |
-| ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------- | ------------------------------- |
-| [Deploy Contract](skills/chain/deploy-contract/SKILL.md)     | Deploy Solidity contracts via Hardhat, Foundry, or ethers v6. Requires `evmVersion: "cancun"`. | _"deploy a contract to 0G"_     |
-| [Interact Contract](skills/chain/interact-contract/SKILL.md) | Read state, send transactions, listen to events, estimate gas — all ethers v6.                 | _"call a contract on 0G Chain"_ |
-| [Scaffold Project](skills/chain/scaffold-project/SKILL.md)   | Generate a new project with correct SDKs, TypeScript config, and boilerplate.                  | _"create a new 0G project"_     |
+| Skill                                                        | What it does                                                                                  | Say this to activate            |
+| ------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ------------------------------- |
+| [Deploy Contract](skills/chain/deploy-contract/SKILL.md)     | Deploy Solidity contracts via Hardhat, Foundry, or ethers v6. Prefers `evmVersion: "cancun"`. | _"deploy a contract to 0G"_     |
+| [Interact Contract](skills/chain/interact-contract/SKILL.md) | Read state, send transactions, listen to events, estimate gas — all ethers v6.                | _"call a contract on 0G Chain"_ |
+| [Scaffold Project](skills/chain/scaffold-project/SKILL.md)   | Generate a new project with correct SDKs, TypeScript config, and boilerplate.                 | _"create a new 0G project"_     |
 
 ### Cross-Layer — Full-stack decentralized apps
 
@@ -184,11 +193,11 @@ Deep-dive documents for when you need to understand _how_ things work:
 
 ## SDKs
 
-| Package                                                                                | Version | Layer                      |
-| -------------------------------------------------------------------------------------- | ------- | -------------------------- |
-| [`@0glabs/0g-ts-sdk`](https://www.npmjs.com/package/@0glabs/0g-ts-sdk)                 | ^0.3.3  | Storage                    |
-| [`@0glabs/0g-serving-broker`](https://www.npmjs.com/package/@0glabs/0g-serving-broker) | ^0.6.5  | Compute                    |
-| [`ethers`](https://docs.ethers.org/v6/)                                                | ^6.13.0 | Chain (v6 only — never v5) |
+| Package                                                                                            | Version | Layer                      |
+| -------------------------------------------------------------------------------------------------- | ------- | -------------------------- |
+| [`@0gfoundation/0g-storage-ts-sdk`](https://www.npmjs.com/package/@0gfoundation/0g-storage-ts-sdk) | ^1.2.12 | Storage                    |
+| [`@0gfoundation/0g-compute-ts-sdk`](https://www.npmjs.com/package/@0gfoundation/0g-compute-ts-sdk) | ^0.9.0  | Compute                    |
+| [`ethers`](https://docs.ethers.org/v6/)                                                            | 6.13.1  | Chain (v6 only, exact pin) |
 
 ---
 

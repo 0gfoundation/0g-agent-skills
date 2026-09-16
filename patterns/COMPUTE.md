@@ -10,7 +10,7 @@ compute.
 │         Your Application           │
 ├────────────────────────────────────┤
 │     0G Serving Broker SDK          │
-│  (@0glabs/0g-serving-broker)       │
+│  (@0gfoundation/0g-compute-ts-sdk)       │
 ├────────────────────────────────────┤
 │      Provider Network              │
 │  (TEE-verified GPU nodes)          │
@@ -22,11 +22,33 @@ compute.
 
 ## Service Types
 
-| Type             | Endpoint Path           | Models                              | Use Case            |
-| ---------------- | ----------------------- | ----------------------------------- | ------------------- |
-| `chatbot`        | `/chat/completions`     | DeepSeek V3.1, Qwen, Gemma, GPT-OSS | Conversational AI   |
-| `text-to-image`  | `/images/generations`   | Flux Turbo                          | Image generation    |
-| `speech-to-text` | `/audio/transcriptions` | Whisper Large V3                    | Audio transcription |
+All paths are relative to the `endpoint` returned by `getServiceMetadata()` and are
+OpenAI-compatible. Model ids change frequently — discover them with `listService()` and
+`getProviderModels()` rather than hardcoding.
+
+| `serviceType`      | Endpoint Path(s)                                                       | `processResponse()` |
+| ------------------ | ---------------------------------------------------------------------- | ------------------- |
+| `chatbot`          | `POST /chat/completions`                                               | supported           |
+| `text-to-image`    | `POST /images/generations`                                             | supported           |
+| `image-editing`    | `POST /images/edits`                                                   | supported           |
+| `speech-to-text`   | `POST /audio/transcriptions`                                           | supported           |
+| `embedding`        | `POST /embeddings`                                                     | **throws**          |
+| `video-generation` | `POST /videos`, `GET /videos/{id}`, `GET /videos/{id}/content` (async) | **throws**          |
+
+### `processResponse()` only covers four service types
+
+SDK 0.9.0 builds a response extractor by switching on `serviceType`, and the switch has exactly four
+arms — `chatbot`, `text-to-image`, `image-editing`, `speech-to-text`. Anything else hits the
+`default` branch:
+
+```
+Error: Unknown service type
+```
+
+So for `embedding` and `video-generation` you must **not** call `processResponse()`. The request is
+still billed and settled — the signed headers from `getRequestHeaders()` are the settlement proof —
+but you forgo local fee caching (which auto-funding relies on) and response signature verification.
+Manage those sub-account balances explicitly.
 
 ## Broker Lifecycle
 
@@ -34,7 +56,7 @@ compute.
 
 ```typescript
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 
 const provider = new ethers.JsonRpcProvider(process.env.RPC_URL);
 const wallet = new ethers.Wallet(process.env.PRIVATE_KEY!, provider);
