@@ -5,6 +5,9 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+  schedule:
+    # Weekly, so upstream deprecations and releases surface on their own.
+    - cron: '0 6 * * 1'
 
 jobs:
   format:
@@ -30,13 +33,15 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Install SDK type stubs
-        run: npm install --no-save @0glabs/0g-ts-sdk@^0.3.3 @0glabs/0g-serving-broker@^0.6.5 ethers@^6.13.0
+        run: npm install --no-save @0gfoundation/0g-storage-ts-sdk@^1.2.12 @0gfoundation/0g-compute-ts-sdk@^0.9.0 ethers@6.13.1
       - name: Extract and type-check code blocks
         run: npm run ci:extract
       - name: Validate SDK versions
         run: npm run ci:versions
       - name: Lint critical rules
         run: npm run ci:lint
+      - name: Validate manifests against filesystem
+        run: npm run ci:manifests
 
   build-examples:
     name: Build Examples
@@ -54,3 +59,43 @@ jobs:
         run: |
           npm install
           npx tsc --noEmit
+
+  sdk-freshness:
+    name: SDK Freshness
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # Every package this repo teaches must still be supported upstream.
+      # The predecessors (@0glabs/0g-ts-sdk, @0glabs/0g-serving-broker) were
+      # deprecated and renamed, and nothing here noticed for months.
+      - name: Fail if any pinned SDK is deprecated
+        run: |
+          set -euo pipefail
+          status=0
+          for pkg in @0gfoundation/0g-storage-ts-sdk @0gfoundation/0g-compute-ts-sdk ethers; do
+            msg="$(npm view "$pkg" deprecated 2>/dev/null || true)"
+            if [ -n "$msg" ]; then
+              echo "::error::$pkg is DEPRECATED upstream: $msg"
+              status=1
+            else
+              echo "ok: $pkg is not deprecated"
+            fi
+          done
+          exit $status
+      - name: Warn if a newer SDK version is published
+        run: |
+          set -euo pipefail
+          check() {
+            pinned="$2"
+            latest="$(npm view "$1" version)"
+            if [ "$latest" != "$pinned" ]; then
+              echo "::warning::$1 pinned at $pinned but $latest is published"
+            else
+              echo "ok: $1 is at the latest version ($latest)"
+            fi
+          }
+          check @0gfoundation/0g-storage-ts-sdk 1.2.12
+          check @0gfoundation/0g-compute-ts-sdk 0.9.0

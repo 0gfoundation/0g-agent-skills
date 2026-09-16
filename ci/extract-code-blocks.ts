@@ -21,17 +21,25 @@ const TMP_DIR = path.join(__dirname, '.tmp');
 // Imports to skip entirely (non-SDK external modules)
 const SKIP_IMPORTS = ['hardhat', 'vitest', 'chai', 'mocha', 'solc'];
 
-// Error codes to suppress (known SDK issues, not code quality problems)
-const SUPPRESSED_ERRORS = [
-  'TS2345', // Wallet not assignable to Signer (ESM/CJS mismatch — known SDK issue)
-  'TS2488', // Symbol.iterator (SDK type issue)
-];
+// Error codes to suppress.
+//
+// Only snippet artefacts belong here — errors caused by a doc block being a
+// fragment rather than a whole program. NEVER suppress a type error coming
+// from real SDK usage: TS2345 and TS2488 used to be listed here as "known SDK
+// issues" and between them they hid a genuine runtime bug
+// (fineTuning.getAccountWithDetail() destructured as a tuple when it resolves
+// to an object) for as long as they were suppressed. Both are now clean under
+// @0gfoundation/*, so if either reappears it is a real defect — fix the code.
+const SUPPRESSED_ERRORS: string[] = [];
 
 // Import preamble for blocks that don't have their own imports
 const PREAMBLE = `
 import { ethers } from 'ethers';
-import { ZgFile, Indexer } from '@0glabs/0g-ts-sdk';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { ZgFile, Indexer } from '@0gfoundation/0g-storage-ts-sdk';
+import {
+  createZGComputeNetworkBroker,
+  createReadOnlyInferenceBroker,
+} from '@0gfoundation/0g-compute-ts-sdk';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';

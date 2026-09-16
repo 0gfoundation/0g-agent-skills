@@ -114,12 +114,16 @@ function lintChainSkill(filePath: string, content: string): LintError[] {
   const errors: LintError[] = [];
   const relPath = path.relative(ROOT, filePath);
 
-  // Check that evmVersion "cancun" is mentioned
+  // "cancun" is the RECOMMENDED target for 0G Chain: it is supported on both
+  // mainnet and testnet and yields the smallest bytecode. Older targets
+  // (shanghai/paris/london) also deploy and run correctly — verified on-chain —
+  // so this is a gas optimisation, not a compatibility requirement. We only
+  // check that a skill discussing evmVersion actually recommends cancun.
   if (content.includes('evmVersion') && !content.includes('"cancun"') && !content.includes("'cancun'")) {
     errors.push({
       file: relPath,
       rule: 'evmVersion',
-      message: 'Chain skill references evmVersion but does not use "cancun"',
+      message: 'Chain skill references evmVersion but never recommends "cancun"',
     });
   }
 

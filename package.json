@@ -1,6 +1,6 @@
 {
   "name": "agent-skills-0g",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "AI agent skills for building on the 0G decentralized AI operating system — Storage, Compute, and Chain",
   "author": "0G Foundation",
   "license": "MIT",
@@ -26,7 +26,8 @@
     "ci:extract": "npx tsx ci/extract-code-blocks.ts",
     "ci:versions": "npx tsx ci/validate-sdk-versions.ts",
     "ci:lint": "npx tsx ci/lint-critical-rules.ts",
-    "ci:all": "npm run ci:extract && npm run ci:versions && npm run ci:lint"
+    "ci:manifests": "npx tsx ci/validate-manifests.ts",
+    "ci:all": "npm run ci:extract && npm run ci:versions && npm run ci:lint && npm run ci:manifests"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
@@ -36,14 +37,14 @@
   },
   "agentSkills": {
     "name": "0G Agent Skills",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "categories": [
       "storage",
       "compute",
       "chain",
       "cross-layer"
     ],
-    "skillCount": 14,
+    "skillCount": 17,
     "entryPoints": {
       "claude-code": "CLAUDE.md",
       "cursor": "setups/cursor/README.md",
