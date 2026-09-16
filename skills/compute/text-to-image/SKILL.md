@@ -3,19 +3,30 @@
 ## Metadata
 
 - **Category**: compute
-- **SDK**: `@0glabs/0g-serving-broker` ^0.6.5, `ethers` ^6.13.0
-- **Activation Triggers**: "generate image", "text-to-image", "Flux", "image generation", "create
-  image"
+- **SDK**: `@0gfoundation/0g-compute-ts-sdk` ^0.9.0, `ethers` 6.13.1
+- **Activation Triggers**: "generate image", "text-to-image", "image generation", "create image"
 
 ## Purpose
 
-Generate images from text prompts using 0G Compute Network providers running Flux Turbo. Supports
-multiple resolutions and batch generation.
+Generate images from text prompts using 0G Compute Network providers (`serviceType: text-to-image`).
+Supports multiple resolutions and batch generation.
+
+To edit an **existing** image rather than generate a new one, use
+[Image Editing](../image-editing/SKILL.md) (`serviceType: image-editing`) instead.
+
+## Models
+
+Discover at runtime; do not hardcode. At last verification 0G mainnet had one `text-to-image`
+provider whose default model was `z-image-turbo`. Testnet had **no** `text-to-image` provider —
+check availability before targeting testnet.
+
+Image models are billed per generated image rather than per token. Look at `m.pricing?.image` /
+`m.pricing_usd?.image` from `getProviderModels()`.
 
 ## Prerequisites
 
-- Node.js >= 22
-- `@0glabs/0g-serving-broker` and `ethers` installed
+- Node.js >= 20
+- `@0gfoundation/0g-compute-ts-sdk` and `ethers` installed
 - Funded and acknowledged provider with `text-to-image` service
 - `.env` with `PRIVATE_KEY`, `RPC_URL`, `PROVIDER_ADDRESS`
 
@@ -54,7 +65,7 @@ multiple resolutions and batch generation.
 
 ```typescript
 import { ethers } from 'ethers';
-import { createZGComputeNetworkBroker } from '@0glabs/0g-serving-broker';
+import { createZGComputeNetworkBroker } from '@0gfoundation/0g-compute-ts-sdk';
 import * as fs from 'fs';
 import 'dotenv/config';
 
