@@ -6,7 +6,7 @@ This repo turns Claude Code, Cursor, and GitHub Copilot into expert 0G developer
 a file to 0G Storage"_ or _"build a chatbot on 0G Compute"_ and get correct, working TypeScript code
 every time.
 
-**20 skills. 6 architecture references. 3 IDE setups. Zero build step.**
+**25 skills. 7 architecture references. 3 IDE setups. Zero build step.**
 
 ---
 
@@ -69,13 +69,13 @@ Ask your AI assistant anything. Try these:
 
 ## Skills Catalog
 
-The 20 skills split into two groups that point in opposite directions. Pick the one that matches
-what you are trying to do.
+The 25 skills split into three groups. Pick the one that matches what you are trying to do.
 
 | Group                                 | What it does                            | Count | Works in                     |
 | ------------------------------------- | --------------------------------------- | ----- | ---------------------------- |
 | [Private Computer](#private-computer) | Runs Claude Code itself on 0G models    | 3     | Claude Code only             |
 | [Build on 0G](#build-on-0g)           | Teaches your assistant to write 0G code | 17    | Claude Code, Cursor, Copilot |
+| [AgenticID](#agenticid)               | Gives AI agents a verifiable identity   | 5     | Claude Code, Cursor, Copilot |
 
 ---
 
@@ -150,6 +150,37 @@ SDKs. They work in Claude Code, Cursor, and GitHub Copilot.
 | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------- |
 | [Storage + Chain](skills/cross-layer/storage-plus-chain/SKILL.md)     | On-chain smart contract references to off-chain storage. NFT metadata, registries, verifiable docs. | _"store NFT metadata on 0G"_             |
 | [Compute + Storage](skills/cross-layer/compute-plus-storage/SKILL.md) | AI inference pipelines with persistent storage. Generate-then-store, load-then-process.             | _"generate an image and store it on 0G"_ |
+
+---
+
+## AgenticID
+
+**Give an AI agent an identity anyone can verify.**
+
+0G AgenticID anchors an agent's identity, its runtime config and its execution environment on chain,
+so "this agent is what it claims to be" becomes checkable rather than asserted. Built on ERC-8004
+(identity and reputation) and ERC-7857 (sealed, transferable agent data).
+
+> **This group uses `viem`, not `ethers`**, because the SDK depends on it. Everything under
+> [Build on 0G](#build-on-0g) uses ethers v6. Do not translate between them.
+
+| Skill                                                           | What it does                                                                           | Say this to activate      |
+| --------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ------------------------- |
+| [Deploy Agent](skills/agentic-id/deploy-agent/SKILL.md)         | Mint an agent with a chain-anchored identity, optionally provisioning a TEE container. | _"deploy an agent on 0G"_ |
+| [Manage Agent](skills/agentic-id/manage-agent/SKILL.md)         | Start, stop, reset, transfer and clone an existing agent.                              | _"stop my agent"_         |
+| [Interact Agent](skills/agentic-id/interact-agent/SKILL.md)     | Call a running agent's signed services, chat with it, read its logs.                   | _"chat with my agent"_    |
+| [Agent Reputation](skills/agentic-id/agent-reputation/SKILL.md) | Capture a TEE-signed serve-proof and submit verifiable ERC-8004 feedback.              | _"rate this agent"_       |
+| [Agent Accounts](skills/agentic-id/agent-accounts/SKILL.md)     | Acknowledge the trust root, fund the sandbox balance, read costs and runway.           | _"fund my agent"_         |
+
+```bash
+npm install @0gfoundation/0g-agenticid-sdk viem
+```
+
+Two things to know before you start. The attestor URL picks the network, and the one in every
+quickstart (`https://agenticid.0g.ai`) is **testnet** (16602); mainnet is
+`https://agenticid-mainnet.0g.ai`. And **reputation is testnet-only today** — the reputation
+registry is the one contract not yet deployed on mainnet. See
+[patterns/AGENTIC_ID.md](patterns/AGENTIC_ID.md).
 
 ---
 
@@ -281,6 +312,7 @@ Deep-dive documents for when you need to understand _how_ things work:
 | [CHAIN.md](patterns/CHAIN.md)                   | Hardhat/Foundry configs, `evmVersion: "cancun"`, ethers v5 → v6 migration table              |
 | [SECURITY.md](patterns/SECURITY.md)             | Key management, `.env` best practices, TEE verification, contract access control             |
 | [TESTING.md](patterns/TESTING.md)               | Vitest mocks for all SDKs, Hardhat/Foundry contract tests, testnet integration testing       |
+| [AGENTIC_ID.md](patterns/AGENTIC_ID.md)         | Trust chain, the three-identifier model, networks, balances, serve-proofs, viem              |
 
 ---
 
@@ -334,6 +366,12 @@ agent-skills-0g/
 │   ├── cross-layer/                 # 2 skills
 │   │   ├── storage-plus-chain/SKILL.md
 │   │   └── compute-plus-storage/SKILL.md
+│   ├── agentic-id/                  # 5 skills (viem, not ethers)
+│   │   ├── deploy-agent/SKILL.md
+│   │   ├── manage-agent/SKILL.md
+│   │   ├── interact-agent/SKILL.md
+│   │   ├── agent-reputation/SKILL.md
+│   │   └── agent-accounts/SKILL.md
 │   └── private-computer/            # 3 skills, plus the installer (copy, for review)
 │       ├── install.sh
 │       ├── 0g-pc-setup/SKILL.md
@@ -346,19 +384,21 @@ agent-skills-0g/
 │   ├── nft-with-metadata/           # Cross-layer: contract + storage
 │   └── ai-image-gallery/            # Cross-layer: AI + storage
 │
-├── patterns/                        # 6 architecture references
+├── patterns/                        # 7 architecture references
 │   ├── NETWORK_CONFIG.md
 │   ├── STORAGE.md
 │   ├── COMPUTE.md
 │   ├── CHAIN.md
 │   ├── SECURITY.md
-│   └── TESTING.md
+│   ├── TESTING.md
+│   └── AGENTIC_ID.md
 │
 ├── ci/                              # CI scripts
 │   ├── extract-code-blocks.ts
 │   ├── validate-sdk-versions.ts
 │   ├── lint-critical-rules.ts
-│   └── validate-manifests.ts
+│   ├── validate-manifests.ts
+│   └── canonical-versions.ts
 │
 ├── setups/                          # IDE-specific guides
 │   ├── claude-code/README.md

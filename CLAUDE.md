@@ -1,8 +1,8 @@
 # 0G Agent Skills
 
 You are assisting a developer building on the **0G decentralized AI operating system**. This
-repository contains 20 agent skills across 5 categories: Storage, Compute, Chain, Cross-Layer, and
-Private Computer.
+repository contains 25 agent skills across 6 categories: Storage, Compute, Chain, Cross-Layer,
+Private Computer, and AgenticID.
 
 > **SDK packages were renamed.** The old `@0glabs/0g-ts-sdk` and `@0glabs/0g-serving-broker` are
 > deprecated on npm. Always use `@0gfoundation/0g-storage-ts-sdk` and
@@ -27,7 +27,11 @@ Private Computer.
 - **ChatID**: Extract from `ZG-Res-Key` header FIRST, `data.id` as fallback. These genuinely differ
   — the header is a bare UUID, `data.id` is prefixed (`chatcmpl-<uuid>`). Passing `data.id` when the
   header exists sends the WRONG id to `processResponse()`
-- **ethers**: ALWAYS v6 (`ethers.JsonRpcProvider`, `ethers.parseEther`). NEVER v5
+- **Two chain stacks, scoped by category**: storage / compute / chain / cross-layer use **ethers
+  v6** pinned to exactly `6.13.1`; **`agentic-id` uses `viem` ^2.21.0** because its SDK depends on
+  it. Never translate between them
+- **ethers**: ALWAYS v6 (`ethers.JsonRpcProvider`, `ethers.parseEther`). NEVER v5. Applies
+  everywhere EXCEPT `agentic-id`
 - **File handles**: ALWAYS close `ZgFile` with `file.close()` in a `finally` block
 - **Private keys**: ALWAYS from `.env`, NEVER hardcoded
 - **Upload signature**: `indexer.upload(file, rpcUrl, signer)` — returns `[result, error]`, where
@@ -87,6 +91,16 @@ Private Computer.
 - `skills/chain/deploy-contract/SKILL.md` — Deploy Solidity contracts
 - `skills/chain/interact-contract/SKILL.md` — Read/write deployed contracts
 
+### AgenticID
+
+On-chain identity and reputation for AI agents. **This category uses `viem`, not ethers.**
+
+- `skills/agentic-id/deploy-agent/SKILL.md` — mint an agent (ERC-8004 + ERC-7857)
+- `skills/agentic-id/manage-agent/SKILL.md` — lifecycle, transfer, clone
+- `skills/agentic-id/interact-agent/SKILL.md` — call a running agent
+- `skills/agentic-id/agent-reputation/SKILL.md` — serve-proofs and feedback (testnet only)
+- `skills/agentic-id/agent-accounts/SKILL.md` — trust root, balances, costs
+
 ### Cross-Layer
 
 - `skills/cross-layer/storage-plus-chain/SKILL.md` — On-chain refs to off-chain data
@@ -108,6 +122,7 @@ Claude Code's own backend, not the SDKs. Claude Code only; no SDK, wallet or `.e
 - `patterns/CHAIN.md` — EVM patterns, Hardhat/Foundry configs, ethers v6
 - `patterns/SECURITY.md` — Key management, TEE, data integrity
 - `patterns/TESTING.md` — Testing strategies & mock patterns
+- `patterns/AGENTIC_ID.md` — Agent identity, trust chain, three-ID model, viem
 
 ## Quick Start
 

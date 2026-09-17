@@ -40,6 +40,13 @@ import {
   createZGComputeNetworkBroker,
   createReadOnlyInferenceBroker,
 } from '@0gfoundation/0g-compute-ts-sdk';
+// The agentic-id category is built on viem, not ethers. Both are in the
+// preamble so a snippet from either layer type-checks for real rather than
+// being dismissed as an unresolved-name partial. parseEther and formatEther
+// come from viem here; ethers exports the same names, but its copies are
+// reached through the ethers namespace import above, so there is no collision.
+import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { parseEther, formatEther } from 'viem';
 import * as fs from 'fs';
 import * as path from 'path';
 import * as os from 'os';

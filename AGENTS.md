@@ -1,7 +1,7 @@
 # 0G Agent Skills — Orchestration Guide
 
 Master orchestration file for AI coding assistants. Defines activation triggers, workflow sequences,
-critical rules, and common mistakes for all 20 skills across 5 categories.
+critical rules, and common mistakes for all 25 skills across 6 categories.
 
 > **SDK rename (breaking).** `@0glabs/0g-ts-sdk` and `@0glabs/0g-serving-broker` are deprecated on
 > npm. Use `@0gfoundation/0g-storage-ts-sdk` (^1.2.12) and `@0gfoundation/0g-compute-ts-sdk`
@@ -55,6 +55,22 @@ These configure Claude Code itself rather than building on 0G. Claude Code only.
 | Setup        | `skills/private-computer/0g-pc-setup/SKILL.md`        | "put this project on 0G", "connect Claude Code to 0G", "set up 0G PC", "接入 0G" |
 | Switch Model | `skills/private-computer/0g-pc-switch-model/SKILL.md` | "switch 0G model", "use a different 0G model", "换模型", "切到 glm-5.3"          |
 | Uninstall    | `skills/private-computer/0g-pc-uninstall/SKILL.md`    | "turn 0G off", "go back to Anthropic", "卸载 0G", "不用 0G 了"                   |
+
+### AgenticID Skills
+
+On-chain identity and reputation for AI agents (ERC-8004 + ERC-7857).
+
+> **This category uses `viem`, not `ethers`.** The SDK depends on `viem ^2.21.0`. The repo-wide
+> "always ethers v6" rule is scoped to storage, compute, chain and cross-layer, and does NOT apply
+> here. Do not translate these skills to ethers.
+
+| Skill            | Path                                          | Triggers                                                                     |
+| ---------------- | --------------------------------------------- | ---------------------------------------------------------------------------- |
+| Deploy Agent     | `skills/agentic-id/deploy-agent/SKILL.md`     | "deploy an agent", "mint an agent", "agent identity", "ERC-7857", "ERC-8004" |
+| Manage Agent     | `skills/agentic-id/manage-agent/SKILL.md`     | "stop an agent", "start an agent", "transfer an agent", "clone an agent"     |
+| Interact Agent   | `skills/agentic-id/interact-agent/SKILL.md`   | "call an agent", "chat with an agent", "agent services", "agent logs"        |
+| Agent Reputation | `skills/agentic-id/agent-reputation/SKILL.md` | "rate an agent", "agent reputation", "serve proof", "leave feedback"         |
+| Agent Accounts   | `skills/agentic-id/agent-accounts/SKILL.md`   | "fund an agent", "agent balance", "acknowledge trust root", "agent refund"   |
 
 ---
 
@@ -156,6 +172,22 @@ account-management
 
 Load `skills/compute/account-management/SKILL.md`.
 
+### 9. Give an Agent an On-Chain Identity
+
+**Trigger**: "deploy an agent", "mint an agent", "agent identity", "agent reputation", "AgenticID"
+
+```
+AUTO: agent-accounts -> deploy-agent -> manage-agent | interact-agent -> agent-reputation
+```
+
+1. **Auto-activate** `agent-accounts` — ack the trust root and fund the sandbox balance; `deploy()`
+   preflights both and fails without them
+2. Run `deploy-agent` to mint (optionally provisioning a container)
+3. Then, by intent: `manage-agent` for lifecycle, `interact-agent` to call it
+4. `agent-reputation` once there is a signed `/api/*` call to attest
+
+This category is **viem**, not ethers. Testnet is the default target and reputation is testnet-only.
+
 ---
 
 ## Manual handoffs (not auto-chained)
@@ -241,6 +273,40 @@ PREFER evmVersion: "cancun" for 0G Chain contract compilation — it is supporte
   london compile, deploy and execute correctly on 0G Chain as well.
 ALWAYS use ethers v6 syntax (NOT v5).
 ALWAYS wait for transaction confirmation (tx.wait()).
+```
+
+### Which chain library applies where
+
+```
+The ethers rules below are scoped BY CATEGORY. There are two stacks in this repo
+and mixing them is a real error, not a style preference:
+
+  storage / compute / chain / cross-layer  ->  ethers v6, pinned to EXACTLY 6.13.1
+  agentic-id                               ->  viem ^2.21.0
+
+ALWAYS use viem in agentic-id skills; the SDK depends on it.
+ALWAYS use ethers v6 everywhere else.
+NEVER translate an agentic-id example into ethers, or an ethers example into viem.
+```
+
+### AgenticID
+
+```
+ALWAYS let AgenticID.fromAttestor() supply contract addresses; never hardcode them.
+ALWAYS check which network the attestor URL pins. https://agenticid.0g.ai is TESTNET (16602);
+  mainnet is https://agenticid-mainnet.0g.ai (16661).
+ALWAYS ack the trust root and fund the prepaid sandbox balance to >= 0.1 OG before deploying.
+ALWAYS await waitForTransaction() after a bare write (ack / deposit / topUpAgentSeal) before
+  reading state back.
+ALWAYS call retry(sealId) to recover a failed deploy.
+ALWAYS read frameworks from the attestor and models from listModels() at runtime.
+
+NEVER call deploy() again to fix a failed deploy — it orphans the mint already paid for.
+NEVER confuse deposit() (prepaid sandbox runtime) with topUpAgentSeal() (the agent's own gas).
+NEVER assume reputation works on mainnet; reputation_registry_addr is testnet-only today.
+NEVER expect a serve-proof from a chat or UI route; only signed /api/* services carry one.
+NEVER mix up the three identifiers: agentId (bigint) for reads and transfers, sealId (bytes32)
+  for runtime control, agentSeal (address) for the agent's own wallet.
 ```
 
 ### Security
@@ -505,6 +571,7 @@ For deep architectural context, reference these pattern documents:
 | Chain          | `patterns/CHAIN.md`          | Any smart contract operation        |
 | Security       | `patterns/SECURITY.md`       | Key management, TEE, data integrity |
 | Testing        | `patterns/TESTING.md`        | Writing tests for 0G apps           |
+| AgenticID      | `patterns/AGENTIC_ID.md`     | Agent identity, trust chain, viem   |
 
 ---
 

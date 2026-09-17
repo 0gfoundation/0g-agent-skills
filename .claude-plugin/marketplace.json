@@ -2,18 +2,29 @@
   "name": "0G Agent Skills",
   "slug": "0g-agent-skills",
   "version": "2.0.0",
-  "description": "AI agent skills for building on the 0G decentralized AI operating system — Storage, Compute, and Chain",
+  "description": "AI agent skills for building on the 0G decentralized AI operating system \u2014 Storage, Compute, and Chain",
   "author": "0G Foundation",
   "license": "MIT",
   "repository": "https://github.com/0gfoundation/agent-skills-0g",
-  "categories": ["web3", "blockchain", "ai", "storage", "compute"],
+  "categories": [
+    "web3",
+    "blockchain",
+    "ai",
+    "storage",
+    "compute",
+    "agentic-id"
+  ],
   "entryPoint": "CLAUDE.md",
   "skills": {
-    "count": 20,
+    "count": 25,
     "categories": [
       {
         "name": "storage",
-        "skills": ["upload-file", "download-file", "merkle-verification"]
+        "skills": [
+          "upload-file",
+          "download-file",
+          "merkle-verification"
+        ]
       },
       {
         "name": "compute",
@@ -31,15 +42,36 @@
       },
       {
         "name": "chain",
-        "skills": ["deploy-contract", "interact-contract", "scaffold-project"]
+        "skills": [
+          "deploy-contract",
+          "interact-contract",
+          "scaffold-project"
+        ]
       },
       {
         "name": "cross-layer",
-        "skills": ["storage-plus-chain", "compute-plus-storage"]
+        "skills": [
+          "storage-plus-chain",
+          "compute-plus-storage"
+        ]
       },
       {
         "name": "private-computer",
-        "skills": ["0g-pc-setup", "0g-pc-switch-model", "0g-pc-uninstall"]
+        "skills": [
+          "0g-pc-setup",
+          "0g-pc-switch-model",
+          "0g-pc-uninstall"
+        ]
+      },
+      {
+        "name": "agentic-id",
+        "skills": [
+          "deploy-agent",
+          "manage-agent",
+          "interact-agent",
+          "agent-reputation",
+          "agent-accounts"
+        ]
       }
     ]
   },
@@ -58,6 +90,16 @@
       "name": "ethers",
       "version": "6.13.1",
       "purpose": "Chain interaction"
+    },
+    {
+      "name": "@0gfoundation/0g-agenticid-sdk",
+      "version": "^0.1.6",
+      "purpose": "AgenticID agent identity and reputation"
+    },
+    {
+      "name": "viem",
+      "version": "^2.21.0",
+      "purpose": "Chain interaction for AgenticID"
     }
   ],
   "compatibility": {

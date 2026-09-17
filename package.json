@@ -1,7 +1,7 @@
 {
   "name": "agent-skills-0g",
   "version": "2.0.0",
-  "description": "AI agent skills for building on the 0G decentralized AI operating system — Storage, Compute, and Chain",
+  "description": "AI agent skills for building on the 0G decentralized AI operating system \u2014 Storage, Compute, and Chain",
   "author": "0G Foundation",
   "license": "MIT",
   "repository": {
@@ -43,9 +43,10 @@
       "compute",
       "chain",
       "cross-layer",
-      "private-computer"
+      "private-computer",
+      "agentic-id"
     ],
-    "skillCount": 20,
+    "skillCount": 25,
     "entryPoints": {
       "claude-code": "CLAUDE.md",
       "cursor": "setups/cursor/README.md",

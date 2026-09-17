@@ -21,12 +21,7 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
 
-// Keep in sync with ci/validate-sdk-versions.ts
-const CANONICAL_SDK_VERSIONS: Record<string, string> = {
-  '@0gfoundation/0g-storage-ts-sdk': '^1.2.12',
-  '@0gfoundation/0g-compute-ts-sdk': '^0.9.0',
-  ethers: '6.13.1',
-};
+import { CANONICAL_VERSIONS as CANONICAL_SDK_VERSIONS } from './canonical-versions.ts';
 
 /** Discover skills on disk as category -> sorted skill names. */
 function discoverSkills(): Map<string, string[]> {
