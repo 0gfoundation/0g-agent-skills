@@ -4,7 +4,7 @@
 
 This repo turns Claude Code, Cursor, and GitHub Copilot into expert 0G developers. Just say _"upload
 a file to 0G Storage"_ or _"build a chatbot on 0G Compute"_ and get correct, working TypeScript code
-— every time.
+every time.
 
 **20 skills. 6 architecture references. 3 IDE setups. Zero build step.**
 
@@ -20,11 +20,11 @@ git clone https://github.com/0gfoundation/0g-agent-skills .0g-skills
 
 ### 2. Connect your IDE
 
-| IDE             | How                                                                                    |
-| --------------- | -------------------------------------------------------------------------------------- |
-| **Claude Code** | `cp .0g-skills/CLAUDE.md ./CLAUDE.md` — auto-detected on next session                  |
-| **Cursor**      | Create `.cursorrules` — see [setup guide](setups/cursor/README.md)                     |
-| **Copilot**     | Create `.github/copilot-instructions.md` — see [setup guide](setups/copilot/README.md) |
+| IDE             | How                                                                                       |
+| --------------- | ----------------------------------------------------------------------------------------- |
+| **Claude Code** | `cp .0g-skills/CLAUDE.md ./CLAUDE.md` (auto-detected next session)                        |
+| **Cursor**      | Create `.cursorrules`. See the [setup guide](setups/cursor/README.md)                     |
+| **Copilot**     | Create `.github/copilot-instructions.md`. See the [setup guide](setups/copilot/README.md) |
 
 ### 3. Install SDKs
 
@@ -46,7 +46,7 @@ npm install @0gfoundation/0g-compute-ts-sdk ethers@6.13.1 dotenv   # Compute onl
 ### 4. Create `.env`
 
 ```bash
-# .env — NEVER commit this file
+# .env (NEVER commit this file)
 PRIVATE_KEY=your_private_key_here
 RPC_URL=https://evmrpc-testnet.0g.ai
 STORAGE_INDEXER=https://indexer-storage-testnet-turbo.0g.ai
@@ -69,7 +69,52 @@ Ask your AI assistant anything. Try these:
 
 ## Skills Catalog
 
-### Storage — Decentralized file and data storage
+The 20 skills split into two groups that point in opposite directions. Pick the one that matches
+what you are trying to do.
+
+| Group                                 | What it does                            | Count | Works in                     |
+| ------------------------------------- | --------------------------------------- | ----- | ---------------------------- |
+| [Private Computer](#private-computer) | Runs Claude Code itself on 0G models    | 3     | Claude Code only             |
+| [Build on 0G](#build-on-0g)           | Teaches your assistant to write 0G code | 17    | Claude Code, Cursor, Copilot |
+
+---
+
+## Private Computer
+
+**Run Claude Code itself on 0G.**
+
+This group changes where Claude Code sends its own requests. Instead of the Anthropic API, it talks
+to [0G Private Computer](https://pc.0g.ai): TEE-backed inference behind an Anthropic-compatible
+router.
+
+No Compute SDK, no wallet, no `.env`. It is a configuration change, not code you write.
+
+> **Claude Code only.** These skills configure a project's `.claude/` directory. Cursor and Copilot
+> do not read it.
+
+| Skill                                                               | What it does                                                                                                                | Say this to activate       |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| [Setup](skills/private-computer/0g-pc-setup/SKILL.md)               | Ask the router which models it serves right now, choose one on its TEE tier and context, and put the current project on it. | _"put this project on 0G"_ |
+| [Switch Model](skills/private-computer/0g-pc-switch-model/SKILL.md) | Move a project already on 0G to a different router model, context ceiling included.                                         | _"switch 0G model"_        |
+| [Uninstall](skills/private-computer/0g-pc-uninstall/SKILL.md)       | Take the project back off 0G and onto the normal Anthropic API.                                                             | _"turn 0G off"_            |
+
+Get started in one command:
+
+```bash
+curl -fsSL https://pc.0g.ai/install | bash -s claude --key -
+```
+
+See [Private Computer installer](#private-computer-installer) for what it writes, how to undo it,
+and where the file comes from.
+
+---
+
+## Build on 0G
+
+**Teach your assistant to write 0G code.** These 17 skills produce working TypeScript against the 0G
+SDKs. They work in Claude Code, Cursor, and GitHub Copilot.
+
+### Storage: decentralized file and data storage
 
 | Skill                                                              | What it does                                                                           | Say this to activate        |
 | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------- | --------------------------- |
@@ -77,7 +122,7 @@ Ask your AI assistant anything. Try these:
 | [Download File](skills/storage/download-file/SKILL.md)             | Download and verify files by root hash with Merkle proof validation.                   | _"download a file from 0G"_ |
 | [Merkle Verification](skills/storage/merkle-verification/SKILL.md) | Compute root hashes and cryptographically verify file integrity.                       | _"verify file integrity"_   |
 
-### Compute — AI inference on decentralized GPUs
+### Compute: AI inference on decentralized GPUs
 
 | Skill                                                            | What it does                                                                                             | Say this to activate          |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------- |
@@ -91,88 +136,85 @@ Ask your AI assistant anything. Try these:
 | [Account Management](skills/compute/account-management/SKILL.md) | Deposit, transfer, refund, withdraw, auto-fund, and revoke API keys.                                     | _"deposit funds for compute"_ |
 | [Fine-Tuning](skills/compute/fine-tuning/SKILL.md)               | Train custom models on distributed GPUs, then deploy the result as a LoRA adapter.                       | _"fine-tune a model on 0G"_   |
 
-### Chain — Smart contracts on 0G's EVM L1
+### Chain: smart contracts on 0G's EVM L1
 
 | Skill                                                        | What it does                                                                                  | Say this to activate            |
 | ------------------------------------------------------------ | --------------------------------------------------------------------------------------------- | ------------------------------- |
 | [Deploy Contract](skills/chain/deploy-contract/SKILL.md)     | Deploy Solidity contracts via Hardhat, Foundry, or ethers v6. Prefers `evmVersion: "cancun"`. | _"deploy a contract to 0G"_     |
-| [Interact Contract](skills/chain/interact-contract/SKILL.md) | Read state, send transactions, listen to events, estimate gas — all ethers v6.                | _"call a contract on 0G Chain"_ |
+| [Interact Contract](skills/chain/interact-contract/SKILL.md) | Read state, send transactions, listen to events, estimate gas. All ethers v6.                 | _"call a contract on 0G Chain"_ |
 | [Scaffold Project](skills/chain/scaffold-project/SKILL.md)   | Generate a new project with correct SDKs, TypeScript config, and boilerplate.                 | _"create a new 0G project"_     |
 
-### Cross-Layer — Full-stack decentralized apps
+### Cross-Layer: full-stack decentralized apps
 
 | Skill                                                                 | What it does                                                                                        | Say this to activate                     |
 | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------- |
 | [Storage + Chain](skills/cross-layer/storage-plus-chain/SKILL.md)     | On-chain smart contract references to off-chain storage. NFT metadata, registries, verifiable docs. | _"store NFT metadata on 0G"_             |
 | [Compute + Storage](skills/cross-layer/compute-plus-storage/SKILL.md) | AI inference pipelines with persistent storage. Generate-then-store, load-then-process.             | _"generate an image and store it on 0G"_ |
 
-### Private Computer — Run Claude Code itself on 0G
+---
 
-Everything above is about building _on_ 0G. These three are the other direction: they point Claude
-Code's own model backend at [0G Private Computer](https://pc.0g.ai) — TEE-backed inference through
-an Anthropic-compatible router. They need no Compute SDK, no wallet and no `.env`, and they are
-**Claude Code only**: they configure a project's `.claude/` directory, which Cursor and Copilot do
-not read.
+## Private Computer installer
 
-| Skill                                                               | What it does                                                                                                                | Say this to activate       |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| [Setup](skills/private-computer/0g-pc-setup/SKILL.md)               | Ask the router which models it serves right now, choose one on its TEE tier and context, and put the current project on it. | _"put this project on 0G"_ |
-| [Switch Model](skills/private-computer/0g-pc-switch-model/SKILL.md) | Move a project already on 0G to a different router model, context ceiling included.                                         | _"switch 0G model"_        |
-| [Uninstall](skills/private-computer/0g-pc-uninstall/SKILL.md)       | Take the project back off 0G and onto the normal Anthropic API.                                                             | _"turn 0G off"_            |
+Reference for the [Private Computer](#private-computer) skills above.
 
-The installer is [`skills/private-computer/install.sh`](skills/private-computer/install.sh), POSIX
-`sh`. Note that the copy here is for reading and review: the skills hand users a `curl` command
-pointing at `0g-pc-skills/main/install.sh`, and `pc.0g.ai/install` serves its own copy, so what
-actually runs on a user's machine comes from upstream rather than from this file.
-
-`claude` writes only into the current project — `.claude/settings.local.json` (mode 600) and one
-line in `.claude/.gitignore`. It never touches `.claude/settings.json`, nor your global
-`~/.claude/settings.json`. The one subcommand that writes outside the project is `skills`, which
-puts the three slash commands in `~/.claude/skills` where Claude Code looks for them; it takes no
-key.
+### Commands
 
 ```bash
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key -      # config: install, prompt for the key
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key sk-…   # config: install, key inline
-curl -fsSL https://pc.0g.ai/install | bash -s claude --uninstall  # config: undo, needs no key
-curl -fsSL https://pc.0g.ai/install | bash -s skills              # slash commands: install
-curl -fsSL https://pc.0g.ai/install | bash -s skills --uninstall  # slash commands: remove
+curl -fsSL https://pc.0g.ai/install | bash -s claude --key -      # install, prompt for the key
+curl -fsSL https://pc.0g.ai/install | bash -s claude --key sk-…   # install, key inline
+curl -fsSL https://pc.0g.ai/install | bash -s claude --uninstall  # undo, needs no key
+curl -fsSL https://pc.0g.ai/install | bash -s skills              # add the slash commands
+curl -fsSL https://pc.0g.ai/install | bash -s skills --uninstall  # remove the slash commands
 ```
 
-Prefer `--key -`. It reads the key from the terminal with echo off, keeping it out of your shell
-history. `--key sk-…` puts the credential in the argv of the command you typed, which other users on
-the same machine can read.
+**Prefer `--key -`.** It reads the key from the terminal with echo off, so it stays out of your
+shell history. `--key sk-…` puts the credential in the argv of the command you typed, where other
+users on the same machine can read it.
+
+### What it writes
+
+| Subcommand | Writes                                                                                                     |
+| ---------- | ---------------------------------------------------------------------------------------------------------- |
+| `claude`   | `.claude/settings.local.json` (mode 600) and one line in `.claude/.gitignore`, in the current project only |
+| `skills`   | The three slash commands into `~/.claude/skills`, outside the project. Takes no key                        |
+
+`claude` never touches `.claude/settings.json`, nor your global `~/.claude/settings.json`.
 
 After a successful install the script prints a `check-0g.sh` command. Running it is a separate,
-deliberate step — the installer does not fetch and execute it for you.
+deliberate step. The installer does not fetch and execute it for you.
 
-### Provenance
+### Where the file comes from
 
-These four files originate in
+The copy in this repo, [`skills/private-computer/install.sh`](skills/private-computer/install.sh),
+is POSIX `sh` and is here for reading and review. It is **not** what runs on a user's machine: the
+skills hand out a `curl` pointing at `0g-pc-skills/main/install.sh`, and `pc.0g.ai/install` serves
+its own copy.
+
+All four private-computer files originate in
 [0gfoundation/0g-pc-skills](https://github.com/0gfoundation/0g-pc-skills), where they are
-maintained, tested and released. Refreshing them is a manual step, so read that repository as the
-source.
+maintained, tested and released. Refreshing them here is a manual step, so read that repository as
+the source.
 
-`install.sh` **is no longer a byte-for-byte copy.** It forked from `bf8751e` with two security
-changes made during review here:
-
-- the API key goes to `curl` on stdin (`--config -`) instead of in its argv, where process arguments
-  are readable by any other user on the machine;
-- the post-install self-check is no longer fetched from `$BASE_URL` and run. Executing remote code
-  moments after writing a credential gave away more than the endpoint pin — which the script
-  maintains for exactly this class of risk — buys back.
-
-Both belong upstream, and **until they land there users are not protected by them** — the skills and
-`pc.0g.ai/install` both serve the upstream file, so that is what actually runs. The fixes here make
-the reviewed copy correct and record what needs upstreaming; they are not a substitute for it.
-
-Until the two are reconciled, treat them as divergent: do not overwrite this file with `bf8751e`.
+> **`install.sh` is no longer a byte-for-byte copy.** It forked from `bf8751e` with two security
+> changes made during review in this repo:
+>
+> 1. The API key goes to `curl` on stdin (`--config -`) instead of in its argv, where process
+>    arguments are readable by any other user on the machine.
+> 2. The post-install self-check is no longer fetched from `$BASE_URL` and executed. Running remote
+>    code moments after writing a credential gave away more than the endpoint pin buys back, and
+>    that pin exists for exactly this class of risk.
+>
+> Both belong upstream, and **until they land there users are not protected by them**, because the
+> upstream file is what actually runs. The fixes here make the reviewed copy correct and record what
+> needs upstreaming. They are not a substitute for it.
+>
+> Until the two are reconciled, treat them as divergent: do not overwrite this file with `bf8751e`.
 
 ---
 
 ## Examples
 
-Runnable example projects — clone, install, and run against testnet:
+Runnable example projects. Clone, install, and run against testnet:
 
 | Example                                            | What it builds                                      | Layers            |
 | -------------------------------------------------- | --------------------------------------------------- | ----------------- |
@@ -214,16 +256,16 @@ Discovery    Management           Chat
 
 **8 built-in workflows** handle common tasks automatically:
 
-| Workflow            | What gets activated                                                                                       |
-| ------------------- | --------------------------------------------------------------------------------------------------------- |
-| **New Project**     | `scaffold-project`                                                                                        |
-| **Upload Data**     | `upload-file` → auto: `merkle-verification`                                                               |
-| **Download Data**   | `download-file` → auto: `merkle-verification`                                                             |
-| **AI Inference**    | auto: `provider-discovery` → `account-management` → `streaming-chat` / `text-to-image` / `speech-to-text` |
-| **Fine-Tune**       | auto: `provider-discovery` → `account-management` → `fine-tuning`                                         |
-| **Deploy Contract** | `deploy-contract`                                                                                         |
-| **Cross-Layer App** | `storage-plus-chain` / `compute-plus-storage`                                                             |
-| **Manage Funds**    | `account-management`                                                                                      |
+| Workflow            | What gets activated                                                                 |
+| ------------------- | ----------------------------------------------------------------------------------- |
+| **New Project**     | `scaffold-project`                                                                  |
+| **Upload Data**     | `upload-file` → auto: `merkle-verification`                                         |
+| **Download Data**   | `download-file` → auto: `merkle-verification`                                       |
+| **AI Inference**    | auto: `provider-discovery` → `account-management` → the skill for that service type |
+| **Fine-Tune**       | auto: `provider-discovery` → `account-management` → `fine-tuning`                   |
+| **Deploy Contract** | `deploy-contract`                                                                   |
+| **Cross-Layer App** | `storage-plus-chain` / `compute-plus-storage`                                       |
+| **Manage Funds**    | `account-management`                                                                |
 
 ---
 
@@ -234,7 +276,7 @@ Deep-dive documents for when you need to understand _how_ things work:
 | Document                                        | What's inside                                                                                |
 | ----------------------------------------------- | -------------------------------------------------------------------------------------------- |
 | [NETWORK_CONFIG.md](patterns/NETWORK_CONFIG.md) | RPC endpoints, chain IDs, SDK versions, `.env` template, initialization patterns             |
-| [STORAGE.md](patterns/STORAGE.md)               | Two-layer architecture (Log + KV), ZgFile lifecycle, upload/download internals, indexer API  |
+| [STORAGE.md](patterns/STORAGE.md)               | Log-layer architecture, ZgFile lifecycle, upload/download internals, Merkle verification     |
 | [COMPUTE.md](patterns/COMPUTE.md)               | Broker lifecycle, `processResponse()` deep-dive, ChatID extraction rules, streaming patterns |
 | [CHAIN.md](patterns/CHAIN.md)                   | Hardhat/Foundry configs, `evmVersion: "cancun"`, ethers v5 → v6 migration table              |
 | [SECURITY.md](patterns/SECURITY.md)             | Key management, `.env` best practices, TEE verification, contract access control             |
@@ -292,7 +334,7 @@ agent-skills-0g/
 │   ├── cross-layer/                 # 2 skills
 │   │   ├── storage-plus-chain/SKILL.md
 │   │   └── compute-plus-storage/SKILL.md
-│   └── private-computer/            # 3 skills, and the installer they hand you
+│   └── private-computer/            # 3 skills, plus the installer (copy, for review)
 │       ├── install.sh
 │       ├── 0g-pc-setup/SKILL.md
 │       ├── 0g-pc-switch-model/SKILL.md
@@ -349,4 +391,4 @@ Rules, Code Examples, Anti-Patterns, Common Errors, Related Skills, and Referenc
 
 ## License
 
-MIT — see [LICENSE](LICENSE)
+MIT. See [LICENSE](LICENSE)
