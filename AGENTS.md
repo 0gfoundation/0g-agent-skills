@@ -1,7 +1,7 @@
 # 0G Agent Skills — Orchestration Guide
 
 Master orchestration file for AI coding assistants. Defines activation triggers, workflow sequences,
-critical rules, and common mistakes for all 17 skills across 4 categories.
+critical rules, and common mistakes for all 20 skills across 5 categories.
 
 > **SDK rename (breaking).** `@0glabs/0g-ts-sdk` and `@0glabs/0g-serving-broker` are deprecated on
 > npm. Use `@0gfoundation/0g-storage-ts-sdk` (^1.2.12) and `@0gfoundation/0g-compute-ts-sdk`
@@ -45,6 +45,16 @@ critical rules, and common mistakes for all 17 skills across 4 categories.
 | ----------------- | -------------------------------------------------- | ------------------------------------------------------ |
 | Storage + Chain   | `skills/cross-layer/storage-plus-chain/SKILL.md`   | "on-chain reference", "NFT metadata on 0G", "registry" |
 | Compute + Storage | `skills/cross-layer/compute-plus-storage/SKILL.md` | "AI with storage", "generate and store", "AI pipeline" |
+
+### Private Computer Skills
+
+These configure Claude Code itself rather than building on 0G. Claude Code only.
+
+| Skill        | Path                                                  | Triggers                                                                         |
+| ------------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- |
+| Setup        | `skills/private-computer/0g-pc-setup/SKILL.md`        | "put this project on 0G", "connect Claude Code to 0G", "set up 0G PC", "接入 0G" |
+| Switch Model | `skills/private-computer/0g-pc-switch-model/SKILL.md` | "switch 0G model", "use a different 0G model", "换模型", "切到 glm-5.3"          |
+| Uninstall    | `skills/private-computer/0g-pc-uninstall/SKILL.md`    | "turn 0G off", "go back to Anthropic", "卸载 0G", "不用 0G 了"                   |
 
 ---
 
@@ -145,6 +155,26 @@ account-management
 ```
 
 Load `skills/compute/account-management/SKILL.md`.
+
+---
+
+## Manual handoffs (not auto-chained)
+
+The sequences above chain automatically. The Private Computer skills do not, and must not: each one
+changes the user's configuration, and a user who asked for one did not ask for the others.
+
+| Situation                              | Skill                |
+| -------------------------------------- | -------------------- |
+| First time putting a project on 0G     | `0g-pc-setup`        |
+| Already on 0G, wants a different model | `0g-pc-switch-model` |
+| Wants this project off 0G              | `0g-pc-uninstall`    |
+
+`0g-pc-setup` does not run the installer itself and does not chain into the other two.
+
+Route by the object of the request. A request to configure the client belongs here; a request to
+build something with the Compute SDK belongs to the inference skills, even when it names a model.
+"LLM", "Claude" or "GPT" on their own are not requests to rewrite a configuration — when the object
+is unclear, ask which is meant before changing anything.
 
 ---
 

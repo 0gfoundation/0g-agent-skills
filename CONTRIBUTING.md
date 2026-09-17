@@ -91,6 +91,12 @@ Add the skill to the Skill Map section.
 
 ## Code Example Requirements
 
+These apply to skills that call a 0G SDK. A skill that configures a client rather than calling an
+SDK — `skills/private-computer/` is the one category of those today — has no TypeScript examples to
+hold to them: it writes `Not applicable` in the SDK metadata field, names its supported host
+instead, and is exempt from the ethers, `processResponse()` and `evmVersion` items in the checklist
+below.
+
 All code examples must:
 
 - Use TypeScript
