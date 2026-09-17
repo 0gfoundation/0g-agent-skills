@@ -7,24 +7,10 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { fileURLToPath } from 'url';
 
+import { CANONICAL_VERSIONS, FORBIDDEN_PACKAGES } from './canonical-versions.ts';
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, '..');
-
-// Canonical SDK versions (source of truth — must match patterns/NETWORK_CONFIG.md).
-// Compared verbatim, so the caret is significant: `ethers` has NO caret because
-// @0gfoundation/0g-storage-ts-sdk declares an exact peer dep on ethers@6.13.1.
-const CANONICAL_VERSIONS: Record<string, string> = {
-  '@0gfoundation/0g-storage-ts-sdk': '^1.2.12',
-  '@0gfoundation/0g-compute-ts-sdk': '^0.9.0',
-  ethers: '6.13.1',
-};
-
-// Packages that must never be referenced again — renamed upstream and deprecated.
-const FORBIDDEN_PACKAGES: Record<string, string> = {
-  '@0glabs/0g-ts-sdk': '@0gfoundation/0g-storage-ts-sdk',
-  '@0glabs/0g-serving-broker': '@0gfoundation/0g-compute-ts-sdk',
-  '@0gfoundation/0g-ts-sdk': '@0gfoundation/0g-storage-ts-sdk',
-};
 
 // Lines that intentionally quote a non-canonical version (failure transcripts,
 // "wrong way" examples) and so must not be flagged.

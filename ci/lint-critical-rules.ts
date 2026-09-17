@@ -137,9 +137,18 @@ function lintNoHardcodedKeys(filePath: string, content: string): LintError[] {
 
   for (let i = 0; i < blocks.length; i++) {
     const block = blocks[i];
-    // Check for hardcoded private keys (hex strings of 64+ chars assigned to Wallet)
-    const hardcodedKeyPattern = /new ethers\.Wallet\s*\(\s*['"]0x[0-9a-fA-F]{64,}['"]/;
-    if (hardcodedKeyPattern.test(block)) {
+    // Hardcoded private keys: a 64+ hex-char literal reaching anything that
+    // takes a key. The ethers form was the only one checked until the
+    // agentic-id category arrived on viem, where the same mistake wears a
+    // different shape (privateKeyToAccount, or an `account:` config field) and
+    // so sailed past this rule entirely.
+    const hardcodedKeyPatterns = [
+      /new ethers\.Wallet\s*\(\s*['"]0x[0-9a-fA-F]{64,}['"]/, // ethers
+      /privateKeyToAccount\s*\(\s*['"]0x[0-9a-fA-F]{64,}['"]/, // viem
+      /\baccount\s*:\s*['"]0x[0-9a-fA-F]{64,}['"]/, // viem / AgenticID config
+      /\bPRIVATE_KEY\s*=\s*['"]0x[0-9a-fA-F]{64,}['"]/, // assigned straight into a const
+    ];
+    if (hardcodedKeyPatterns.some((p) => p.test(block))) {
       // Check if this is in an anti-pattern section
       const blockIndex = content.indexOf(block);
       const before = content.substring(Math.max(0, blockIndex - 200), blockIndex);

@@ -33,7 +33,7 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Install SDK type stubs
-        run: npm install --no-save @0gfoundation/0g-storage-ts-sdk@^1.2.12 @0gfoundation/0g-compute-ts-sdk@^0.9.0 ethers@6.13.1
+        run: npm install --no-save @0gfoundation/0g-storage-ts-sdk@^1.2.12 @0gfoundation/0g-compute-ts-sdk@^0.9.0 @0gfoundation/0g-agenticid-sdk@^0.1.6 ethers@6.13.1 viem@^2.21.0
       - name: Extract and type-check code blocks
         run: npm run ci:extract
       - name: Validate SDK versions
@@ -75,7 +75,7 @@ jobs:
         run: |
           set -euo pipefail
           status=0
-          for pkg in @0gfoundation/0g-storage-ts-sdk @0gfoundation/0g-compute-ts-sdk ethers; do
+          for pkg in @0gfoundation/0g-storage-ts-sdk @0gfoundation/0g-compute-ts-sdk @0gfoundation/0g-agenticid-sdk ethers viem; do
             msg="$(npm view "$pkg" deprecated 2>/dev/null || true)"
             if [ -n "$msg" ]; then
               echo "::error::$pkg is DEPRECATED upstream: $msg"
@@ -99,3 +99,4 @@ jobs:
           }
           check @0gfoundation/0g-storage-ts-sdk 1.2.12
           check @0gfoundation/0g-compute-ts-sdk 0.9.0
+          check @0gfoundation/0g-agenticid-sdk 0.1.6
