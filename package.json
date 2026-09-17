@@ -42,9 +42,10 @@
       "storage",
       "compute",
       "chain",
-      "cross-layer"
+      "cross-layer",
+      "private-computer"
     ],
-    "skillCount": 17,
+    "skillCount": 20,
     "entryPoints": {
       "claude-code": "CLAUDE.md",
       "cursor": "setups/cursor/README.md",

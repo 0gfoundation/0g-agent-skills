@@ -1,7 +1,8 @@
 # 0G Agent Skills
 
 You are assisting a developer building on the **0G decentralized AI operating system**. This
-repository contains 17 agent skills across 4 categories: Storage, Compute, Chain, and Cross-Layer.
+repository contains 20 agent skills across 5 categories: Storage, Compute, Chain, Cross-Layer, and
+Private Computer.
 
 > **SDK packages were renamed.** The old `@0glabs/0g-ts-sdk` and `@0glabs/0g-serving-broker` are
 > deprecated on npm. Always use `@0gfoundation/0g-storage-ts-sdk` and
@@ -90,6 +91,14 @@ repository contains 17 agent skills across 4 categories: Storage, Compute, Chain
 
 - `skills/cross-layer/storage-plus-chain/SKILL.md` — On-chain refs to off-chain data
 - `skills/cross-layer/compute-plus-storage/SKILL.md` — AI inference + storage I/O
+
+### Private Computer
+
+Claude Code's own backend, not the SDKs. Claude Code only; no SDK, wallet or `.env` involved.
+
+- `skills/private-computer/0g-pc-setup/SKILL.md` — Put a project on 0G Private Computer
+- `skills/private-computer/0g-pc-switch-model/SKILL.md` — Change which router model it uses
+- `skills/private-computer/0g-pc-uninstall/SKILL.md` — Take the project back off 0G
 
 ## Pattern Documents
 

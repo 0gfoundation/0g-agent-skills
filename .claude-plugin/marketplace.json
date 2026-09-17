@@ -9,7 +9,7 @@
   "categories": ["web3", "blockchain", "ai", "storage", "compute"],
   "entryPoint": "CLAUDE.md",
   "skills": {
-    "count": 17,
+    "count": 20,
     "categories": [
       {
         "name": "storage",
@@ -36,6 +36,10 @@
       {
         "name": "cross-layer",
         "skills": ["storage-plus-chain", "compute-plus-storage"]
+      },
+      {
+        "name": "private-computer",
+        "skills": ["0g-pc-setup", "0g-pc-switch-model", "0g-pc-uninstall"]
       }
     ]
   },

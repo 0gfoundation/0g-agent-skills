@@ -6,7 +6,7 @@ This repo turns Claude Code, Cursor, and GitHub Copilot into expert 0G developer
 a file to 0G Storage"_ or _"build a chatbot on 0G Compute"_ and get correct, working TypeScript code
 — every time.
 
-**17 skills. 6 architecture references. 3 IDE setups. Zero build step.**
+**20 skills. 6 architecture references. 3 IDE setups. Zero build step.**
 
 ---
 
@@ -105,6 +105,38 @@ Ask your AI assistant anything. Try these:
 | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------- |
 | [Storage + Chain](skills/cross-layer/storage-plus-chain/SKILL.md)     | On-chain smart contract references to off-chain storage. NFT metadata, registries, verifiable docs. | _"store NFT metadata on 0G"_             |
 | [Compute + Storage](skills/cross-layer/compute-plus-storage/SKILL.md) | AI inference pipelines with persistent storage. Generate-then-store, load-then-process.             | _"generate an image and store it on 0G"_ |
+
+### Private Computer — Run Claude Code itself on 0G
+
+Everything above is about building _on_ 0G. These three are the other direction: they point Claude
+Code's own model backend at [0G Private Computer](https://pc.0g.ai) — TEE-backed inference through
+an Anthropic-compatible router. They need no Compute SDK, no wallet and no `.env`, and they are
+**Claude Code only**: they configure a project's `.claude/` directory, which Cursor and Copilot do
+not read.
+
+| Skill                                                               | What it does                                                                                                                | Say this to activate       |
+| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
+| [Setup](skills/private-computer/0g-pc-setup/SKILL.md)               | Ask the router which models it serves right now, choose one on its TEE tier and context, and put the current project on it. | _"put this project on 0G"_ |
+| [Switch Model](skills/private-computer/0g-pc-switch-model/SKILL.md) | Move a project already on 0G to a different router model, context ceiling included.                                         | _"switch 0G model"_        |
+| [Uninstall](skills/private-computer/0g-pc-uninstall/SKILL.md)       | Take the project back off 0G and onto the normal Anthropic API.                                                             | _"turn 0G off"_            |
+
+The installer those skills hand you is
+[`skills/private-computer/install.sh`](skills/private-computer/install.sh), also served at
+`pc.0g.ai/install`. It is POSIX `sh` and writes only into the current project —
+`.claude/settings.local.json` (mode 600) and one line in `.claude/.gitignore`. It never touches
+`~/.claude/settings.json`.
+
+```bash
+curl -fsSL https://pc.0g.ai/install | bash -s claude --key sk-…   # config: install
+curl -fsSL https://pc.0g.ai/install | bash -s claude --uninstall  # config: undo, needs no key
+curl -fsSL https://pc.0g.ai/install | bash -s skills              # slash commands: install
+curl -fsSL https://pc.0g.ai/install | bash -s skills --uninstall  # slash commands: remove
+```
+
+These four files are copies. They are maintained, tested and released in
+[0gfoundation/0g-pc-skills](https://github.com/0gfoundation/0g-pc-skills); `install.sh` here is a
+byte-for-byte copy of `bf8751e`. Refreshing them is a manual step, so read this directory as a
+convenience and that repository as the source.
 
 ---
 
@@ -213,20 +245,28 @@ agent-skills-0g/
 │   │   ├── upload-file/SKILL.md
 │   │   ├── download-file/SKILL.md
 │   │   └── merkle-verification/SKILL.md
-│   ├── compute/                     # 6 skills
+│   ├── compute/                     # 9 skills
 │   │   ├── streaming-chat/SKILL.md
 │   │   ├── text-to-image/SKILL.md
 │   │   ├── speech-to-text/SKILL.md
 │   │   ├── provider-discovery/SKILL.md
 │   │   ├── account-management/SKILL.md
+│   │   ├── image-editing/SKILL.md
+│   │   ├── video-generation/SKILL.md
+│   │   ├── embeddings/SKILL.md
 │   │   └── fine-tuning/SKILL.md
 │   ├── chain/                       # 3 skills
 │   │   ├── deploy-contract/SKILL.md
 │   │   ├── interact-contract/SKILL.md
 │   │   └── scaffold-project/SKILL.md
-│   └── cross-layer/                 # 2 skills
-│       ├── storage-plus-chain/SKILL.md
-│       └── compute-plus-storage/SKILL.md
+│   ├── cross-layer/                 # 2 skills
+│   │   ├── storage-plus-chain/SKILL.md
+│   │   └── compute-plus-storage/SKILL.md
+│   └── private-computer/            # 3 skills, and the installer they hand you
+│       ├── install.sh
+│       ├── 0g-pc-setup/SKILL.md
+│       ├── 0g-pc-switch-model/SKILL.md
+│       └── 0g-pc-uninstall/SKILL.md
 │
 ├── examples/                        # 4 runnable example projects
 │   ├── file-vault/                  # Storage: upload, download, verify
@@ -245,7 +285,8 @@ agent-skills-0g/
 ├── ci/                              # CI scripts
 │   ├── extract-code-blocks.ts
 │   ├── validate-sdk-versions.ts
-│   └── lint-critical-rules.ts
+│   ├── lint-critical-rules.ts
+│   └── validate-manifests.ts
 │
 ├── setups/                          # IDE-specific guides
 │   ├── claude-code/README.md
