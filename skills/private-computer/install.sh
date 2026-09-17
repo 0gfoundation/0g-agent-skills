@@ -9,7 +9,24 @@
 #
 # Writes .claude/settings.local.json in the current project, plus one line in
 # .claude/.gitignore, and nothing else. Neither .claude/settings.json nor your
-# global ~/.claude/settings.json is ever touched.
+# global ~/.claude/settings.json is ever touched. ('skills' is the exception and
+# says so: it writes the three slash commands into ~/.claude/skills.)
+#
+# ---------------------------------------------------------------------------
+# FORKED COPY — this file is NOT byte-identical to its upstream.
+#
+# Origin: 0gfoundation/0g-pc-skills @ bf8751e. Two security changes were made
+# during review in 0gfoundation/0g-agent-skills and have not yet been upstreamed:
+#
+#   1. The key is passed to curl on stdin (--config -) instead of in argv, where
+#      process arguments are readable by other users on the machine. A charset
+#      guard on the key keeps that path free of quoting bugs.
+#   2. The post-install self-check is no longer fetched from $BASE_URL and run.
+#      See the self-check section near the end for why.
+#
+# Do not re-sync this file from bf8751e — that would silently revert both. Once
+# they land upstream, take the upstream version and delete this notice.
+# ---------------------------------------------------------------------------
 set -eu
 
 BASE_URL="${ZG_BASE_URL:-https://raw.githubusercontent.com/0gfoundation/0g-pc-skills/main}"
@@ -354,6 +371,16 @@ case "$KEY" in
     *) die "that does not look like a 0G key — they start with 'sk-'." ;;
 esac
 
+# The key is handed to curl through its config syntax on stdin, which quotes with " and
+# escapes with \. Rejecting those two characters up front means the value never needs
+# escaping, so there is no quoting bug to get wrong on the one path the credential takes.
+# No 0G key contains them; a value that does is a paste accident, not a key.
+case "$KEY" in
+    *'"'*|*'\'*|*'
+'*) die "that key contains a quote, a backslash or a newline. 0G keys contain none of
+those — check what was pasted. Nothing has been written." ;;
+esac
+
 # ---------------------------------------------------------------- preflight
 
 # 在家目录里跑，.claude/settings.local.json 就落在 ~/.claude/ 下——"只写当前项目"
@@ -578,9 +605,20 @@ note "checking the key against the router…"
 # unreachable router produced "000000" — which matched no case arm, leaving the 000 message
 # below unreachable. Out here the assignment is replaced whole, so $status is always 3 chars.
 # The || is still required: set -e would abort on curl's non-zero exit without it.
-status="$(curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+# The key goes to curl on stdin, never in its argv. Process arguments are world-readable
+# (`ps auxww`), so -H "Authorization: Bearer $KEY" exposes the credential to every other
+# user on the machine for the lifetime of the request. Everything else here already treats
+# the key as secret — stty -echo, mode 600, the ignore rule written and verified before the
+# credential lands, the refusal on a git-tracked file — and argv was the one hole left in
+# that set. `--config -` reads options from stdin.
+#
+# printf is a shell builtin, so the key does not pass through an external command's argv on
+# the way there either. The charset check at the top guarantees it needs no escaping for
+# curl's config syntax, which quotes with " and escapes with \.
+status="$(printf 'header = "Authorization: Bearer %s"\n' "$KEY" \
+    | curl -s -o /dev/null -w '%{http_code}' --max-time 30 \
+    --config - \
     -X POST "$ROUTER/v1/messages" \
-    -H "Authorization: Bearer $KEY" \
     -H "anthropic-version: 2023-06-01" \
     -H "content-type: application/json" \
     -d "{\"model\":\"$MODEL\",\"max_tokens\":1,\"messages\":[{\"role\":\"user\",\"content\":\".\"}]}")" \
@@ -690,14 +728,30 @@ chmod 600 "$LOCAL"
 
 # -------------------------------------------------------------- self-check
 
-tmp_chk="$(mktemp)"
-trap 'rm -f "$tmp_cfg" "$tmp_chk"' EXIT INT TERM
-if curl -fsSL "$BASE_URL/check-0g.sh" -o "$tmp_chk" 2>/dev/null; then
-    # 只报告。配置已经写好、key 也验过了，自检发现的是"装好了但有地方不对"，
-    # 不是"没装上"。让它有否决权，就会把一次正确的安装判成失败——布局一变更是如此。
-    sh "$tmp_chk" || note "the checks above found something worth looking at. The
-config is written and the key works; nothing here needs re-running."
-fi
+# The self-check is NOT fetched and run here. It used to be, and that undid the
+# protection the endpoint pin above exists to provide.
+#
+# This script goes to real lengths to make sure a fetched config cannot redirect the
+# credential: ANTHROPIC_BASE_URL from the release must equal ROUTER_URL baked in at
+# release time, on the argument that "a config that redirects the endpoint is the one
+# thing that must not be taken on trust". Fetching check-0g.sh from that same BASE_URL
+# and handing it to `sh` gave up something strictly larger — arbitrary code execution,
+# as root-of-the-user, moments after the key was written to a path the fetched script
+# knows. Whoever could tamper with the config could skip tampering with it and simply
+# read the file. BASE_URL is also overridable from the environment, so the weaker
+# vector needed no compromise of the release at all.
+#
+# Verifying it instead of dropping it would need a digest pinned at release time, the
+# way ROUTER_URL is pinned — a second generated constant, and a release process that
+# keeps it in step. That is a reasonable thing to add upstream; it is not something to
+# improvise here.
+#
+# Nothing is lost by omitting it. The install has already done the checks that matter:
+# the key was validated against the router (200/402) before anything was written, and
+# the write itself is atomic. The self-check only ever reported; it could not fix, and
+# it was explicitly denied a veto. The closing block below still tells the user the
+# command, so it remains one paste away — the difference is that running remote code is
+# now their decision rather than a silent side effect of installing.
 
 # ---------------------------------------------------------------- 交代
 

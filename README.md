@@ -120,23 +120,53 @@ not read.
 | [Switch Model](skills/private-computer/0g-pc-switch-model/SKILL.md) | Move a project already on 0G to a different router model, context ceiling included.                                         | _"switch 0G model"_        |
 | [Uninstall](skills/private-computer/0g-pc-uninstall/SKILL.md)       | Take the project back off 0G and onto the normal Anthropic API.                                                             | _"turn 0G off"_            |
 
-The installer those skills hand you is
-[`skills/private-computer/install.sh`](skills/private-computer/install.sh), also served at
-`pc.0g.ai/install`. It is POSIX `sh` and writes only into the current project —
-`.claude/settings.local.json` (mode 600) and one line in `.claude/.gitignore`. It never touches
-`~/.claude/settings.json`.
+The installer is [`skills/private-computer/install.sh`](skills/private-computer/install.sh), POSIX
+`sh`. Note that the copy here is for reading and review: the skills hand users a `curl` command
+pointing at `0g-pc-skills/main/install.sh`, and `pc.0g.ai/install` serves its own copy, so what
+actually runs on a user's machine comes from upstream rather than from this file.
+
+`claude` writes only into the current project — `.claude/settings.local.json` (mode 600) and one
+line in `.claude/.gitignore`. It never touches `.claude/settings.json`, nor your global
+`~/.claude/settings.json`. The one subcommand that writes outside the project is `skills`, which
+puts the three slash commands in `~/.claude/skills` where Claude Code looks for them; it takes no
+key.
 
 ```bash
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key sk-…   # config: install
+curl -fsSL https://pc.0g.ai/install | bash -s claude --key -      # config: install, prompt for the key
+curl -fsSL https://pc.0g.ai/install | bash -s claude --key sk-…   # config: install, key inline
 curl -fsSL https://pc.0g.ai/install | bash -s claude --uninstall  # config: undo, needs no key
 curl -fsSL https://pc.0g.ai/install | bash -s skills              # slash commands: install
 curl -fsSL https://pc.0g.ai/install | bash -s skills --uninstall  # slash commands: remove
 ```
 
-These four files are copies. They are maintained, tested and released in
-[0gfoundation/0g-pc-skills](https://github.com/0gfoundation/0g-pc-skills); `install.sh` here is a
-byte-for-byte copy of `bf8751e`. Refreshing them is a manual step, so read this directory as a
-convenience and that repository as the source.
+Prefer `--key -`. It reads the key from the terminal with echo off, keeping it out of your shell
+history. `--key sk-…` puts the credential in the argv of the command you typed, which other users on
+the same machine can read.
+
+After a successful install the script prints a `check-0g.sh` command. Running it is a separate,
+deliberate step — the installer does not fetch and execute it for you.
+
+### Provenance
+
+These four files originate in
+[0gfoundation/0g-pc-skills](https://github.com/0gfoundation/0g-pc-skills), where they are
+maintained, tested and released. Refreshing them is a manual step, so read that repository as the
+source.
+
+`install.sh` **is no longer a byte-for-byte copy.** It forked from `bf8751e` with two security
+changes made during review here:
+
+- the API key goes to `curl` on stdin (`--config -`) instead of in its argv, where process arguments
+  are readable by any other user on the machine;
+- the post-install self-check is no longer fetched from `$BASE_URL` and run. Executing remote code
+  moments after writing a credential gave away more than the endpoint pin — which the script
+  maintains for exactly this class of risk — buys back.
+
+Both belong upstream, and **until they land there users are not protected by them** — the skills and
+`pc.0g.ai/install` both serve the upstream file, so that is what actually runs. The fixes here make
+the reviewed copy correct and record what needs upstreaming; they are not a substitute for it.
+
+Until the two are reconciled, treat them as divergent: do not overwrite this file with `bf8751e`.
 
 ---
 
