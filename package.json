@@ -46,7 +46,7 @@
       "private-computer",
       "agentic-id"
     ],
-    "skillCount": 25,
+    "skillCount": 23,
     "entryPoints": {
       "claude-code": "CLAUDE.md",
       "cursor": "setups/cursor/README.md",

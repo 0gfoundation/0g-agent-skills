@@ -1,7 +1,7 @@
 # 0G Agent Skills — Orchestration Guide
 
 Master orchestration file for AI coding assistants. Defines activation triggers, workflow sequences,
-critical rules, and common mistakes for all 25 skills across 6 categories.
+critical rules, and common mistakes for all 23 skills across 6 categories.
 
 > **SDK rename (breaking).** `@0glabs/0g-ts-sdk` and `@0glabs/0g-serving-broker` are deprecated on
 > npm. Use `@0gfoundation/0g-storage-ts-sdk` (^1.2.12) and `@0gfoundation/0g-compute-ts-sdk`
@@ -48,13 +48,12 @@ critical rules, and common mistakes for all 25 skills across 6 categories.
 
 ### Private Computer Skills
 
-These configure Claude Code itself rather than building on 0G. Claude Code only.
+This configures a coding agent (Claude Code, OpenCode, Pi, Hermes Agent) to run on 0G models through
+the `0gpc` CLI, rather than building on 0G. It also covers calling the 0G PC Router from app code.
 
-| Skill        | Path                                                  | Triggers                                                                         |
-| ------------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Setup        | `skills/private-computer/0g-pc-setup/SKILL.md`        | "put this project on 0G", "connect Claude Code to 0G", "set up 0G PC", "接入 0G" |
-| Switch Model | `skills/private-computer/0g-pc-switch-model/SKILL.md` | "switch 0G model", "use a different 0G model", "换模型", "切到 glm-5.3"          |
-| Uninstall    | `skills/private-computer/0g-pc-uninstall/SKILL.md`    | "turn 0G off", "go back to Anthropic", "卸载 0G", "不用 0G 了"                   |
+| Skill | Path                                     | Triggers                                                                                                                                                                         |
+| ----- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0G PC | `skills/private-computer/0g-pc/SKILL.md` | "0G PC", "0gpc", "pc.0g.ai", "private inference", "TEE inference", "set up 0G PC", "connect Claude Code to 0G", "接入 0G", "switch 0G model", "换模型", "turn 0G off", "卸载 0G" |
 
 ### AgenticID Skills
 
@@ -192,16 +191,18 @@ This category is **viem**, not ethers. Testnet is the default target and reputat
 
 ## Manual handoffs (not auto-chained)
 
-The sequences above chain automatically. The Private Computer skills do not, and must not: each one
-changes the user's configuration, and a user who asked for one did not ask for the others.
+The sequences above chain automatically. The Private Computer skill does not, and must not: it
+changes the user's configuration, so it runs only when the user asks for it, and it chains into no
+other skill.
 
-| Situation                              | Skill                |
-| -------------------------------------- | -------------------- |
-| First time putting a project on 0G     | `0g-pc-setup`        |
-| Already on 0G, wants a different model | `0g-pc-switch-model` |
-| Wants this project off 0G              | `0g-pc-uninstall`    |
+| Situation                                    | Skill   |
+| -------------------------------------------- | ------- |
+| First time putting a coding agent on 0G      | `0g-pc` |
+| Already on 0G, wants a different model       | `0g-pc` |
+| Wants a tool off 0G                          | `0g-pc` |
+| Wants to call the 0G PC Router from app code | `0g-pc` |
 
-`0g-pc-setup` does not run the installer itself and does not chain into the other two.
+`0g-pc` drives the `0gpc` CLI and never hand-edits a tool's config; see its ground rules.
 
 Route by the object of the request. A request to configure the client belongs here; a request to
 build something with the Compute SDK belongs to the inference skills, even when it names a model.
