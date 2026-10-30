@@ -6,7 +6,7 @@ This repo turns Claude Code, Cursor, and GitHub Copilot into expert 0G developer
 a file to 0G Storage"_ or _"build a chatbot on 0G Compute"_ and get correct, working TypeScript code
 every time.
 
-**25 skills. 7 architecture references. 3 IDE setups. Zero build step.**
+**23 skills. 7 architecture references. 3 IDE setups. Zero build step.**
 
 ---
 
@@ -69,43 +69,27 @@ Ask your AI assistant anything. Try these:
 
 ## Skills Catalog
 
-The 25 skills split into three groups. Pick the one that matches what you are trying to do.
+The 23 skills split into three groups. Pick the one that matches what you are trying to do.
 
-| Group                                 | What it does                            | Count | Works in                     |
-| ------------------------------------- | --------------------------------------- | ----- | ---------------------------- |
-| [Private Computer](#private-computer) | Runs Claude Code itself on 0G models    | 3     | Claude Code only             |
-| [Build on 0G](#build-on-0g)           | Teaches your assistant to write 0G code | 17    | Claude Code, Cursor, Copilot |
-| [AgenticID](#agenticid)               | Gives AI agents a verifiable identity   | 5     | Claude Code, Cursor, Copilot |
+| Group                                 | What it does                            | Count | Works in                          |
+| ------------------------------------- | --------------------------------------- | ----- | --------------------------------- |
+| [Private Computer](#private-computer) | Runs your coding agent on 0G models     | 1     | Claude Code, OpenCode, Pi, Hermes |
+| [Build on 0G](#build-on-0g)           | Teaches your assistant to write 0G code | 17    | Claude Code, Cursor, Copilot      |
+| [AgenticID](#agenticid)               | Gives AI agents a verifiable identity   | 5     | Claude Code, Cursor, Copilot      |
 
 ---
 
 ## Private Computer
 
-**Run Claude Code itself on 0G.**
+Run your coding agent (Claude Code, OpenCode, Pi or Hermes Agent) on
+[0G Private Computer](https://pc.0g.ai) models with the
+[`0g-pc`](skills/private-computer/0g-pc/SKILL.md) skill.
 
-This group changes where Claude Code sends its own requests. Instead of the Anthropic API, it talks
-to [0G Private Computer](https://pc.0g.ai): TEE-backed inference behind an Anthropic-compatible
-router.
+Paste into your coding agent: `Read https://pc.0g.ai/skill and help me set up 0G Private Computer.`
 
-No Compute SDK, no wallet, no `.env`. It is a configuration change, not code you write.
+Install it as a skill: `npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-pc`
 
-> **Claude Code only.** These skills configure a project's `.claude/` directory. Cursor and Copilot
-> do not read it.
-
-| Skill                                                               | What it does                                                                                                                | Say this to activate       |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| [Setup](skills/private-computer/0g-pc-setup/SKILL.md)               | Ask the router which models it serves right now, choose one on its TEE tier and context, and put the current project on it. | _"put this project on 0G"_ |
-| [Switch Model](skills/private-computer/0g-pc-switch-model/SKILL.md) | Move a project already on 0G to a different router model, context ceiling included.                                         | _"switch 0G model"_        |
-| [Uninstall](skills/private-computer/0g-pc-uninstall/SKILL.md)       | Take the project back off 0G and onto the normal Anthropic API.                                                             | _"turn 0G off"_            |
-
-Get started in one command:
-
-```bash
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key -
-```
-
-See [Private Computer installer](#private-computer-installer) for what it writes, how to undo it,
-and where the file comes from.
+`0g-pc-setup`, `0g-pc-switch-model` and `0g-pc-uninstall` have been merged into `0g-pc`.
 
 ---
 
@@ -181,65 +165,6 @@ quickstart (`https://agenticid.0g.ai`) is **testnet** (16602); mainnet is
 `https://agenticid-mainnet.0g.ai`. And **reputation is testnet-only today** — the reputation
 registry is the one contract not yet deployed on mainnet. See
 [patterns/AGENTIC_ID.md](patterns/AGENTIC_ID.md).
-
----
-
-## Private Computer installer
-
-Reference for the [Private Computer](#private-computer) skills above.
-
-### Commands
-
-```bash
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key -      # install, prompt for the key
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key sk-…   # install, key inline
-curl -fsSL https://pc.0g.ai/install | bash -s claude --uninstall  # undo, needs no key
-curl -fsSL https://pc.0g.ai/install | bash -s skills              # add the slash commands
-curl -fsSL https://pc.0g.ai/install | bash -s skills --uninstall  # remove the slash commands
-```
-
-**Prefer `--key -`.** It reads the key from the terminal with echo off, so it stays out of your
-shell history. `--key sk-…` puts the credential in the argv of the command you typed, where other
-users on the same machine can read it.
-
-### What it writes
-
-| Subcommand | Writes                                                                                                     |
-| ---------- | ---------------------------------------------------------------------------------------------------------- |
-| `claude`   | `.claude/settings.local.json` (mode 600) and one line in `.claude/.gitignore`, in the current project only |
-| `skills`   | The three slash commands into `~/.claude/skills`, outside the project. Takes no key                        |
-
-`claude` never touches `.claude/settings.json`, nor your global `~/.claude/settings.json`.
-
-After a successful install the script prints a `check-0g.sh` command. Running it is a separate,
-deliberate step. The installer does not fetch and execute it for you.
-
-### Where the file comes from
-
-The copy in this repo, [`skills/private-computer/install.sh`](skills/private-computer/install.sh),
-is POSIX `sh` and is here for reading and review. It is **not** what runs on a user's machine: the
-skills hand out a `curl` pointing at `0g-pc-skills/main/install.sh`, and `pc.0g.ai/install` serves
-its own copy.
-
-All four private-computer files originate in
-[0gfoundation/0g-pc-skills](https://github.com/0gfoundation/0g-pc-skills), where they are
-maintained, tested and released. Refreshing them here is a manual step, so read that repository as
-the source.
-
-> **`install.sh` is no longer a byte-for-byte copy.** It forked from `bf8751e` with two security
-> changes made during review in this repo:
->
-> 1. The API key goes to `curl` on stdin (`--config -`) instead of in its argv, where process
->    arguments are readable by any other user on the machine.
-> 2. The post-install self-check is no longer fetched from `$BASE_URL` and executed. Running remote
->    code moments after writing a credential gave away more than the endpoint pin buys back, and
->    that pin exists for exactly this class of risk.
->
-> Both belong upstream, and **until they land there users are not protected by them**, because the
-> upstream file is what actually runs. The fixes here make the reviewed copy correct and record what
-> needs upstreaming. They are not a substitute for it.
->
-> Until the two are reconciled, treat them as divergent: do not overwrite this file with `bf8751e`.
 
 ---
 
@@ -372,11 +297,8 @@ agent-skills-0g/
 │   │   ├── interact-agent/SKILL.md
 │   │   ├── agent-reputation/SKILL.md
 │   │   └── agent-accounts/SKILL.md
-│   └── private-computer/            # 3 skills, plus the installer (copy, for review)
-│       ├── install.sh
-│       ├── 0g-pc-setup/SKILL.md
-│       ├── 0g-pc-switch-model/SKILL.md
-│       └── 0g-pc-uninstall/SKILL.md
+│   └── private-computer/            # 1 skill
+│       └── 0g-pc/SKILL.md
 │
 ├── examples/                        # 4 runnable example projects
 │   ├── file-vault/                  # Storage: upload, download, verify

@@ -16,7 +16,7 @@
   ],
   "entryPoint": "CLAUDE.md",
   "skills": {
-    "count": 25,
+    "count": 23,
     "categories": [
       {
         "name": "storage",
@@ -58,9 +58,7 @@
       {
         "name": "private-computer",
         "skills": [
-          "0g-pc-setup",
-          "0g-pc-switch-model",
-          "0g-pc-uninstall"
+          "0g-pc"
         ]
       },
       {
