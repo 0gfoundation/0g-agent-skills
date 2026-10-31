@@ -29,16 +29,17 @@ models through the Router.
 
 ## Endpoints by modality
 
-| The user wants                                  | Modality            | Endpoint                                                                                                                           | Catalog service type                                         |
-| ----------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Chat, code, reasoning, tool calls               | Text                | `POST /chat/completions`                                                                                                           | `chatbot`                                                    |
-| Read a screenshot, photo, chart or scanned page | Image understanding | `POST /chat/completions` with image content                                                                                        | `chatbot` (model whose `input_modalities` include `image`)   |
-| Create an image from a description              | Image generation    | `POST /images/generations`; for models with `async_supported: true`, `POST /async/images/generations`, then `GET /async/jobs/{id}` | `text-to-image`                                              |
-| Change an existing image                        | Image editing       | `POST /images/generations` with reference images (synchronous)                                                                     | `text-to-image` (model with `image_capabilities.references`) |
-| Turn speech into text                           | Transcription       | `POST /audio/transcriptions`                                                                                                       | `speech-to-text`                                             |
-| Read text aloud                                 | Text-to-speech      | `POST /audio/speech`                                                                                                               | `text-to-speech`                                             |
-| Create a video from text or images              | Video generation    | `POST /videos`, then `GET /videos/{id}`, then `GET /videos/{id}/content`                                                           | `video-generation`                                           |
-| Ask questions about a video                     | Video understanding | See the model's page                                                                                                               | `chatbot` (model whose `input_modalities` include `video`)   |
+| The user wants                                       | Modality            | Endpoint                                                                                                                           | Catalog service type                                         |
+| ---------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
+| Chat, code, reasoning, tool calls                    | Text                | `POST /chat/completions`                                                                                                           | `chatbot`                                                    |
+| Read a screenshot, photo, chart or scanned page      | Image understanding | `POST /chat/completions` with image content                                                                                        | `chatbot` (model whose `input_modalities` include `image`)   |
+| Create an image from a description                   | Image generation    | `POST /images/generations`; for models with `async_supported: true`, `POST /async/images/generations`, then `GET /async/jobs/{id}` | `text-to-image`                                              |
+| Change an existing image                             | Image editing       | `POST /images/generations` with reference images (synchronous)                                                                     | `text-to-image` (model with `image_capabilities.references`) |
+| Turn speech into text                                | Transcription       | `POST /audio/transcriptions`                                                                                                       | `speech-to-text`                                             |
+| Read text aloud                                      | Text-to-speech      | `POST /audio/speech`                                                                                                               | `text-to-speech`                                             |
+| Create a video from text or images                   | Video generation    | `POST /videos`, then `GET /videos/{id}`, then `GET /videos/{id}/content`                                                           | `video-generation`                                           |
+| Ask questions about a video                          | Video understanding | See the model's page                                                                                                               | `chatbot` (model whose `input_modalities` include `video`)   |
+| Turn text into vectors for search, clustering or RAG | Embeddings          | `POST /embeddings`                                                                                                                 | `embedding`                                                  |
 
 Classify the request first with [step 2](../SKILL.md#step-2-which-modality-build-and-try-only); this
 table only maps the result to an endpoint. The service type column is the `type` of the model in
@@ -49,6 +50,8 @@ and the `async_supported` field in `/v1/models`; image editing against
 `image_capabilities.references` in `/v1/models` and the model pages (for example
 https://pc.0g.ai/models/bytedance/seedream-5.0-lite); transcription against
 [Audio Transcription](https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/features/audio);
+embeddings against `supported_parameters` and `context_length` in `/v1/models` and the model pages
+(for example https://pc.0g.ai/models/qwen3-embedding-8b), since docs.0g.ai has no embeddings page;
 video generation and text-to-speech against `video_capabilities` and `speech_capabilities` in
 `/v1/models` and the model pages (for example https://pc.0g.ai/models/bytedance/seedance-2.5 and
 https://pc.0g.ai/models/minimax-speech-2.8-turbo). Each model's `/v1/models` entry and its page have
@@ -149,6 +152,23 @@ the fields and limits for that model; follow them when they differ from the note
 - Use a model whose catalog entry accepts video input, and follow its page for how to send the
   video. Check which trust modes it offers before sending private footage.
 
+**Embeddings.**
+
+1. Pick a `/v1/models` entry whose `type` is `embedding`. Its `supported_parameters` lists the
+   optional fields it takes (`encoding_format`, and `dimensions` only where listed), and
+   `context_length` is the most input one request takes. The vector size is on the model's page at
+   `https://pc.0g.ai/models/<model-id>`.
+2. Send JSON to `POST /embeddings` with `model` and `input`, adding `encoding_format` or
+   `dimensions` only if the model lists them. The endpoint is compatible with the OpenAI Embeddings
+   API, so the official OpenAI SDKs' embeddings call works once the base URL and key point at the
+   Router.
+3. Pricing is per input token. Before embedding a set of documents, tell the user the estimated
+   token count and cost, and wait for their OK.
+4. Use the same model, and the same `dimensions` if set, for indexing and for queries; vectors from
+   different models or sizes can't be compared.
+5. The text goes to the provider; check which trust modes the model offers before embedding private
+   documents.
+
 ## Build report
 
 When you finish, summarize with this template in the user's language:
@@ -156,7 +176,7 @@ When you finish, summarize with this template in the user's language:
 ```
 0G PC build summary
 Model:       <model id> (from pc.0g.ai/models)
-Modality:    <text | image understanding | image generation | image editing | transcription | text-to-speech | video generation | video understanding>
+Modality:    <text | image understanding | image generation | image editing | transcription | text-to-speech | video generation | video understanding | embeddings>
 Trust mode:  <header value, or key default>
 Key:         read from <environment variable name> (value never shown)
 Changed:     <files>

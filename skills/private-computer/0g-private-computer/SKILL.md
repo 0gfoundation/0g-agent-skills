@@ -4,13 +4,13 @@ description:
   Use 0G Private Computer (pc.0g.ai) from an agent. Connect a coding tool (Claude Code, OpenCode,
   Pi, Hermes Agent) to 0G models through the 0gpc CLI, or call the 0G Router from application code
   for text, image understanding, image generation and editing, video generation and understanding,
-  speech-to-text and text-to-speech. Covers API keys, the live model catalog, trust modes (Standard,
-  Verified, Private/TEE), previewed and reversible config changes, and cost confirmation. Use
-  whenever the user mentions 0G, 0G PC, pc.0g.ai, 0gpc, router-api.0g.ai, private or TEE inference,
-  or wants to run models through 0G, even if they don't name a tool. Requests that say "with 0G"
-  without mentioning a wallet are API-key Router requests and belong here. For wallet-signed Compute
-  Direct calls (broker SDK, per-provider sub-accounts, Advanced mode on pc.0g.ai, fine-tuning), use
-  the Compute skills instead.
+  speech-to-text, text-to-speech and embeddings. Covers API keys, the live model catalog, trust
+  modes (Standard, Verified, Private/TEE), previewed and reversible config changes, and cost
+  confirmation. Use whenever the user mentions 0G, 0G PC, pc.0g.ai, 0gpc, router-api.0g.ai, private
+  or TEE inference, or wants to run models through 0G, even if they don't name a tool. Requests that
+  say "with 0G" without mentioning a wallet are API-key Router requests and belong here. For
+  wallet-signed Compute Direct calls (broker SDK, per-provider sub-accounts, Advanced mode on
+  pc.0g.ai, fine-tuning), use the Compute skills instead.
 compatibility:
   Connect flow needs macOS or Linux, Node.js 22+ and 0gpc 0.3.2+. Build flow works with any
   OpenAI-compatible client.
@@ -82,14 +82,14 @@ providers of a `/v1/models` id only when the two names are the same. A row with 
 has no `/v1/models` entry; don't offer it as a model.
 
 `type` matches the Playground pages: `chatbot` for chat, `text-to-image` for image (generation and
-editing), `video-generation` for video, `speech-to-text` for transcription and `text-to-speech` for
-reading text aloud. Within `chatbot`, `architecture.input_modalities` shows what a model accepts:
-`image` for vision, `video` for video input; `supported_parameters` containing `tools` means tool
-calling. Image, speech and video models carry their limits in `image_capabilities`,
-`speech_capabilities` and `video_capabilities`, and image models say in `async_supported` whether
-they take async jobs. If a modality has no models, check https://pc.0g.ai/models before telling the
-user it isn't offered. Listing calls are free; if one times out, retry it up to twice before
-concluding anything.
+editing), `video-generation` for video, `speech-to-text` for transcription, `text-to-speech` for
+reading text aloud and `embedding` for vectors, which has no Playground page. Within `chatbot`,
+`architecture.input_modalities` shows what a model accepts: `image` for vision, `video` for video
+input; `supported_parameters` containing `tools` means tool calling. Image, speech and video models
+carry their limits in `image_capabilities`, `speech_capabilities` and `video_capabilities`, and
+image models say in `async_supported` whether they take async jobs. If a modality has no models,
+check https://pc.0g.ai/models before telling the user it isn't offered. Listing calls are free; if
+one times out, retry it up to twice before concluding anything.
 
 Token prices are in neuron per token, where 1e18 neuron is 1 0G; multiply by the expected input and
 output tokens to estimate cost. Image and video models carry their own pricing fields, so quote them
@@ -167,16 +167,17 @@ Tie-breakers:
 
 ### Step 2: which modality (Build and Try only)
 
-| Input → output                   | Typical words                                                               | Modality            |
-| -------------------------------- | --------------------------------------------------------------------------- | ------------------- |
-| text → text                      | ask, chat, write, summarize, translate, code, reason, call tools            | Text                |
-| image (+ text) → text            | read, describe, extract, OCR, analyze; screenshot, photo, chart, scan       | Image understanding |
-| text (+ reference image) → image | generate, draw, design, render, illustrate; logo, cover, poster, hero image | Image generation    |
-| image + instruction → image      | edit, retouch, remove, replace, change the background, restyle this photo   | Image editing       |
-| text or image → video            | animate, make a video, generate a clip, turn this image into a video        | Video generation    |
-| video (+ text) → text            | summarize, describe, find the moment, what happens in                       | Video understanding |
-| audio → text                     | transcribe, captions, subtitles, minutes from a recording                   | Speech              |
-| text → audio                     | read aloud, voice-over, narrate, text to speech, TTS                        | Text-to-speech      |
+| Input → output                   | Typical words                                                                 | Modality            |
+| -------------------------------- | ----------------------------------------------------------------------------- | ------------------- |
+| text → text                      | ask, chat, write, summarize, translate, code, reason, call tools              | Text                |
+| image (+ text) → text            | read, describe, extract, OCR, analyze; screenshot, photo, chart, scan         | Image understanding |
+| text (+ reference image) → image | generate, draw, design, render, illustrate; logo, cover, poster, hero image   | Image generation    |
+| image + instruction → image      | edit, retouch, remove, replace, change the background, restyle this photo     | Image editing       |
+| text or image → video            | animate, make a video, generate a clip, turn this image into a video          | Video generation    |
+| video (+ text) → text            | summarize, describe, find the moment, what happens in                         | Video understanding |
+| audio → text                     | transcribe, captions, subtitles, minutes from a recording                     | Speech              |
+| text → audio                     | read aloud, voice-over, narrate, text to speech, TTS                          | Text-to-speech      |
+| text → vector                    | embed, embeddings, vectors, semantic search, similarity, RAG index, retrieval | Embeddings          |
 
 When the words don't decide, the files do. An image (`.png`, `.jpg`, `.webp`) given as input means
 image understanding; one requested as output means image generation, and both together mean image
@@ -194,6 +195,8 @@ Near misses:
   a new image.
 - "Read this aloud" is text-to-speech, served by `text-to-speech` models. A transcription
   (`speech-to-text`) model can't do it.
+- "Semantic search" or "RAG over my docs": building the index and embedding each query is
+  Embeddings; answering from the retrieved text is Text. Say which parts you will build.
 
 ### When unsure, ask one question
 
@@ -299,6 +302,16 @@ Recognized as **Build → Speech** (first) and **Build → Text-to-speech** (sec
 transcript, the agent uses a speech-to-text model from the catalog. For audio, it picks a
 text-to-speech model and voice, shows the character count and estimated cost, waits for the user's
 OK and saves the file. To try first: https://pc.0g.ai/playground/speech
+
+**Embeddings**
+
+```
+Embed the Markdown files in ./docs with 0G PC and save the vectors to docs-index.json.
+```
+
+Recognized as **Build → Embeddings**. The agent picks an `embedding` model from `/v1/models`,
+estimates the input tokens and cost and waits for the user's OK, then calls `POST /embeddings` and
+saves the vectors with the file each one came from. There is no Playground page for embeddings.
 
 **Just asking**
 
