@@ -72,11 +72,12 @@ can change it.
 - Scope: default to `project` for `claude` and `opencode`, which affects only this directory; `user`
   affects every project. Pi and Hermes are always `user`. For `project`, show the current working
   directory and confirm it is the project root.
-- Model: list chat models as in [List available models](../SKILL.md#list-available-models), with
-  `service_type=chatbot`. For coding tools, prefer models with tool calling and a long context.
-  Offer one recommendation plus up to two alternatives, with price, context length and capabilities.
-  If the user chose Private, pick a model served by a TEE-attested provider. Never make up a model
-  id; the dry-run in step 5 rejects a model the tool can't use.
+- Model: list chat models as in [List available models](../SKILL.md#list-available-models): the
+  `/v1/models` entries whose `type` is `chatbot`. For coding tools, prefer models with tool calling
+  (`tools` in `supported_parameters`) and a long context. Offer one recommendation plus up to two
+  alternatives, with price, context length and capabilities. If the user chose Private, pick a model
+  served by a TEE-attested provider. Never make up a model id; the dry-run in step 5 rejects a model
+  the tool can't use.
 
 Done when tool, scope and model id are all fixed.
 

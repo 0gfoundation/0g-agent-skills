@@ -61,19 +61,32 @@ by the API key's default:
 ### List available models
 
 The live catalog is public: listing it needs no key and costs nothing, so run it whenever you need
-model ids, prices or capabilities, in any flow.
+model ids, prices or capabilities, in any flow. List models from `/v1/models` alone; use
+`/v1/providers` only for the providers behind a model.
 
-| To get                                                                         | Run                                                                                                             |
-| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| Every model: id, name, context length, price, provider count, capability flags | `curl -s https://router-api.0g.ai/v1/models`                                                                    |
-| The models that serve one modality                                             | `curl -s "https://router-api.0g.ai/v1/providers?service_type=<type>"`, then take the distinct `model_id` values |
-| The providers behind one model, with TEE attestation and verifiability         | `curl -s "https://router-api.0g.ai/v1/providers?model=<model-id>"`                                              |
+| To get                                                                  | Run                                                                                                                              |
+| ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Every model: id, name, modality, context length, price, capabilities    | `curl -s https://router-api.0g.ai/v1/models`                                                                                     |
+| The models for one modality                                             | The same list, keeping the entries whose `type` is that modality                                                                 |
+| The providers behind one model: address, TEE attestation, verifiability | `curl -s "https://router-api.0g.ai/v1/providers?service_type=<type>"`, then keep the rows whose `canonical_id` is the model's id |
 
-Service types match the Playground pages: `chatbot` for chat (vision-capable models carry the vision
-flag), `text-to-image` for image (generation and editing), `video-generation` for video,
-`speech-to-text` for transcription and `text-to-speech` for reading text aloud. If a type returns
-nothing, check https://pc.0g.ai/models before telling the user it isn't offered. Listing calls are
-free; if one times out, retry it up to twice before concluding anything.
+Use the `id` from `/v1/models` everywhere: as `model` in requests and in
+`https://pc.0g.ai/models/<model-id>`. A `/v1/providers` row names the model twice: `model_id` is the
+provider's own name for it (for example `seedream-4-5-251128`), and `canonical_id` is the
+`/v1/models` id (`bytedance/seedream-4.5`). They are often the same (`glm-5.2`), but not always, so
+map rows back through `canonical_id`. `/v1/providers?model=` matches `model_id`, so it finds the
+providers of a `/v1/models` id only when the two names are the same. A row with no `canonical_id`
+has no `/v1/models` entry; don't offer it as a model.
+
+`type` matches the Playground pages: `chatbot` for chat, `text-to-image` for image (generation and
+editing), `video-generation` for video, `speech-to-text` for transcription and `text-to-speech` for
+reading text aloud. Within `chatbot`, `architecture.input_modalities` shows what a model accepts:
+`image` for vision, `video` for video input; `supported_parameters` containing `tools` means tool
+calling. Image, speech and video models carry their limits in `image_capabilities`,
+`speech_capabilities` and `video_capabilities`, and image models say in `async_supported` whether
+they take async jobs. If a modality has no models, check https://pc.0g.ai/models before telling the
+user it isn't offered. Listing calls are free; if one times out, retry it up to twice before
+concluding anything.
 
 Token prices are in neuron per token, where 1e18 neuron is 1 0G; multiply by the expected input and
 output tokens to estimate cost. Image and video models carry their own pricing fields, so quote them
@@ -141,9 +154,10 @@ Tie-breakers:
   set in the user's code or environment, it is Build.
 - Processing a file now ("transcribe meeting.mp3", "make me a logo") is Build even without the word
   "app": you write and run a small script with the user's key from their environment.
-- Pinning a specific provider is still Build: list providers with `/v1/providers?model=<model-id>`
-  and send `X-0G-Provider-Address` (or `X-0G-Provider-Identity` to filter by channel). It is Compute
-  Direct only when the user wants wallet-signed calls or per-provider sub-accounts.
+- Pinning a specific provider is still Build: list its providers as in
+  [List available models](#list-available-models) and send `X-0G-Provider-Address` (or
+  `X-0G-Provider-Identity` to filter by channel). It is Compute Direct only when the user wants
+  wallet-signed calls or per-provider sub-accounts.
 - Fine-tuning and Advanced mode on pc.0g.ai are Compute Direct. The Router balance (default mode on
   pc.0g.ai) and Direct sub-accounts (Advanced mode, compute-marketplace.0g.ai) are separate; funds
   in one don't pay for calls in the other.
@@ -172,9 +186,9 @@ Near misses:
 - "Get the text from this video": if the user wants the spoken words, it is speech, and the audio
   has to be extracted first (ask before installing a tool for that). Otherwise it is video
   understanding.
-- "Edit this image" is image editing, not image generation from scratch: it needs a model whose page
-  on pc.0g.ai says it takes reference images. If none does, say so instead of generating a new
-  image.
+- "Edit this image" is image editing, not image generation from scratch: it needs a model whose
+  `/v1/models` entry has `image_capabilities.references`. If none does, say so instead of generating
+  a new image.
 - "Read this aloud" is text-to-speech, served by `text-to-speech` models. A transcription
   (`speech-to-text`) model can't do it.
 
@@ -248,10 +262,10 @@ Use 0G PC to replace the background of photo.jpg with a plain white one and save
 ```
 
 Recognized as **Build → Image generation** (first) and **Build → Image editing** (second). The agent
-shows the per-image price and waits for the user's OK; for generation it submits an async job, polls
-it and saves the file, and for editing it uses a model that accepts reference images and sends the
-photo as a reference image the way that model's page says. To try prompts first:
-https://pc.0g.ai/playground/image
+shows the per-image price and waits for the user's OK; for generation it uses the async job path or
+a synchronous call, depending on the model's `async_supported`, and saves the file; for editing it
+uses a model with `image_capabilities.references` and sends the photo in the field that model names.
+To try prompts first: https://pc.0g.ai/playground/image
 
 **Video**
 
