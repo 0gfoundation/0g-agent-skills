@@ -1,8 +1,8 @@
 # 0G PC: Connect flow
 
-Part of the 0g-pc skill. Read [SKILL.md](../SKILL.md) first: its ground rules apply here, and it
-decides whether this is the right flow. This flow connects a coding tool to 0G models through the
-0gpc CLI.
+Part of the 0g-private-computer skill. Read [SKILL.md](../SKILL.md) first: its ground rules apply
+here, and it decides whether this is the right flow. This flow connects a coding tool to 0G models
+through the 0gpc CLI.
 
 ## Running the CLI
 

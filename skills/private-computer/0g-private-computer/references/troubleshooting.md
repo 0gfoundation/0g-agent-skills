@@ -1,7 +1,8 @@
 # 0G PC: Troubleshooting
 
-Part of the 0g-pc skill. Read [SKILL.md](../SKILL.md) first: its ground rules apply here, and it
-decides whether this is the right flow. Use this file when something fails in either flow.
+Part of the 0g-private-computer skill. Read [SKILL.md](../SKILL.md) first: its ground rules apply
+here, and it decides whether this is the right flow. Use this file when something fails in either
+flow.
 
 Diagnose before changing anything, and prefer the smallest reversible fix. Don't repeat a failed
 write or job submission; fix the cause first. Don't hand-edit tool config to work around a failure.
