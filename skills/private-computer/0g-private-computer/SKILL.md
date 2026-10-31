@@ -7,7 +7,10 @@ description:
   speech-to-text and text-to-speech. Covers API keys, the live model catalog, trust modes (Standard,
   Verified, Private/TEE), previewed and reversible config changes, and cost confirmation. Use
   whenever the user mentions 0G, 0G PC, pc.0g.ai, 0gpc, router-api.0g.ai, private or TEE inference,
-  or wants to run models through 0G, even if they don't name a tool.
+  or wants to run models through 0G, even if they don't name a tool. Requests that say "with 0G"
+  without mentioning a wallet are API-key Router requests and belong here. For wallet-signed Compute
+  Direct calls (broker SDK, per-provider sub-accounts, Advanced mode on pc.0g.ai, fine-tuning), use
+  the Compute skills instead.
 compatibility:
   Connect flow needs macOS or Linux, Node.js 22+ and 0gpc 0.3.2+. Build flow works with any
   OpenAI-compatible client.

@@ -75,15 +75,24 @@ Private Computer, and AgenticID.
 
 ### Compute
 
-- `skills/compute/provider-discovery/SKILL.md` — Find & verify providers, enumerate models
-- `skills/compute/account-management/SKILL.md` — Deposits, transfers, refunds, auto-funding
-- `skills/compute/streaming-chat/SKILL.md` — LLM inference (GLM, Claude, GPT, Qwen, DeepSeek, 0GM)
-- `skills/compute/text-to-image/SKILL.md` — Image generation (z-image-turbo)
-- `skills/compute/image-editing/SKILL.md` — Edit an existing image from a prompt
-- `skills/compute/video-generation/SKILL.md` — Video generation (MiniMax-H3, Seedance)
-- `skills/compute/embeddings/SKILL.md` — Text embeddings for search & RAG
-- `skills/compute/speech-to-text/SKILL.md` — Audio transcription (Whisper Large V3)
-- `skills/compute/fine-tuning/SKILL.md` — Model training + LoRA adapter deployment
+- `skills/compute/provider-discovery/SKILL.md` — Compute Direct (wallet + broker SDK): Find & verify
+  providers, enumerate models
+- `skills/compute/account-management/SKILL.md` — Compute Direct (wallet + broker SDK): Deposits,
+  transfers, refunds, auto-funding
+- `skills/compute/streaming-chat/SKILL.md` — Compute Direct (wallet + broker SDK): LLM inference
+  (GLM, Claude, GPT, Qwen, DeepSeek, 0GM)
+- `skills/compute/text-to-image/SKILL.md` — Compute Direct (wallet + broker SDK): Image generation
+  (z-image-turbo)
+- `skills/compute/image-editing/SKILL.md` — Compute Direct (wallet + broker SDK): Edit an existing
+  image from a prompt
+- `skills/compute/video-generation/SKILL.md` — Compute Direct (wallet + broker SDK): Video
+  generation (MiniMax-H3, Seedance)
+- `skills/compute/embeddings/SKILL.md` — Compute Direct (wallet + broker SDK): Text embeddings for
+  search & RAG
+- `skills/compute/speech-to-text/SKILL.md` — Compute Direct (wallet + broker SDK): Audio
+  transcription (Whisper Large V3)
+- `skills/compute/fine-tuning/SKILL.md` — Compute Direct (wallet + broker SDK): Model training +
+  LoRA adapter deployment
 
 ### Chain
 
