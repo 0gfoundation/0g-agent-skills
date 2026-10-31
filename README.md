@@ -106,16 +106,29 @@ Or install the skill:
 npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer
 ```
 
+After installing, just ask in plain words (for example "connect Claude Code to 0G PC"), or type
+`/0g-private-computer` in Claude Code. Restart the tool after installing.
+
 ### Run your coding agent on 0G models
 
-Say _"connect Claude Code in this project to 0G PC"_. The agent checks your setup and explains the
-plan; you enter your key in your own terminal, pick a model and review the exact change; it saves
-only after you confirm, then you restart the tool.
-
 Works with Claude Code, OpenCode V1, Pi and Hermes Agent through the
-[`0gpc` CLI](https://www.npmjs.com/package/@0gfoundation/0gpc). Later, say _"switch my 0G model"_,
-_"check my 0G connection"_ or _"turn 0G off"_; turning off removes only what 0gpc added. Prefer to
-do it yourself? Run `npx @0gfoundation/0gpc@latest`.
+[`0gpc` CLI](https://www.npmjs.com/package/@0gfoundation/0gpc). Every change is previewed first and
+saved only after you confirm; restart the tool afterwards so it picks up the new model.
+
+| You want to                  | Say this                                                             | What happens                                                                                                                                 |
+| ---------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Put your coding agent on 0G  | "connect Claude Code in this project to 0G PC"                       | Checks your setup; you add your key in your own terminal, pick a model and approve the exact change                                          |
+| See which models you can use | "which models can Claude Code use on 0G PC?" · "is glm-5.3 on 0G?"   | Queries the live catalog right then, with price, context length, tool calling and Private support; no key, no cost                           |
+| Pick a model for coding      | "which 0G model is best for coding with Claude Code?"                | Recommends one model from the live catalog, plus up to two alternatives, and says why                                                        |
+| Keep your code private       | "make sure Claude Code only uses Private (TEE) inference"            | Has you set your key to Private on pc.0g.ai, then picks a model served by a TEE-attested provider                                            |
+| Switch model                 | "switch to a cheaper 0G model" · "use a model with a longer context" | Shows the options, previews the change and saves it after you confirm                                                                        |
+| Confirm it's working         | "am I on 0G now?" · "check my 0G connection"                         | Checks the local setup and points you to your requests in usage on pc.0g.ai; asks before a network check, which may cost a very small amount |
+| See what you've spent        | "how much have I spent on 0G?"                                       | Points you to usage and balance on pc.0g.ai; topping up is always your call                                                                  |
+| Replace your key             | "I need a new 0G key" · "I pasted my key into the chat"              | You create a new key on pc.0g.ai and enter it in your own terminal; every connected tool picks it up                                         |
+| Use 0G in every project      | "use 0G PC for Claude Code in all my projects"                       | Explains that this changes your global settings, previews it and asks before saving                                                          |
+| Go back to your usual setup  | "turn 0G off" · "go back to Anthropic"                               | Removes only what 0gpc added; your other settings and your key stay                                                                          |
+
+Prefer to do it yourself? Run `npx @0gfoundation/0gpc@latest` for the setup wizard.
 
 ### Build with 0G models in your app
 
