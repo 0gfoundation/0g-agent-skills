@@ -24,14 +24,14 @@ through the Router.
 
 ## Endpoints by modality
 
-| The user wants                                  | Modality            | Endpoint                                                      | Catalog service type                     |
-| ----------------------------------------------- | ------------------- | ------------------------------------------------------------- | ---------------------------------------- |
-| Chat, code, reasoning, tool calls               | Text                | `POST /chat/completions`                                      | chatbot                                  |
-| Read a screenshot, photo, chart or scanned page | Image understanding | `POST /chat/completions` with image content                   | chatbot model with the vision capability |
-| Create an image from a description              | Image generation    | `POST /async/images/generations`, then `GET /async/jobs/{id}` | text-to-image                            |
-| Turn speech into text                           | Transcription       | `POST /audio/transcriptions`                                  | speech-to-text                           |
-| Create a video from text or images              | Video generation    | Async; see the model's API reference page                     | video generation models                  |
-| Ask questions about a video                     | Video understanding | See the model's API reference page                            | models that accept video input           |
+| The user wants                                  | Modality            | Endpoint                                                      | Catalog service type                       |
+| ----------------------------------------------- | ------------------- | ------------------------------------------------------------- | ------------------------------------------ |
+| Chat, code, reasoning, tool calls               | Text                | `POST /chat/completions`                                      | `chatbot`                                  |
+| Read a screenshot, photo, chart or scanned page | Image understanding | `POST /chat/completions` with image content                   | `chatbot` (model with the vision flag)     |
+| Create an image from a description              | Image generation    | `POST /async/images/generations`, then `GET /async/jobs/{id}` | `text-to-image`                            |
+| Turn speech into text                           | Transcription       | `POST /audio/transcriptions`                                  | `speech-to-text`                           |
+| Create a video from text or images              | Video generation    | Async; see the model's API reference page                     | `video-generation`                         |
+| Ask questions about a video                     | Video understanding | See the model's API reference page                            | `chatbot` (model that accepts video input) |
 
 Classify the request first with [step 2](../SKILL.md#step-2-which-modality-build-and-try-only); this
 table only maps the result to an endpoint. The service type column is the value for
