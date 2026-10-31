@@ -12,8 +12,9 @@ through the Router.
 - **Endpoint:** base URL `https://router-api.0g.ai/v1`, auth `Authorization: Bearer <key>`. If the
   client appends `/v1` itself, don't add it twice. The official OpenAI SDKs work once the base URL
   and key point at the Router.
-- **Model:** confirm one from https://pc.0g.ai/models with the user (they can compare candidates
-  first in the Playground page for that modality), then open its page at
+- **Model:** list the candidates for the modality as in
+  [List available models](../SKILL.md#list-available-models) and confirm one with the user (they can
+  compare candidates first in the Playground page for that modality), then open its page at
   `https://pc.0g.ai/api-reference/<model-id>` for the exact endpoint, fields and code. Don't write
   endpoints or model ids from memory.
 - **Trust mode:** send `X-0G-Provider-Trust-Mode: verified` or `private`, or rely on the key's
@@ -33,7 +34,8 @@ through the Router.
 | Ask questions about a video                     | Video understanding | See the model's API reference page                            | models that accept video input           |
 
 Classify the request first with [step 2](../SKILL.md#step-2-which-modality-build-and-try-only); this
-table only maps the result to an endpoint.
+table only maps the result to an endpoint. The service type column is the value for
+`/v1/providers?service_type=` when you list models.
 
 **Text.**
 
