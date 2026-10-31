@@ -19,17 +19,17 @@ critical rules, and common mistakes for all 23 skills across 6 categories.
 
 ### Compute Skills
 
-| Skill              | Path                                         | Triggers                                                         |
-| ------------------ | -------------------------------------------- | ---------------------------------------------------------------- |
-| Provider Discovery | `skills/compute/provider-discovery/SKILL.md` | "list providers", "find provider", "verify provider", "TEE"      |
-| Account Management | `skills/compute/account-management/SKILL.md` | "deposit", "transfer funds", "refund", "check balance"           |
-| Streaming Chat     | `skills/compute/streaming-chat/SKILL.md`     | "chatbot", "inference", "LLM", "GLM", "Claude", "GPT", "AI chat" |
-| Text to Image      | `skills/compute/text-to-image/SKILL.md`      | "generate image", "text-to-image", "create image"                |
-| Image Editing      | `skills/compute/image-editing/SKILL.md`      | "edit image", "image-editing", "inpaint", "modify image"         |
-| Video Generation   | `skills/compute/video-generation/SKILL.md`   | "generate video", "text-to-video", "MiniMax", "Seedance"         |
-| Embeddings         | `skills/compute/embeddings/SKILL.md`         | "embedding", "vector", "semantic search", "RAG"                  |
-| Speech to Text     | `skills/compute/speech-to-text/SKILL.md`     | "transcribe", "speech-to-text", "Whisper", "audio transcription" |
-| Fine-Tuning        | `skills/compute/fine-tuning/SKILL.md`        | "fine-tune", "train model", "LoRA", "adapter", "custom model"    |
+| Skill              | Path                                         | Triggers                                                                                                                                                             |
+| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Provider Discovery | `skills/compute/provider-discovery/SKILL.md` | "list providers with the broker SDK", "find a provider on compute-marketplace.0g.ai", "verify a provider's TEE signer with the broker SDK"                           |
+| Account Management | `skills/compute/account-management/SKILL.md` | "deposit", "transfer funds", "refund", "check balance"                                                                                                               |
+| Streaming Chat     | `skills/compute/streaming-chat/SKILL.md`     | "chatbot with a wallet / the broker SDK", "inference with the broker SDK", "LLM through a provider sub-account", "GLM / Claude / GPT with the broker SDK"            |
+| Text to Image      | `skills/compute/text-to-image/SKILL.md`      | "generate an image with a wallet / the broker SDK", "text-to-image with the broker SDK", "create an image through a provider sub-account"                            |
+| Image Editing      | `skills/compute/image-editing/SKILL.md`      | "edit an image with a wallet / the broker SDK", "image-editing with the broker SDK", "inpaint with the broker SDK", "modify an image through a provider sub-account" |
+| Video Generation   | `skills/compute/video-generation/SKILL.md`   | "generate a video with a wallet / the broker SDK", "text-to-video with the broker SDK", "MiniMax / Seedance with the broker SDK"                                     |
+| Embeddings         | `skills/compute/embeddings/SKILL.md`         | "embeddings with a wallet / the broker SDK", "vector embeddings with the broker SDK", "semantic search with the broker SDK", "RAG with a wallet / the broker SDK"    |
+| Speech to Text     | `skills/compute/speech-to-text/SKILL.md`     | "transcribe with a wallet / the broker SDK", "speech-to-text with the broker SDK", "Whisper with the broker SDK"                                                     |
+| Fine-Tuning        | `skills/compute/fine-tuning/SKILL.md`        | "fine-tune", "train model", "LoRA", "adapter", "custom model"                                                                                                        |
 
 ### Chain Skills
 
@@ -52,9 +52,9 @@ Use 0G Private Computer (pc.0g.ai) from an agent: connect a coding tool (Claude 
 Hermes Agent) through the `0gpc` CLI, or call 0G models (text, image, video, speech) from app code
 with a pc.0g.ai API key.
 
-| Skill | Path                                                   | Triggers                                                                                                                                                                                                                                             |
-| ----- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0G PC | `skills/private-computer/0g-private-computer/SKILL.md` | "put this project on 0G", "connect Claude Code/OpenCode/Pi/Hermes to 0G", "switch 0G model", "check or turn off 0G", "call 0G PC or router-api.0g.ai from my app", "generate an image or video with 0G PC", "transcribe with 0G PC", "0G Playground" |
+| Skill | Path                                                   | Triggers                                                                                                                                                                                                                                                                                                                                              |
+| ----- | ------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0G PC | `skills/private-computer/0g-private-computer/SKILL.md` | "put this project on 0G", "connect Claude Code/OpenCode/Pi/Hermes to 0G", "switch 0G model", "check or turn off 0G", "call 0G PC or router-api.0g.ai from my app", "chat with 0G models", "generate an image or video with 0G", "edit an image with 0G", "transcribe with 0G", "read text aloud with 0G", "private or TEE inference", "0G Playground" |
 
 Route by what the user wants:
 

@@ -173,6 +173,9 @@ SDKs. They work in Claude Code, Cursor, and GitHub Copilot.
 
 ### Compute: AI inference on decentralized GPUs
 
+These skills are Compute Direct: they call individual providers with a wallet and the broker SDK.
+For API-key access through pc.0g.ai, use the 0g-private-computer skill.
+
 | Skill                                                            | What it does                                                                                             | Say this to activate          |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------- |
 | [Streaming Chat](skills/compute/streaming-chat/SKILL.md)         | Conversational AI across GLM, Claude, GPT, Qwen, DeepSeek and 0GM models, including multi-model routers. | _"build a chatbot with 0G"_   |
