@@ -48,12 +48,16 @@ critical rules, and common mistakes for all 23 skills across 6 categories.
 
 ### Private Computer Skills
 
-This configures a coding agent (Claude Code, OpenCode, Pi, Hermes Agent) to run on 0G models through
-the `0gpc` CLI, rather than building on 0G. It also covers calling the 0G PC Router from app code.
+Use 0G Private Computer (pc.0g.ai) from an agent: connect a coding tool (Claude Code, OpenCode, Pi,
+Hermes Agent) through the `0gpc` CLI, or call 0G models (text, image, video, speech) from app code
+with a pc.0g.ai API key.
 
-| Skill | Path                                     | Triggers                                                                                                                                                                         |
-| ----- | ---------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0G PC | `skills/private-computer/0g-pc/SKILL.md` | "0G PC", "0gpc", "pc.0g.ai", "private inference", "TEE inference", "set up 0G PC", "connect Claude Code to 0G", "接入 0G", "switch 0G model", "换模型", "turn 0G off", "卸载 0G" |
+| Skill | Path                                     | Triggers                                                                                                                                                                                                                                             |
+| ----- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0G PC | `skills/private-computer/0g-pc/SKILL.md` | "put this project on 0G", "connect Claude Code/OpenCode/Pi/Hermes to 0G", "switch 0G model", "check or turn off 0G", "call 0G PC or router-api.0g.ai from my app", "generate an image or video with 0G PC", "transcribe with 0G PC", "0G Playground" |
+
+Routing rule: inference with an API key from pc.0g.ai goes to `0g-pc`. Requests that mention a
+wallet, the broker SDK, a provider address or on-chain deposits go to the Compute skills.
 
 ### AgenticID Skills
 

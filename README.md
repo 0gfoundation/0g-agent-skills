@@ -71,25 +71,60 @@ Ask your AI assistant anything. Try these:
 
 The 23 skills split into three groups. Pick the one that matches what you are trying to do.
 
-| Group                                 | What it does                            | Count | Works in                          |
-| ------------------------------------- | --------------------------------------- | ----- | --------------------------------- |
-| [Private Computer](#private-computer) | Runs your coding agent on 0G models     | 1     | Claude Code, OpenCode, Pi, Hermes |
-| [Build on 0G](#build-on-0g)           | Teaches your assistant to write 0G code | 17    | Claude Code, Cursor, Copilot      |
-| [AgenticID](#agenticid)               | Gives AI agents a verifiable identity   | 5     | Claude Code, Cursor, Copilot      |
+| Group                                 | What it does                                                                                                                  | Count | Works in                                              |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----- | ----------------------------------------------------- |
+| [Private Computer](#private-computer) | Use pc.0g.ai from your agent: connect coding tools through 0gpc, or call 0G models (text, image, video, speech) from your app | 1     | Any agent; connects Claude Code, OpenCode, Pi, Hermes |
+| [Build on 0G](#build-on-0g)           | Teaches your assistant to write 0G code                                                                                       | 17    | Claude Code, Cursor, Copilot                          |
+| [AgenticID](#agenticid)               | Gives AI agents a verifiable identity                                                                                         | 5     | Claude Code, Cursor, Copilot                          |
 
 ---
 
 ## Private Computer
 
-Run your coding agent (Claude Code, OpenCode, Pi or Hermes Agent) on
-[0G Private Computer](https://pc.0g.ai) models with the
-[`0g-pc`](skills/private-computer/0g-pc/SKILL.md) skill.
+**Use 0G Private Computer from your agent.**
 
-Paste into your coding agent: `Read https://pc.0g.ai/skill and help me set up 0G Private Computer.`
+One skill, `0g-pc`, covers what you do with [0G Private Computer](https://pc.0g.ai): get a key, pick
+a model from the [live catalog](https://pc.0g.ai/models), choose a trust mode (Standard, Verified or
+Private/TEE), then either point your coding tool at 0G or call 0G models from your own code.
 
-Install it as a skill: `npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-pc`
+- **Connect** Claude Code, OpenCode V1, Pi or Hermes Agent through the
+  [`0gpc` CLI](https://www.npmjs.com/package/@0gfoundation/0gpc). It is a configuration change, not
+  code you write: previewed before it is saved, and undone with one command.
+- **Build** on the 0G Router (`https://router-api.0g.ai/v1`, OpenAI-compatible): text, image
+  understanding, image generation, video generation and understanding, speech-to-text.
 
-`0g-pc-setup`, `0g-pc-switch-model` and `0g-pc-uninstall` have been merged into `0g-pc`.
+> **Your key stays out of the chat.** The agent never asks for it: you enter it in your own terminal
+> or set it as an environment variable. Every config change is previewed first, and the agent asks
+> before anything that costs money.
+
+| You want to                 | Say this                                                        | What happens                                                                   |
+| --------------------------- | --------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Run your coding tool on 0G  | "connect Claude Code in this project to 0G PC"                  | Checks your setup, previews the change, saves it after you confirm             |
+| Change or check that setup  | "switch my 0G model" · "check my 0G connection" · "turn 0G off" | Same preview and confirm; turning off removes only what 0gpc added             |
+| Chat or code with 0G models | "add a streaming chat endpoint with 0G PC in Private mode"      | Picks a model with you and reads the key from your environment                 |
+| Read images                 | "extract the totals from these screenshots with 0G PC"          | Uses a vision model from the catalog                                           |
+| Generate images             | "generate a 1024x1024 hero image with 0G PC"                    | Shows the per-image price first, then runs the job and saves the file          |
+| Make or analyze video       | "turn hero.png into a 5-second clip with 0G PC"                 | Shows duration and estimated cost first, then runs the job                     |
+| Transcribe audio            | "transcribe meeting.mp3 with 0G PC"                             | Uses a speech-to-text model and saves the text                                 |
+| Try models without code     | "compare image models before I write any code"                  | Sends you to the matching [Playground](https://pc.0g.ai/playground/image) page |
+
+Get started by pasting this into your agent:
+
+```
+Read https://pc.0g.ai/skill and help me set up 0G Private Computer.
+```
+
+Or install the skill:
+
+```
+npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-pc
+```
+
+Prefer to do it yourself? `npx @0gfoundation/0gpc@latest` starts the setup wizard in your terminal.
+
+`0g-pc-setup`, `0g-pc-switch-model` and `0g-pc-uninstall` have been merged into `0g-pc`. The same
+skill is served at https://pc.0g.ai/skill. Compute Direct, which uses a wallet and the broker SDK
+instead of an API key, is a separate path covered by the Compute skills below.
 
 ---
 

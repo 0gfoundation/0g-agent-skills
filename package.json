@@ -47,6 +47,9 @@
       "agentic-id"
     ],
     "skillCount": 23,
+    "categoryDescriptions": {
+      "private-computer": "Use 0G Private Computer (pc.0g.ai) from your agent: connect coding tools through the 0gpc CLI, or call 0G models for text, image, video and speech from your app."
+    },
     "entryPoints": {
       "claude-code": "CLAUDE.md",
       "cursor": "setups/cursor/README.md",
