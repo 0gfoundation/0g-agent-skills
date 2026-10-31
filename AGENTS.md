@@ -52,24 +52,24 @@ Use 0G Private Computer (pc.0g.ai) from an agent: connect a coding tool (Claude 
 Hermes Agent) through the `0gpc` CLI, or call 0G models (text, image, video, speech) from app code
 with a pc.0g.ai API key.
 
-| Skill | Path                                     | Triggers                                                                                                                                                                                                                                             |
-| ----- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 0G PC | `skills/private-computer/0g-pc/SKILL.md` | "put this project on 0G", "connect Claude Code/OpenCode/Pi/Hermes to 0G", "switch 0G model", "check or turn off 0G", "call 0G PC or router-api.0g.ai from my app", "generate an image or video with 0G PC", "transcribe with 0G PC", "0G Playground" |
+| Skill | Path                                                   | Triggers                                                                                                                                                                                                                                             |
+| ----- | ------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 0G PC | `skills/private-computer/0g-private-computer/SKILL.md` | "put this project on 0G", "connect Claude Code/OpenCode/Pi/Hermes to 0G", "switch 0G model", "check or turn off 0G", "call 0G PC or router-api.0g.ai from my app", "generate an image or video with 0G PC", "transcribe with 0G PC", "0G Playground" |
 
 Route by what the user wants:
 
 - **Connect** a coding tool (Claude Code, OpenCode, Pi, Hermes) to 0G models: set up, switch model,
-  check, turn off → `skills/private-computer/0g-pc/SKILL.md`, then its `references/connect.md`. Runs
-  through the `0gpc` CLI.
+  check, turn off → `skills/private-computer/0g-private-computer/SKILL.md`, then its
+  `references/connect.md`. Runs through the `0gpc` CLI.
 - **Build** with 0G models from app code using an API key from pc.0g.ai: text, image understanding
   and generation, video, speech, including pinning a provider with `X-0G-Provider-Address` →
-  `skills/private-computer/0g-pc/SKILL.md`, then its `references/build.md`. Calls the Router at
-  `https://router-api.0g.ai/v1`.
+  `skills/private-computer/0g-private-computer/SKILL.md`, then its `references/build.md`. Calls the
+  Router at `https://router-api.0g.ai/v1`.
 - **Compute Direct**: wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced mode
   on pc.0g.ai, compute-marketplace.0g.ai, fine-tuning → the Compute skills in `skills/compute/`.
 
-Questions about models or prices, and trying models in the Playground, also go to `0g-pc`; it
-answers them without starting any setup.
+Questions about models or prices, and trying models in the Playground, also go to the
+0g-private-computer skill; it answers them without starting any setup.
 
 ### AgenticID Skills
 
@@ -211,14 +211,15 @@ The sequences above chain automatically. The Private Computer skill does not, an
 changes the user's configuration, so it runs only when the user asks for it, and it chains into no
 other skill.
 
-| Situation                                    | Skill   |
-| -------------------------------------------- | ------- |
-| First time putting a coding agent on 0G      | `0g-pc` |
-| Already on 0G, wants a different model       | `0g-pc` |
-| Wants a tool off 0G                          | `0g-pc` |
-| Wants to call the 0G PC Router from app code | `0g-pc` |
+| Situation                                    | Skill                 |
+| -------------------------------------------- | --------------------- |
+| First time putting a coding agent on 0G      | `0g-private-computer` |
+| Already on 0G, wants a different model       | `0g-private-computer` |
+| Wants a tool off 0G                          | `0g-private-computer` |
+| Wants to call the 0G PC Router from app code | `0g-private-computer` |
 
-`0g-pc` drives the `0gpc` CLI and never hand-edits a tool's config; see its ground rules.
+`0g-private-computer` drives the `0gpc` CLI and never hand-edits a tool's config; see its ground
+rules.
 
 Route by the object of the request. A request to configure the client belongs here; a request to
 build something with the Compute SDK belongs to the inference skills, even when it names a model.

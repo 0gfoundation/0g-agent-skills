@@ -1,8 +1,8 @@
 # 0G PC: Build flow
 
-Part of the 0g-pc skill. Read [SKILL.md](../SKILL.md) first: its ground rules apply here, and it
-decides whether this is the right flow. This flow covers application code that calls 0G models
-through the Router.
+Part of the 0g-private-computer skill. Read [SKILL.md](../SKILL.md) first: its ground rules apply
+here, and it decides whether this is the right flow. This flow covers application code that calls 0G
+models through the Router.
 
 ## Setup
 

@@ -83,9 +83,10 @@ The 23 skills split into three groups. Pick the one that matches what you are tr
 
 **Use 0G Private Computer from your agent.**
 
-One skill, `0g-pc`, covers what you do with [0G Private Computer](https://pc.0g.ai): get a key, pick
-a model from the [live catalog](https://pc.0g.ai/models), choose a trust mode (Standard, Verified or
-Private/TEE), then either point your coding tool at 0G or call 0G models from your own code.
+One skill, `0g-private-computer`, covers what you do with [0G Private Computer](https://pc.0g.ai):
+get a key, pick a model from the [live catalog](https://pc.0g.ai/models), choose a trust mode
+(Standard, Verified or Private/TEE), then either point your coding tool at 0G or call 0G models from
+your own code.
 
 - **Connect** Claude Code, OpenCode V1, Pi or Hermes Agent through the
   [`0gpc` CLI](https://www.npmjs.com/package/@0gfoundation/0gpc). It is a configuration change, not
@@ -122,15 +123,15 @@ Read https://pc.0g.ai/skill and help me set up 0G Private Computer.
 Or install the skill:
 
 ```
-npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-pc
+npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer
 ```
 
 Prefer to do it yourself? `npx @0gfoundation/0gpc@latest` starts the setup wizard in your terminal.
 
-`0g-pc-setup`, `0g-pc-switch-model` and `0g-pc-uninstall` have been merged into `0g-pc`. The same
-skill is served at https://pc.0g.ai/skill. Compute Direct (wallet-signed calls to individual
-providers, Advanced mode on pc.0g.ai, fine-tuning) is a separate path covered by the Compute skills
-below.
+`0g-pc-setup`, `0g-pc-switch-model` and `0g-pc-uninstall` have been merged into
+`0g-private-computer`. The same skill is served at https://pc.0g.ai/skill. Compute Direct
+(wallet-signed calls to individual providers, Advanced mode on pc.0g.ai, fine-tuning) is a separate
+path covered by the Compute skills below.
 
 ---
 
@@ -339,7 +340,7 @@ agent-skills-0g/
 │   │   ├── agent-reputation/SKILL.md
 │   │   └── agent-accounts/SKILL.md
 │   └── private-computer/            # 1 skill
-│       └── 0g-pc/SKILL.md
+│       └── 0g-private-computer/SKILL.md
 │
 ├── examples/                        # 4 runnable example projects
 │   ├── file-vault/                  # Storage: upload, download, verify

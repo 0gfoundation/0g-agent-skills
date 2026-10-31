@@ -1,5 +1,5 @@
 ---
-name: 0g-pc
+name: 0g-private-computer
 description:
   Use 0G Private Computer (pc.0g.ai) from an agent. Connect a coding tool (Claude Code, OpenCode,
   Pi, Hermes Agent) to 0G models through the 0gpc CLI, or call the 0G Router from application code
@@ -17,10 +17,10 @@ compatibility:
 
 > **Humans:** paste this into your coding agent (Claude Code, OpenCode and others):
 > `Read https://pc.0g.ai/skill and help me set up 0G Private Computer.` To install it as a skill
-> instead: `npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-pc` More example
-> requests for chat, image, video and speech: [Example requests](#example-requests). To connect a
-> coding tool by hand, run `npx @0gfoundation/0gpc@latest` in your own terminal. To try models
-> without code, open the Playground: [chat](https://pc.0g.ai/playground/chat),
+> instead: `npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer`
+> More example requests for chat, image, video and speech: [Example requests](#example-requests). To
+> connect a coding tool by hand, run `npx @0gfoundation/0gpc@latest` in your own terminal. To try
+> models without code, open the Playground: [chat](https://pc.0g.ai/playground/chat),
 > [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video) or
 > [speech](https://pc.0g.ai/playground/speech).
 
