@@ -3,11 +3,11 @@ name: 0g-private-computer
 description:
   Use 0G Private Computer (pc.0g.ai) from an agent. Connect a coding tool (Claude Code, OpenCode,
   Pi, Hermes Agent) to 0G models through the 0gpc CLI, or call the 0G Router from application code
-  for text, image understanding, image generation, video generation and understanding, and
-  speech-to-text. Covers API keys, the live model catalog, trust modes (Standard, Verified,
-  Private/TEE), previewed and reversible config changes, and cost confirmation. Use whenever the
-  user mentions 0G, 0G PC, pc.0g.ai, 0gpc, router-api.0g.ai, private or TEE inference, or wants to
-  run models through 0G, even if they don't name a tool.
+  for text, image understanding, image generation and editing, video generation and understanding,
+  speech-to-text and text-to-speech. Covers API keys, the live model catalog, trust modes (Standard,
+  Verified, Private/TEE), previewed and reversible config changes, and cost confirmation. Use
+  whenever the user mentions 0G, 0G PC, pc.0g.ai, 0gpc, router-api.0g.ai, private or TEE inference,
+  or wants to run models through 0G, even if they don't name a tool.
 compatibility:
   Connect flow needs macOS or Linux, Node.js 22+ and 0gpc 0.3.2+. Build flow works with any
   OpenAI-compatible client.
@@ -41,13 +41,13 @@ for models, prices and trust modes:
 | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | API keys, balance, a key's default trust mode       | https://pc.0g.ai/dashboard/api-keys                                                                                                                    |
 | Models, prices, capabilities, supported trust modes | https://pc.0g.ai/models                                                                                                                                |
-| One model's endpoint, fields and code examples      | `https://pc.0g.ai/api-reference/<model-id>`                                                                                                            |
+| One model's endpoint, fields and code examples      | `https://pc.0g.ai/models/<model-id>`                                                                                                                   |
 | Usage after requests                                | https://pc.0g.ai/dashboard/overview                                                                                                                    |
 | Trying a model without code                         | Playground: https://pc.0g.ai/playground/chat, https://pc.0g.ai/playground/image, https://pc.0g.ai/playground/video, https://pc.0g.ai/playground/speech |
 
 Models are served by the 0G Router at `https://router-api.0g.ai/v1`, which is OpenAI-compatible and
-also offers an Anthropic-compatible messages API. The catalog and the API reference pages are
-updated before the docs at https://docs.0g.ai; when they differ, follow pc.0g.ai.
+also offers an Anthropic-compatible messages API. The catalog and the model pages are updated before
+the docs at https://docs.0g.ai; when they differ, follow pc.0g.ai.
 
 Every request runs under a trust mode, set per request with the header `X-0G-Provider-Trust-Mode` or
 by the API key's default:
@@ -70,9 +70,10 @@ model ids, prices or capabilities, in any flow.
 | The providers behind one model, with TEE attestation and verifiability         | `curl -s "https://router-api.0g.ai/v1/providers?model=<model-id>"`                                              |
 
 Service types match the Playground pages: `chatbot` for chat (vision-capable models carry the vision
-flag), `text-to-image` for image, `video-generation` for video, `speech-to-text` for speech. If a
-type returns nothing, check https://pc.0g.ai/models before telling the user it isn't offered.
-Listing calls are free; if one times out, retry it up to twice before concluding anything.
+flag), `text-to-image` for image (generation and editing), `video-generation` for video,
+`speech-to-text` for transcription and `text-to-speech` for reading text aloud. If a type returns
+nothing, check https://pc.0g.ai/models before telling the user it isn't offered. Listing calls are
+free; if one times out, retry it up to twice before concluding anything.
 
 Token prices are in neuron per token, where 1e18 neuron is 1 0G; multiply by the expected input and
 output tokens to estimate cost. Image and video models carry their own pricing fields, so quote them
@@ -154,13 +155,16 @@ Tie-breakers:
 | text → text                      | ask, chat, write, summarize, translate, code, reason, call tools            | Text                |
 | image (+ text) → text            | read, describe, extract, OCR, analyze; screenshot, photo, chart, scan       | Image understanding |
 | text (+ reference image) → image | generate, draw, design, render, illustrate; logo, cover, poster, hero image | Image generation    |
+| image + instruction → image      | edit, retouch, remove, replace, change the background, restyle this photo   | Image editing       |
 | text or image → video            | animate, make a video, generate a clip, turn this image into a video        | Video generation    |
 | video (+ text) → text            | summarize, describe, find the moment, what happens in                       | Video understanding |
 | audio → text                     | transcribe, captions, subtitles, minutes from a recording                   | Speech              |
+| text → audio                     | read aloud, voice-over, narrate, text to speech, TTS                        | Text-to-speech      |
 
 When the words don't decide, the files do. An image (`.png`, `.jpg`, `.webp`) given as input means
-image understanding; one requested as output means image generation. The same holds for video
-(`.mp4`, `.mov`). Audio input (`.mp3`, `.wav`, `.m4a`) means speech.
+image understanding; one requested as output means image generation, and both together mean image
+editing. The same holds for video (`.mp4`, `.mov`). Audio input (`.mp3`, `.wav`, `.m4a`) means
+speech; audio requested as output means text-to-speech.
 
 Near misses:
 
@@ -168,10 +172,11 @@ Near misses:
 - "Get the text from this video": if the user wants the spoken words, it is speech, and the audio
   has to be extracted first (ask before installing a tool for that). Otherwise it is video
   understanding.
-- "Edit this image" is image generation only if the model's API reference page accepts a reference
-  image. If none does, say so.
-- "Read this aloud" (text to speech): check the catalog for a model that outputs audio. Don't assume
-  a transcription model can do it.
+- "Edit this image" is image editing, not image generation from scratch: it needs a model whose page
+  on pc.0g.ai says it takes reference images. If none does, say so instead of generating a new
+  image.
+- "Read this aloud" is text-to-speech, served by `text-to-speech` models. A transcription
+  (`speech-to-text`) model can't do it.
 
 ### When unsure, ask one question
 
@@ -238,8 +243,14 @@ asks before the first paid request. To compare models first: https://pc.0g.ai/pl
 Generate one 1024x1024 hero image for my landing page with 0G PC and save it to public/hero.png.
 ```
 
-Recognized as **Build → Image generation**. The agent shows the per-image price and waits for the
-user's OK, submits an async job, polls it and saves the file. To try prompts first:
+```
+Use 0G PC to replace the background of photo.jpg with a plain white one and save it to photo-white.png.
+```
+
+Recognized as **Build → Image generation** (first) and **Build → Image editing** (second). The agent
+shows the per-image price and waits for the user's OK; for generation it submits an async job, polls
+it and saves the file, and for editing it uses a model that accepts reference images and sends the
+photo as a reference image the way that model's page says. To try prompts first:
 https://pc.0g.ai/playground/image
 
 **Video**
@@ -254,8 +265,8 @@ Use 0G PC to summarize what happens in demo.mp4.
 
 Recognized as **Build → Video generation** (first) and **Build → Video understanding** (second). For
 generation, the agent shows duration, resolution and estimated cost and waits for the user's OK,
-then submits and polls; for understanding, it uses a model that accepts video input. To try first:
-https://pc.0g.ai/playground/video
+then submits to `POST /videos`, polls the job and downloads the file; for understanding, it uses a
+model that accepts video input. To try first: https://pc.0g.ai/playground/video
 
 **Speech**
 
@@ -263,8 +274,14 @@ https://pc.0g.ai/playground/video
 Transcribe meeting.mp3 with 0G PC and save the text to notes.md.
 ```
 
-Recognized as **Build → Speech**. The agent uses a speech-to-text model from the catalog and saves
-the transcript. To try first: https://pc.0g.ai/playground/speech
+```
+Read intro.md aloud with 0G PC and save it to intro.mp3.
+```
+
+Recognized as **Build → Speech** (first) and **Build → Text-to-speech** (second). For the
+transcript, the agent uses a speech-to-text model from the catalog. For audio, it picks a
+text-to-speech model and voice, shows the character count and estimated cost, waits for the user's
+OK and saves the file. To try first: https://pc.0g.ai/playground/speech
 
 **Just asking**
 
