@@ -92,7 +92,8 @@ your own code.
   [`0gpc` CLI](https://www.npmjs.com/package/@0gfoundation/0gpc). It is a configuration change, not
   code you write: previewed before it is saved, and undone with one command.
 - **Build** on the 0G Router (`https://router-api.0g.ai/v1`, OpenAI-compatible): text, image
-  understanding, image generation, video generation and understanding, speech-to-text.
+  understanding, image generation and editing, video generation and understanding, speech-to-text
+  and text-to-speech.
 - **Try** models without code in the Playground: [chat](https://pc.0g.ai/playground/chat),
   [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video),
   [speech](https://pc.0g.ai/playground/speech).
@@ -101,18 +102,20 @@ your own code.
 > or set it as an environment variable. Every config change is previewed first, and the agent asks
 > before anything that costs money.
 
-| You want to                 | Say this                                                         | What happens                                                                   |
-| --------------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------ |
-| See what's available        | "which video models does 0G PC have, and which support Private?" | Lists live models with prices and Private support; no key, no cost             |
-| Run your coding tool on 0G  | "connect Claude Code in this project to 0G PC"                   | Checks your setup, previews the change, saves it after you confirm             |
-| Change or check that setup  | "switch my 0G model" · "check my 0G connection" · "turn 0G off"  | Same preview and confirm; turning off removes only what 0gpc added             |
-| Chat or code with 0G models | "add a streaming chat endpoint with 0G PC in Private mode"       | Picks a model with you and reads the key from your environment                 |
-| Read images                 | "extract the totals from these screenshots with 0G PC"           | Uses a vision model from the catalog                                           |
-| Generate images             | "generate a 1024x1024 hero image with 0G PC"                     | Shows the per-image price first, then runs the job and saves the file          |
-| Make or analyze video       | "turn hero.png into a 5-second clip with 0G PC"                  | For a new video, shows duration and estimated cost first, then runs the job    |
-| Transcribe audio            | "transcribe meeting.mp3 with 0G PC"                              | Uses a speech-to-text model and saves the text                                 |
-| Fix a problem               | "my 0G setup stopped working"                                    | Diagnoses first, then suggests the smallest fix you can undo                   |
-| Try models without code     | "compare image models before I write any code"                   | Sends you to the matching [Playground](https://pc.0g.ai/playground/image) page |
+| You want to                 | Say this                                                                 | What happens                                                                                                     |
+| --------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
+| See what's available        | "which video models does 0G PC have, and which support Private?"         | Lists live models with prices and Private support; no key, no cost                                               |
+| Run your coding tool on 0G  | "connect Claude Code in this project to 0G PC"                           | Checks your setup, previews the change, saves it after you confirm                                               |
+| Change or check that setup  | "switch my 0G model" · "check my 0G connection" · "turn 0G off"          | Same preview and confirm; turning off removes only what 0gpc added                                               |
+| Chat or code with 0G models | "add a streaming chat endpoint with 0G PC in Private mode"               | Picks a model with you and reads the key from your environment                                                   |
+| Read images                 | "extract the totals from these screenshots with 0G PC"                   | Uses a vision model from the catalog                                                                             |
+| Generate images             | "generate a 1024x1024 hero image with 0G PC"                             | Shows the per-image price first, then runs the job and saves the file                                            |
+| Edit images                 | "replace the background of photo.jpg with a plain white one using 0G PC" | Uses a model that takes reference images; shows the per-image price first, then saves the edited file            |
+| Make or analyze video       | "turn hero.png into a 5-second clip with 0G PC"                          | For a new video, shows duration and estimated cost first, then runs the job                                      |
+| Transcribe audio            | "transcribe meeting.mp3 with 0G PC"                                      | Uses a speech-to-text model and saves the text                                                                   |
+| Read text aloud             | "read intro.md aloud with 0G PC and save it as intro.mp3"                | Picks a text-to-speech model and voice, shows the character count and estimated cost first, then saves the audio |
+| Fix a problem               | "my 0G setup stopped working"                                            | Diagnoses first, then suggests the smallest fix you can undo                                                     |
+| Try models without code     | "compare image models before I write any code"                           | Sends you to the matching [Playground](https://pc.0g.ai/playground/image) page                                   |
 
 Get started by pasting this into your agent:
 
