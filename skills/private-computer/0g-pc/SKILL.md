@@ -63,15 +63,16 @@ by the API key's default:
 The live catalog is public: listing it needs no key and costs nothing, so run it whenever you need
 model ids, prices or capabilities, in any flow.
 
-| To get                                                                         | Run                                                                                                     |
-| ------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------- |
-| Every model: id, name, context length, price, provider count, capability flags | `curl -s https://router-api.0g.ai/v1/models`                                                            |
-| The models that serve one modality                                             | `curl -s "https://router-api.0g.ai/v1/providers?service_type=<type>"`, then take the distinct model ids |
-| The providers behind one model, with TEE attestation and verifiability         | `curl -s "https://router-api.0g.ai/v1/providers?model=<model-id>"`                                      |
+| To get                                                                         | Run                                                                                                             |
+| ------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
+| Every model: id, name, context length, price, provider count, capability flags | `curl -s https://router-api.0g.ai/v1/models`                                                                    |
+| The models that serve one modality                                             | `curl -s "https://router-api.0g.ai/v1/providers?service_type=<type>"`, then take the distinct `model_id` values |
+| The providers behind one model, with TEE attestation and verifiability         | `curl -s "https://router-api.0g.ai/v1/providers?model=<model-id>"`                                              |
 
 Service types match the Playground pages: `chatbot` for chat (vision-capable models carry the vision
 flag), `text-to-image` for image, `video-generation` for video, `speech-to-text` for speech. If a
 type returns nothing, check https://pc.0g.ai/models before telling the user it isn't offered.
+Listing calls are free; if one times out, retry it up to twice before concluding anything.
 
 Token prices are in neuron per token, where 1e18 neuron is 1 0G; multiply by the expected input and
 output tokens to estimate cost. Image and video models carry their own pricing fields, so quote them
