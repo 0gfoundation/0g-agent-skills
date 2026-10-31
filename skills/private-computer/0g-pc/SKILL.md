@@ -129,7 +129,7 @@ user can correct it.
 | Try, test, compare, play with, see what it can do, without code                                                                                       | **Try**: the Playground page for that modality: [chat](https://pc.0g.ai/playground/chat), [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video) or [speech](https://pc.0g.ai/playground/speech). |
 | A coding tool is the subject (Claude Code, OpenCode, Pi, Hermes, "my agent"), with set up, connect, switch model, use 0G as my model, turn off, check | **Connect**: [Connect flow](references/connect.md)                                                                                                                                                                                |
 | An app, API, endpoint, script, SDK or backend; or a file to process (screenshot, `.png`, `.mp3`, `.mp4`)                                              | **Build**: [Build flow](references/build.md), then step 2                                                                                                                                                                         |
-| Wallet, broker, provider address, deposit to a provider, on-chain                                                                                     | **Compute Direct**: not this skill; use the Compute skills in https://github.com/0gfoundation/0g-agent-skills                                                                                                                     |
+| Wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced mode on pc.0g.ai, compute-marketplace.0g.ai, fine-tuning                     | **Compute Direct**: not this skill; use the Compute skills in https://github.com/0gfoundation/0g-agent-skills                                                                                                                     |
 | Error, not working, 401, stuck, balance, still on the old model                                                                                       | **Fix**: [Troubleshooting](references/troubleshooting.md)                                                                                                                                                                         |
 
 Tie-breakers:
@@ -140,6 +140,12 @@ Tie-breakers:
   set in the user's code or environment, it is Build.
 - Processing a file now ("transcribe meeting.mp3", "make me a logo") is Build even without the word
   "app": you write and run a small script with the user's key from their environment.
+- Pinning a specific provider is still Build: list providers with `/v1/providers?model=<model-id>`
+  and send `X-0G-Provider-Address` (or `X-0G-Provider-Identity` to filter by channel). It is Compute
+  Direct only when the user wants wallet-signed calls or per-provider sub-accounts.
+- Fine-tuning and Advanced mode on pc.0g.ai are Compute Direct. The Router balance (default mode on
+  pc.0g.ai) and Direct sub-accounts (Advanced mode, compute-marketplace.0g.ai) are separate; funds
+  in one don't pay for calls in the other.
 
 ### Step 2: which modality (Build and Try only)
 
