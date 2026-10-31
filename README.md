@@ -84,40 +84,17 @@ The 23 skills split into three groups. Pick the one that matches what you are tr
 **Use 0G Private Computer from your agent.**
 
 One skill, `0g-private-computer`, covers what you do with [0G Private Computer](https://pc.0g.ai):
-get a key, pick a model from the [live catalog](https://pc.0g.ai/models), choose a trust mode
-(Standard, Verified or Private/TEE), then either point your coding tool at 0G or call 0G models from
-your own code.
-
-- **Connect** Claude Code, OpenCode V1, Pi or Hermes Agent through the
-  [`0gpc` CLI](https://www.npmjs.com/package/@0gfoundation/0gpc). It is a configuration change, not
-  code you write: previewed before it is saved, and undone with one command.
-- **Build** on the 0G Router (`https://router-api.0g.ai/v1`, OpenAI-compatible): text, image
-  understanding, image generation and editing, video generation and understanding, speech-to-text
-  and text-to-speech.
-- **Try** models without code in the Playground: [chat](https://pc.0g.ai/playground/chat),
-  [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video),
-  [speech](https://pc.0g.ai/playground/speech).
+run your coding agent on 0G models, build with 0G models in your own code, or try them first. Every
+model comes from the [live catalog](https://pc.0g.ai/models), under the trust mode you choose
+(Standard, Verified or Private/TEE).
 
 > **Your key stays out of the chat.** The agent never asks for it: you enter it in your own terminal
 > or set it as an environment variable. Every config change is previewed first, and the agent asks
 > before anything that costs money.
 
-| You want to                 | Say this                                                                 | What happens                                                                                                     |
-| --------------------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- |
-| See what's available        | "which video models does 0G PC have, and which support Private?"         | Lists live models with prices and Private support; no key, no cost                                               |
-| Run your coding tool on 0G  | "connect Claude Code in this project to 0G PC"                           | Checks your setup, previews the change, saves it after you confirm                                               |
-| Change or check that setup  | "switch my 0G model" · "check my 0G connection" · "turn 0G off"          | Same preview and confirm; turning off removes only what 0gpc added                                               |
-| Chat or code with 0G models | "add a streaming chat endpoint with 0G PC in Private mode"               | Picks a model with you and reads the key from your environment                                                   |
-| Read images                 | "extract the totals from these screenshots with 0G PC"                   | Uses a vision model from the catalog                                                                             |
-| Generate images             | "generate a 1024x1024 hero image with 0G PC"                             | Shows the per-image price first, then runs the job and saves the file                                            |
-| Edit images                 | "replace the background of photo.jpg with a plain white one using 0G PC" | Uses a model that takes reference images; shows the per-image price first, then saves the edited file            |
-| Make or analyze video       | "turn hero.png into a 5-second clip with 0G PC"                          | For a new video, shows duration and estimated cost first, then runs the job                                      |
-| Transcribe audio            | "transcribe meeting.mp3 with 0G PC"                                      | Uses a speech-to-text model and saves the text                                                                   |
-| Read text aloud             | "read intro.md aloud with 0G PC and save it as intro.mp3"                | Picks a text-to-speech model and voice, shows the character count and estimated cost first, then saves the audio |
-| Fix a problem               | "my 0G setup stopped working"                                            | Diagnoses first, then suggests the smallest fix you can undo                                                     |
-| Try models without code     | "compare image models before I write any code"                           | Sends you to the matching [Playground](https://pc.0g.ai/playground/image) page                                   |
+### Get started
 
-Get started by pasting this into your agent:
+Paste this into Claude Code, OpenCode or any agent that can run commands:
 
 ```
 Read https://pc.0g.ai/skill and help me set up 0G Private Computer.
@@ -129,7 +106,50 @@ Or install the skill:
 npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer
 ```
 
-Prefer to do it yourself? `npx @0gfoundation/0gpc@latest` starts the setup wizard in your terminal.
+### Run your coding agent on 0G models
+
+Say _"connect Claude Code in this project to 0G PC"_. The agent checks your setup and explains the
+plan; you enter your key in your own terminal, pick a model and review the exact change; it saves
+only after you confirm, then you restart the tool.
+
+Works with Claude Code, OpenCode V1, Pi and Hermes Agent through the
+[`0gpc` CLI](https://www.npmjs.com/package/@0gfoundation/0gpc). Later, say _"switch my 0G model"_,
+_"check my 0G connection"_ or _"turn 0G off"_; turning off removes only what 0gpc added. Prefer to
+do it yourself? Run `npx @0gfoundation/0gpc@latest`.
+
+### Build with 0G models in your app
+
+Describe what you want. The agent lists the live models for that feature, you pick a model and trust
+mode, and it writes code that reads your key from the environment. It asks before any request that
+costs money.
+
+| Feature             | Say this                                                           | Before it runs                           | Try it                                       |
+| ------------------- | ------------------------------------------------------------------ | ---------------------------------------- | -------------------------------------------- |
+| Chat Completions    | "add a streaming chat endpoint with 0G PC in Private mode"         | Picks a model with you                   | [chat](https://pc.0g.ai/playground/chat)     |
+| Vision              | "extract the totals from these screenshots with 0G PC"             | Picks a vision model                     | [chat](https://pc.0g.ai/playground/chat)     |
+| Image Generation    | "generate a 1024x1024 hero image with 0G PC"                       | Shows the per-image price                | [image](https://pc.0g.ai/playground/image)   |
+| Image Editing       | "replace the background of photo.jpg with plain white using 0G PC" | Shows the per-image price                | [image](https://pc.0g.ai/playground/image)   |
+| Video Generation    | "turn hero.png into a 5-second clip with 0G PC"                    | Shows duration and estimated cost        | [video](https://pc.0g.ai/playground/video)   |
+| Video Understanding | "summarize what happens in demo.mp4 with 0G PC"                    | Picks a model that accepts video         |                                              |
+| Audio Transcription | "transcribe meeting.mp3 with 0G PC"                                | Picks a speech-to-text model             | [speech](https://pc.0g.ai/playground/speech) |
+| Text-to-Speech      | "read intro.md aloud with 0G PC and save it as intro.mp3"          | Shows character count and estimated cost | [speech](https://pc.0g.ai/playground/speech) |
+
+The Router is at `https://router-api.0g.ai/v1` and is OpenAI-compatible.
+
+### Try or ask before you build
+
+- Ask _"which video models does 0G PC have, and which support Private?"_ The agent lists live models
+  with prices and Private support; no key, no cost.
+- Try any model without code in the Playground: [chat](https://pc.0g.ai/playground/chat),
+  [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video),
+  [speech](https://pc.0g.ai/playground/speech).
+
+### When something breaks
+
+Say _"my 0G setup stopped working"_. The agent diagnoses first, then suggests the smallest fix you
+can undo.
+
+---
 
 `0g-pc-setup`, `0g-pc-switch-model` and `0g-pc-uninstall` have been merged into
 `0g-private-computer`. The same skill is served at https://pc.0g.ai/skill. Compute Direct
