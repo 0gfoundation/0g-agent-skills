@@ -108,8 +108,9 @@ On-chain identity and reputation for AI agents. **This category uses `viem`, not
 
 ### Private Computer
 
-Uses an API key from pc.0g.ai, not a wallet or the Compute SDK. Wallet, broker or provider-address
-requests go to the Compute skills.
+Inference with an API key from pc.0g.ai goes to `0g-pc`, including pinning a provider with
+`X-0G-Provider-Address`. Wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced
+mode on pc.0g.ai, compute-marketplace.0g.ai and fine-tuning go to the Compute skills.
 
 - `skills/private-computer/0g-pc/SKILL.md` — Use 0G Private Computer (pc.0g.ai) from an agent:
   connect Claude Code, OpenCode, Pi or Hermes through the `0gpc` CLI (set up, switch model, verify,
