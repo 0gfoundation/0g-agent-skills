@@ -128,8 +128,9 @@ npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-pc
 Prefer to do it yourself? `npx @0gfoundation/0gpc@latest` starts the setup wizard in your terminal.
 
 `0g-pc-setup`, `0g-pc-switch-model` and `0g-pc-uninstall` have been merged into `0g-pc`. The same
-skill is served at https://pc.0g.ai/skill. Compute Direct, which uses a wallet and the broker SDK
-instead of an API key, is a separate path covered by the Compute skills below.
+skill is served at https://pc.0g.ai/skill. Compute Direct (wallet-signed calls to individual
+providers, Advanced mode on pc.0g.ai, fine-tuning) is a separate path covered by the Compute skills
+below.
 
 ---
 

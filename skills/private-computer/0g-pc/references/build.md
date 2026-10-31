@@ -19,6 +19,8 @@ through the Router.
   endpoints or model ids from memory.
 - **Trust mode:** send `X-0G-Provider-Trust-Mode: verified` or `private`, or rely on the key's
   default. Recommend `private` for sensitive data when the model supports it.
+- **Provider (optional):** to pin one, list them with `/v1/providers?model=<model-id>` and send
+  `X-0G-Provider-Address: <address>`. Billing still comes from the Router balance.
 - **First request:** a real request costs money. Ask before running one, then point the user to
   usage at https://pc.0g.ai/dashboard/overview.
 

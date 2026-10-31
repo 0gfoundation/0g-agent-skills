@@ -56,8 +56,9 @@ with a pc.0g.ai API key.
 | ----- | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 0G PC | `skills/private-computer/0g-pc/SKILL.md` | "put this project on 0G", "connect Claude Code/OpenCode/Pi/Hermes to 0G", "switch 0G model", "check or turn off 0G", "call 0G PC or router-api.0g.ai from my app", "generate an image or video with 0G PC", "transcribe with 0G PC", "0G Playground" |
 
-Routing rule: inference with an API key from pc.0g.ai goes to `0g-pc`. Requests that mention a
-wallet, the broker SDK, a provider address or on-chain deposits go to the Compute skills.
+Routing rule: inference with an API key from pc.0g.ai goes to `0g-pc`, including pinning a provider
+with `X-0G-Provider-Address`. Wallet-signed calls, the broker SDK, per-provider sub-accounts,
+Advanced mode on pc.0g.ai, compute-marketplace.0g.ai and fine-tuning go to the Compute skills.
 
 ### AgenticID Skills
 
