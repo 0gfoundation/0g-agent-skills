@@ -108,11 +108,12 @@ On-chain identity and reputation for AI agents. **This category uses `viem`, not
 
 ### Private Computer
 
-A coding agent's own model backend, not the SDKs. No SDK, wallet or `.env` involved.
+Uses an API key from pc.0g.ai, not a wallet or the Compute SDK. Wallet, broker or provider-address
+requests go to the Compute skills.
 
-- `skills/private-computer/0g-pc/SKILL.md` — Connect Claude Code, OpenCode, Pi or Hermes to 0G
-  Private Computer with the `0gpc` CLI: set up, switch model, verify, undo; also calling the 0G PC
-  Router from app code
+- `skills/private-computer/0g-pc/SKILL.md` — Use 0G Private Computer (pc.0g.ai) from an agent:
+  connect Claude Code, OpenCode, Pi or Hermes through the `0gpc` CLI (set up, switch model, verify,
+  undo), or call 0G models for text, image, video and speech from app code
 
 ## Pattern Documents
 
