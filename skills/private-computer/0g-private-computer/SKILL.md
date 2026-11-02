@@ -83,7 +83,11 @@ has no `/v1/models` entry; don't offer it as a model.
 
 `type` matches the Playground pages: `chatbot` for chat, `text-to-image` for image (generation and
 editing), `video-generation` for video, `speech-to-text` for transcription, `text-to-speech` for
-reading text aloud and `embedding` for vectors, which has no Playground page. Within `chatbot`,
+reading text aloud, `embedding` for vectors, which has no Playground page, and `decisions` for
+decision models, which have none either. A decision model is called at `POST /v1/decisions` with a
+`state` and typed `questions` (a choice, a score or a yes-probability), not through chat
+completions, and no flow in this skill covers it: name it when listing models and link
+`https://pc.0g.ai/models/<model-id>`, which shows the request. Within `chatbot`,
 `architecture.input_modalities` shows what a model accepts: `image` for vision, `video` for video
 input; `supported_parameters` containing `tools` means tool calling. Image, speech and video models
 carry their limits in `image_capabilities`, `speech_capabilities` and `video_capabilities`, and
@@ -91,11 +95,16 @@ image models say in `async_supported` whether they take async jobs. If a modalit
 check https://pc.0g.ai/models before telling the user it isn't offered. Listing calls are free; if
 one times out, retry it up to twice before concluding anything.
 
-Token prices are in neuron per token, where 1e18 neuron is 1 0G; multiply by the expected input and
-output tokens to estimate cost. Image and video models carry their own pricing fields, so quote them
-with the unit the response gives. Present models the way the Playground does: per modality, with
-name, id, price, context and whether a TEE-attested provider serves it, then recommend one and link
-the matching Playground page.
+Quote prices in US dollars from `pricing_usd`, the way https://pc.0g.ai/models shows them. For
+`chatbot`, `embedding` and `decisions`, `prompt` and `completion` are per token: multiply by
+1,000,000 and say per 1M tokens (`0.00000008` is $0.08 per 1M tokens). `image` is per image. For
+`speech-to-text`, `prompt` is per second of audio; for `text-to-speech`, it is per character, so say
+per 1M characters. Video models price each `variants` row in its own `unit`; quote it with that
+unit. `pricing` holds the same prices in neuron (1e18 neuron is 1 0G); give a 0G figure only when
+the user asks for one, never as the headline. Multiply by the expected input and output to estimate
+cost. Present models the way https://pc.0g.ai/models does: per modality, with name, id, price,
+context and whether a TEE-attested provider serves it, then recommend one and link the matching
+Playground page.
 
 ## Ground rules
 
