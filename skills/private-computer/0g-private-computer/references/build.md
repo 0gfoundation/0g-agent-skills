@@ -188,7 +188,10 @@ the fields and limits for that model; follow them when they differ from the note
    Use other types (`set`, `span`) only where the model's description lists them, and follow its
    page for their shape.
 
-3. The answers come back under `answers.<question name>`, as `choice`, `score` or `noul`.
+3. The answers come back under `answers.<question name>`, as `choice` (the option's key), `score` or
+   `noul`. `score` is a fractional expected level (for example `1.78` on a 0–2 scale), not an index:
+   round it only if the user wants one level. `choice` and `score` answers also carry
+   `probabilities` per option or level; use them when the user wants a threshold.
 4. The OpenAI SDKs have no decisions call, so a `client.chat.completions` call is wrong here: use
    `fetch` or `requests` with the key in `Authorization: Bearer`. The endpoint is synchronous; don't
    send `stream`.
