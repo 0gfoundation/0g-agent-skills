@@ -4,13 +4,14 @@ description:
   Use 0G Private Computer (pc.0g.ai) from an agent. Connect a coding tool (Claude Code, OpenCode,
   Pi, Hermes Agent) to 0G models through the 0gpc CLI, or call the 0G Router from application code
   for text, image understanding, image generation and editing, video generation and understanding,
-  speech-to-text, text-to-speech and embeddings. Covers API keys, the live model catalog, trust
-  modes (Standard, Verified, Private/TEE), previewed and reversible config changes, and cost
-  confirmation. Use whenever the user mentions 0G, 0G PC, pc.0g.ai, 0gpc, router-api.0g.ai, private
-  or TEE inference, or wants to run models through 0G, even if they don't name a tool. Requests that
-  say "with 0G" without mentioning a wallet are API-key Router requests and belong here. For
-  wallet-signed Compute Direct calls (broker SDK, per-provider sub-accounts, Advanced mode on
-  pc.0g.ai, fine-tuning), use the Compute skills instead.
+  speech-to-text, text-to-speech, embeddings and decisions (classify, score or flag a text with
+  calibrated probabilities). Covers API keys, the live model catalog, trust modes (Standard,
+  Verified, Private/TEE), previewed and reversible config changes, and cost confirmation. Use
+  whenever the user mentions 0G, 0G PC, pc.0g.ai, 0gpc, router-api.0g.ai, private or TEE inference,
+  or wants to run models through 0G, even if they don't name a tool. Requests that say "with 0G"
+  without mentioning a wallet are API-key Router requests and belong here. For wallet-signed Compute
+  Direct calls (broker SDK, per-provider sub-accounts, Advanced mode on pc.0g.ai, fine-tuning), use
+  the Compute skills instead.
 compatibility:
   Connect flow needs macOS or Linux, Node.js 22+ and 0gpc 0.3.2+. Build flow works with any
   OpenAI-compatible client.
@@ -84,10 +85,8 @@ has no `/v1/models` entry; don't offer it as a model.
 `type` matches the Playground pages: `chatbot` for chat, `text-to-image` for image (generation and
 editing), `video-generation` for video, `speech-to-text` for transcription, `text-to-speech` for
 reading text aloud, `embedding` for vectors, which has no Playground page, and `decisions` for
-decision models, which have none either. A decision model is called at `POST /v1/decisions` with a
-`state` and typed `questions` (a choice, a score or a yes-probability), not through chat
-completions, and no flow in this skill covers it: name it when listing models and link
-`https://pc.0g.ai/models/<model-id>`, which shows the request. Within `chatbot`,
+decision models, which have none either: they answer typed questions about a text with probabilities
+instead of writing text (see Decisions in the [Build flow](references/build.md)). Within `chatbot`,
 `architecture.input_modalities` shows what a model accepts: `image` for vision, `video` for video
 input; `supported_parameters` containing `tools` means tool calling. Image, speech and video models
 carry their limits in `image_capabilities`, `speech_capabilities` and `video_capabilities`, and
@@ -187,6 +186,7 @@ Tie-breakers:
 | audio → text                     | transcribe, captions, subtitles, minutes from a recording                     | Speech              |
 | text → audio                     | read aloud, voice-over, narrate, text to speech, TTS                          | Text-to-speech      |
 | text → vector                    | embed, embeddings, vectors, semantic search, similarity, RAG index, retrieval | Embeddings          |
+| text + fixed questions → answers | classify, route, triage, label, score, rate, flag, yes or no, guardrail       | Decisions           |
 
 When the words don't decide, the files do. An image (`.png`, `.jpg`, `.webp`) given as input means
 image understanding; one requested as output means image generation, and both together mean image
@@ -206,6 +206,9 @@ Near misses:
   (`speech-to-text`) model can't do it.
 - "Semantic search" or "RAG over my docs": building the index and embedding each query is
   Embeddings; answering from the retrieved text is Text. Say which parts you will build.
+- "Classify these tickets" or "is this message spam?": if the answer is one of fixed labels, a level
+  on a scale or a yes/no, and a probability is useful, it is Decisions. If the user wants an
+  explanation or free text, it is Text. When it could be either, ask.
 
 ### When unsure, ask one question
 
@@ -321,6 +324,17 @@ Embed the Markdown files in ./docs with 0G PC and save the vectors to docs-index
 Recognized as **Build → Embeddings**. The agent picks an `embedding` model from `/v1/models`,
 estimates the input tokens and cost and waits for the user's OK, then calls `POST /embeddings` and
 saves the vectors with the file each one came from. There is no Playground page for embeddings.
+
+**Decisions**
+
+```
+Route each support ticket in tickets.csv to billing, technical or other with 0G PC.
+```
+
+Recognized as **Build → Decisions**. The agent picks a `decisions` model from `/v1/models`, writes
+one `choice` question whose options are the three departments, estimates the input tokens and cost
+and waits for the user's OK, then calls `POST /decisions` once per ticket and saves each answer with
+its probability. There is no Playground page for decisions.
 
 **Just asking**
 
