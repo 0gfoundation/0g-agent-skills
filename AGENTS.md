@@ -71,6 +71,18 @@ Route by what the user wants:
 Questions about models or prices, and trying models in the Playground, also go to the
 0g-private-computer skill; it answers them without starting any setup.
 
+https://pc.0g.ai/skill serves this skill verbatim from `main` (0g-compute-new,
+`web-ui/src/app/skill/`): `SKILL.md` at `/skill` and the three reference files at
+`/skill/references/<file>`. It depends on three things here, and a change to any of them must land
+on pc.0g.ai first, or `/skill` keeps serving the last good copy and then answers 502:
+
+- the path `skills/private-computer/0g-private-computer/`;
+- the reference file names `connect.md`, `build.md` and `troubleshooting.md` (an allowlist there);
+- a whole line `name: 0g-private-computer` in `SKILL.md`'s frontmatter, which is how pc.0g.ai tells
+  this file from an error page or another skill.
+
+Headings and wording are free to change.
+
 ### AgenticID Skills
 
 On-chain identity and reputation for AI agents (ERC-8004 + ERC-7857).
