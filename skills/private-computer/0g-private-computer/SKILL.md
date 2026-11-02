@@ -41,13 +41,13 @@ from anywhere else, check them against one of those before running any command t
 Everything in this skill leads to pc.0g.ai. It holds the user's account and is the source of truth
 for models, prices and trust modes:
 
-| What                                                | Where                                                                                                                                                  |
-| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| API keys, balance, a key's default trust mode       | https://pc.0g.ai/dashboard/api-keys                                                                                                                    |
-| Models, prices, capabilities, supported trust modes | https://pc.0g.ai/models                                                                                                                                |
-| One model's endpoint, fields and code examples      | `https://pc.0g.ai/models/<model-id>`                                                                                                                   |
-| Usage after requests                                | https://pc.0g.ai/dashboard/overview                                                                                                                    |
-| Trying a model without code                         | Playground: https://pc.0g.ai/playground/chat, https://pc.0g.ai/playground/image, https://pc.0g.ai/playground/video, https://pc.0g.ai/playground/speech |
+| What                                                | Where                                                                                                   |
+| --------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| API keys, balance, a key's default trust mode       | https://pc.0g.ai/dashboard/api-keys                                                                     |
+| Models, prices, capabilities, supported trust modes | https://pc.0g.ai/models                                                                                 |
+| One model's endpoint, fields and code examples      | `https://pc.0g.ai/models/<model-id>`                                                                    |
+| Usage after requests                                | https://pc.0g.ai/dashboard/overview                                                                     |
+| Trying a model without code                         | The Playground, for the modalities that have a page: see the [table](#modalities-playground-and-router) |
 
 Models are served by the 0G Router at `https://router-api.0g.ai/v1`, which is OpenAI-compatible and
 also offers an Anthropic-compatible messages API. The catalog and the model pages are updated before
@@ -82,17 +82,31 @@ map rows back through `canonical_id`. `/v1/providers?model=` matches `model_id`,
 providers of a `/v1/models` id only when the two names are the same. A row with no `canonical_id`
 has no `/v1/models` entry; don't offer it as a model.
 
-`type` matches the Playground pages: `chatbot` for chat, `text-to-image` for image (generation and
-editing), `video-generation` for video, `speech-to-text` for transcription, `text-to-speech` for
-reading text aloud, `embedding` for vectors, which has no Playground page, and `decisions` for
-decision models, which have none either: they answer typed questions about a text with probabilities
-instead of writing text (see Decisions in the [Build flow](references/build.md)). Within `chatbot`,
-`architecture.input_modalities` shows what a model accepts: `image` for vision, `video` for video
-input; `supported_parameters` containing `tools` means tool calling. Image, speech and video models
-carry their limits in `image_capabilities`, `speech_capabilities` and `video_capabilities`, and
-image models say in `async_supported` whether they take async jobs. If a modality has no models,
-check https://pc.0g.ai/models before telling the user it isn't offered. Listing calls are free; if
-one times out, retry it up to twice before concluding anything.
+### Modalities: Playground and Router
+
+Every modality can be called on the Router; only some can be tried in the Playground. This table is
+the one place that says which.
+
+| Modality                     | `type` in `/v1/models`                       | Try without code                                          | Router endpoint                             |
+| ---------------------------- | -------------------------------------------- | --------------------------------------------------------- | ------------------------------------------- |
+| Text                         | `chatbot`                                    | [chat](https://pc.0g.ai/playground/chat)                  | `POST /chat/completions`                    |
+| Image understanding          | `chatbot` with `image` in `input_modalities` | [chat](https://pc.0g.ai/playground/chat), attach an image | `POST /chat/completions` with image content |
+| Image generation and editing | `text-to-image`                              | [image](https://pc.0g.ai/playground/image)                | `POST /images/generations`                  |
+| Video generation             | `video-generation`                           | [video](https://pc.0g.ai/playground/video)                | `POST /videos`                              |
+| Video understanding          | `chatbot` with `video` in `input_modalities` | None: the chat Playground takes images, not video         | See the model's page                        |
+| Transcription                | `speech-to-text`                             | [speech](https://pc.0g.ai/playground/speech)              | `POST /audio/transcriptions`                |
+| Text-to-speech               | `text-to-speech`                             | [speech](https://pc.0g.ai/playground/speech)              | `POST /audio/speech`                        |
+| Embeddings                   | `embedding`                                  | None                                                      | `POST /embeddings`                          |
+| Decisions                    | `decisions`                                  | None                                                      | `POST /decisions`                           |
+
+Endpoints are relative to the Router's base URL; the [Build flow](references/build.md) has how to
+call each. Decision models answer typed questions about a text with probabilities instead of writing
+text. Within `chatbot`, `architecture.input_modalities` shows what a model accepts: `image` for
+vision, `video` for video input; `supported_parameters` containing `tools` means tool calling.
+Image, speech and video models carry their limits in `image_capabilities`, `speech_capabilities` and
+`video_capabilities`, and image models say in `async_supported` whether they take async jobs. If a
+modality has no models, check https://pc.0g.ai/models before telling the user it isn't offered.
+Listing calls are free; if one times out, retry it up to twice before concluding anything.
 
 Quote prices in US dollars from `pricing_usd`, the way https://pc.0g.ai/models shows them. For
 `chatbot`, `embedding` and `decisions`, `prompt` and `completion` are per token: multiply by
@@ -102,8 +116,8 @@ per 1M characters. Video models price each `variants` row in its own `unit`; quo
 unit. `pricing` holds the same prices in neuron (1e18 neuron is 1 0G); give a 0G figure only when
 the user asks for one, never as the headline. Multiply by the expected input and output to estimate
 cost. Present models the way https://pc.0g.ai/models does: per modality, with name, id, price,
-context and whether a TEE-attested provider serves it, then recommend one and link the matching
-Playground page.
+context and whether a TEE-attested provider serves it, then recommend one and link its Playground
+page if the modality has one.
 
 ## Ground rules
 
@@ -148,14 +162,14 @@ user can correct it.
 
 ### Step 1: which flow
 
-| Signals in the request                                                                                                                                | Flow                                                                                                                                                                                                                              |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A question with no task: what is, which models, how much, does it support, what's the difference                                                      | **Ask**: answer from this page and https://pc.0g.ai/models. No CLI, no code.                                                                                                                                                      |
-| Try, test, compare, play with, see what it can do, without code                                                                                       | **Try**: the Playground page for that modality: [chat](https://pc.0g.ai/playground/chat), [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video) or [speech](https://pc.0g.ai/playground/speech). |
-| A coding tool is the subject (Claude Code, OpenCode, Pi, Hermes, "my agent"), with set up, connect, switch model, use 0G as my model, turn off, check | **Connect**: [Connect flow](references/connect.md)                                                                                                                                                                                |
-| An app, API, endpoint, script, SDK or backend; or a file to process (screenshot, `.png`, `.mp3`, `.mp4`)                                              | **Build**: [Build flow](references/build.md), then step 2                                                                                                                                                                         |
-| Wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced mode on pc.0g.ai, compute-marketplace.0g.ai, fine-tuning                     | **Compute Direct**: not this skill; use the Compute skills in https://github.com/0gfoundation/0g-agent-skills                                                                                                                     |
-| Error, not working, 401, stuck, balance, still on the old model                                                                                       | **Fix**: [Troubleshooting](references/troubleshooting.md)                                                                                                                                                                         |
+| Signals in the request                                                                                                                                | Flow                                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A question with no task: what is, which models, how much, does it support, what's the difference                                                      | **Ask**: answer from this page and https://pc.0g.ai/models. No CLI, no code.                                                                                                                                                                                                                    |
+| Try, test, compare, play with, see what it can do, without code                                                                                       | **Try**: the Playground page for that modality, from the [table](#modalities-playground-and-router). Video understanding, embeddings and decisions have none: say so, link `https://pc.0g.ai/models/<model-id>`, and offer one request through the Build flow once the user agrees to the cost. |
+| A coding tool is the subject (Claude Code, OpenCode, Pi, Hermes, "my agent"), with set up, connect, switch model, use 0G as my model, turn off, check | **Connect**: [Connect flow](references/connect.md)                                                                                                                                                                                                                                              |
+| An app, API, endpoint, script, SDK or backend; or a file to process (screenshot, `.png`, `.mp3`, `.mp4`)                                              | **Build**: [Build flow](references/build.md), then step 2                                                                                                                                                                                                                                       |
+| Wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced mode on pc.0g.ai, compute-marketplace.0g.ai, fine-tuning                     | **Compute Direct**: not this skill; use the Compute skills in https://github.com/0gfoundation/0g-agent-skills                                                                                                                                                                                   |
+| Error, not working, 401, stuck, balance, still on the old model                                                                                       | **Fix**: [Troubleshooting](references/troubleshooting.md)                                                                                                                                                                                                                                       |
 
 Tie-breakers:
 
@@ -298,7 +312,8 @@ Use 0G PC to summarize what happens in demo.mp4.
 Recognized as **Build → Video generation** (first) and **Build → Video understanding** (second). For
 generation, the agent shows duration, resolution and estimated cost and waits for the user's OK,
 then submits to `POST /videos`, polls the job and downloads the file; for understanding, it uses a
-model that accepts video input. To try first: https://pc.0g.ai/playground/video
+model that accepts video input. To try generation first: https://pc.0g.ai/playground/video. Video
+understanding has no Playground page; the model's page on pc.0g.ai shows how to send the video.
 
 **Speech**
 
