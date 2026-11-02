@@ -381,7 +381,12 @@ agent-skills-0g/
 │   │   ├── agent-reputation/SKILL.md
 │   │   └── agent-accounts/SKILL.md
 │   └── private-computer/            # 1 skill
-│       └── 0g-private-computer/SKILL.md
+│       └── 0g-private-computer/
+│           ├── SKILL.md                 # Every request: recognition, ground rules, models
+│           └── references/              # Read when a flow needs them
+│               ├── connect.md           # Connect a coding tool through 0gpc
+│               ├── build.md             # Call the Router from app code
+│               └── troubleshooting.md
 │
 ├── examples/                        # 4 runnable example projects
 │   ├── file-vault/                  # Storage: upload, download, verify
