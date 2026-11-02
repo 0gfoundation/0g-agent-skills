@@ -136,17 +136,18 @@ Describe what you want. The agent lists the live models for that feature, you pi
 mode, and it writes code that reads your key from the environment. It asks before any request that
 costs money.
 
-| Feature             | Say this                                                            | Before it runs                           | Try it                                       |
-| ------------------- | ------------------------------------------------------------------- | ---------------------------------------- | -------------------------------------------- |
-| Chat Completions    | "add a streaming chat endpoint with 0G PC in Private mode"          | Picks a model with you                   | [chat](https://pc.0g.ai/playground/chat)     |
-| Vision              | "extract the totals from these screenshots with 0G PC"              | Picks a vision model                     | [chat](https://pc.0g.ai/playground/chat)     |
-| Image Generation    | "generate a 1024x1024 hero image with 0G PC"                        | Shows the per-image price                | [image](https://pc.0g.ai/playground/image)   |
-| Image Editing       | "replace the background of photo.jpg with plain white using 0G PC"  | Shows the per-image price                | [image](https://pc.0g.ai/playground/image)   |
-| Video Generation    | "turn hero.png into a 5-second clip with 0G PC"                     | Shows duration and estimated cost        | [video](https://pc.0g.ai/playground/video)   |
-| Video Understanding | "summarize what happens in demo.mp4 with 0G PC"                     | Picks a model that accepts video         |                                              |
-| Audio Transcription | "transcribe meeting.mp3 with 0G PC"                                 | Picks a speech-to-text model             | [speech](https://pc.0g.ai/playground/speech) |
-| Text-to-Speech      | "read intro.md aloud with 0G PC and save it as intro.mp3"           | Shows character count and estimated cost | [speech](https://pc.0g.ai/playground/speech) |
-| Embeddings          | "embed the Markdown files in ./docs with 0G PC for semantic search" | Shows estimated tokens and cost          |                                              |
+| Feature             | Say this                                                                     | Before it runs                           | Try it                                       |
+| ------------------- | ---------------------------------------------------------------------------- | ---------------------------------------- | -------------------------------------------- |
+| Chat Completions    | "add a streaming chat endpoint with 0G PC in Private mode"                   | Picks a model with you                   | [chat](https://pc.0g.ai/playground/chat)     |
+| Vision              | "extract the totals from these screenshots with 0G PC"                       | Picks a vision model                     | [chat](https://pc.0g.ai/playground/chat)     |
+| Image Generation    | "generate a 1024x1024 hero image with 0G PC"                                 | Shows the per-image price                | [image](https://pc.0g.ai/playground/image)   |
+| Image Editing       | "replace the background of photo.jpg with plain white using 0G PC"           | Shows the per-image price                | [image](https://pc.0g.ai/playground/image)   |
+| Video Generation    | "turn hero.png into a 5-second clip with 0G PC"                              | Shows duration and estimated cost        | [video](https://pc.0g.ai/playground/video)   |
+| Video Understanding | "summarize what happens in demo.mp4 with 0G PC"                              | Picks a model that accepts video         |                                              |
+| Audio Transcription | "transcribe meeting.mp3 with 0G PC"                                          | Picks a speech-to-text model             | [speech](https://pc.0g.ai/playground/speech) |
+| Text-to-Speech      | "read intro.md aloud with 0G PC and save it as intro.mp3"                    | Shows character count and estimated cost | [speech](https://pc.0g.ai/playground/speech) |
+| Embeddings          | "embed the Markdown files in ./docs with 0G PC for semantic search"          | Shows estimated tokens and cost          |                                              |
+| Decisions           | "route each ticket in tickets.csv to billing, technical or other with 0G PC" | Shows estimated tokens and cost          |                                              |
 
 The Router is at `https://router-api.0g.ai/v1` and is OpenAI-compatible.
 
