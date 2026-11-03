@@ -1,7 +1,7 @@
 # 0G Agent Skills — Orchestration Guide
 
 Master orchestration file for AI coding assistants. Defines activation triggers, workflow sequences,
-critical rules, and common mistakes for all 25 skills across 6 categories.
+critical rules, and common mistakes for all 23 skills across 6 categories.
 
 > **SDK rename (breaking).** `@0glabs/0g-ts-sdk` and `@0glabs/0g-serving-broker` are deprecated on
 > npm. Use `@0gfoundation/0g-storage-ts-sdk` (^1.2.12) and `@0gfoundation/0g-compute-ts-sdk`
@@ -19,17 +19,17 @@ critical rules, and common mistakes for all 25 skills across 6 categories.
 
 ### Compute Skills
 
-| Skill              | Path                                         | Triggers                                                         |
-| ------------------ | -------------------------------------------- | ---------------------------------------------------------------- |
-| Provider Discovery | `skills/compute/provider-discovery/SKILL.md` | "list providers", "find provider", "verify provider", "TEE"      |
-| Account Management | `skills/compute/account-management/SKILL.md` | "deposit", "transfer funds", "refund", "check balance"           |
-| Streaming Chat     | `skills/compute/streaming-chat/SKILL.md`     | "chatbot", "inference", "LLM", "GLM", "Claude", "GPT", "AI chat" |
-| Text to Image      | `skills/compute/text-to-image/SKILL.md`      | "generate image", "text-to-image", "create image"                |
-| Image Editing      | `skills/compute/image-editing/SKILL.md`      | "edit image", "image-editing", "inpaint", "modify image"         |
-| Video Generation   | `skills/compute/video-generation/SKILL.md`   | "generate video", "text-to-video", "MiniMax", "Seedance"         |
-| Embeddings         | `skills/compute/embeddings/SKILL.md`         | "embedding", "vector", "semantic search", "RAG"                  |
-| Speech to Text     | `skills/compute/speech-to-text/SKILL.md`     | "transcribe", "speech-to-text", "Whisper", "audio transcription" |
-| Fine-Tuning        | `skills/compute/fine-tuning/SKILL.md`        | "fine-tune", "train model", "LoRA", "adapter", "custom model"    |
+| Skill              | Path                                         | Triggers                                                                                                                                                             |
+| ------------------ | -------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Provider Discovery | `skills/compute/provider-discovery/SKILL.md` | "list providers with the broker SDK", "find a provider on compute-marketplace.0g.ai", "verify a provider's TEE signer with the broker SDK"                           |
+| Account Management | `skills/compute/account-management/SKILL.md` | "deposit", "transfer funds", "refund", "check balance"                                                                                                               |
+| Streaming Chat     | `skills/compute/streaming-chat/SKILL.md`     | "chatbot with a wallet / the broker SDK", "inference with the broker SDK", "LLM through a provider sub-account", "GLM / Claude / GPT with the broker SDK"            |
+| Text to Image      | `skills/compute/text-to-image/SKILL.md`      | "generate an image with a wallet / the broker SDK", "text-to-image with the broker SDK", "create an image through a provider sub-account"                            |
+| Image Editing      | `skills/compute/image-editing/SKILL.md`      | "edit an image with a wallet / the broker SDK", "image-editing with the broker SDK", "inpaint with the broker SDK", "modify an image through a provider sub-account" |
+| Video Generation   | `skills/compute/video-generation/SKILL.md`   | "generate a video with a wallet / the broker SDK", "text-to-video with the broker SDK", "MiniMax / Seedance with the broker SDK"                                     |
+| Embeddings         | `skills/compute/embeddings/SKILL.md`         | "embeddings with a wallet / the broker SDK", "vector embeddings with the broker SDK", "semantic search with the broker SDK", "RAG with a wallet / the broker SDK"    |
+| Speech to Text     | `skills/compute/speech-to-text/SKILL.md`     | "transcribe with a wallet / the broker SDK", "speech-to-text with the broker SDK", "Whisper with the broker SDK"                                                     |
+| Fine-Tuning        | `skills/compute/fine-tuning/SKILL.md`        | "fine-tune", "train model", "LoRA", "adapter", "custom model"                                                                                                        |
 
 ### Chain Skills
 
@@ -48,13 +48,40 @@ critical rules, and common mistakes for all 25 skills across 6 categories.
 
 ### Private Computer Skills
 
-These configure Claude Code itself rather than building on 0G. Claude Code only.
+Use 0G Private Computer (pc.0g.ai) from an agent: connect a coding tool (Claude Code, OpenCode, Pi,
+Hermes Agent) through the `0gpc` CLI, or call 0G models (text, image, video, speech) from app code
+with a pc.0g.ai API key.
 
-| Skill        | Path                                                  | Triggers                                                                         |
-| ------------ | ----------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Setup        | `skills/private-computer/0g-pc-setup/SKILL.md`        | "put this project on 0G", "connect Claude Code to 0G", "set up 0G PC", "接入 0G" |
-| Switch Model | `skills/private-computer/0g-pc-switch-model/SKILL.md` | "switch 0G model", "use a different 0G model", "换模型", "切到 glm-5.3"          |
-| Uninstall    | `skills/private-computer/0g-pc-uninstall/SKILL.md`    | "turn 0G off", "go back to Anthropic", "卸载 0G", "不用 0G 了"                   |
+| Skill | Path                                                   | Triggers                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| ----- | ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 0G PC | `skills/private-computer/0g-private-computer/SKILL.md` | "put this project on 0G", "connect Claude Code/OpenCode/Pi/Hermes to 0G", "switch 0G model", "check or turn off 0G", "call 0G PC or router-api.0g.ai from my app", "chat with 0G models", "generate an image or video with 0G", "edit an image with 0G", "transcribe with 0G", "read text aloud with 0G", "embed text with 0G", "semantic search or RAG index with 0G", "classify, score or route text with 0G", "private or TEE inference", "0G Playground" |
+
+Route by what the user wants:
+
+- **Connect** a coding tool (Claude Code, OpenCode, Pi, Hermes) to 0G models: set up, switch model,
+  check, turn off → `skills/private-computer/0g-private-computer/SKILL.md`, then its
+  `references/connect.md`. Runs through the `0gpc` CLI.
+- **Build** with 0G models from app code using an API key from pc.0g.ai: text, image understanding
+  and generation, video, speech, embeddings, decisions, including pinning a provider with
+  `X-0G-Provider-Address` → `skills/private-computer/0g-private-computer/SKILL.md`, then its
+  `references/build.md`. Calls the Router at `https://router-api.0g.ai/v1`.
+- **Compute Direct**: wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced mode
+  on pc.0g.ai, compute-marketplace.0g.ai, fine-tuning → the Compute skills in `skills/compute/`.
+
+Questions about models or prices, and trying models in the Playground, also go to the
+0g-private-computer skill; it answers them without starting any setup.
+
+https://pc.0g.ai/skill serves this skill verbatim from `main` (0g-compute-new,
+`web-ui/src/app/skill/`): `SKILL.md` at `/skill` and the three reference files at
+`/skill/references/<file>`. It depends on three things here, and a change to any of them must land
+on pc.0g.ai first, or `/skill` keeps serving the last good copy and then answers 502:
+
+- the path `skills/private-computer/0g-private-computer/`;
+- the reference file names `connect.md`, `build.md` and `troubleshooting.md` (an allowlist there);
+- a whole line `name: 0g-private-computer` in `SKILL.md`'s frontmatter, which is how pc.0g.ai tells
+  this file from an error page or another skill.
+
+Headings and wording are free to change.
 
 ### AgenticID Skills
 
@@ -192,16 +219,19 @@ This category is **viem**, not ethers. Testnet is the default target and reputat
 
 ## Manual handoffs (not auto-chained)
 
-The sequences above chain automatically. The Private Computer skills do not, and must not: each one
-changes the user's configuration, and a user who asked for one did not ask for the others.
+The sequences above chain automatically. The Private Computer skill does not, and must not: it
+changes the user's configuration, so it runs only when the user asks for it, and it chains into no
+other skill.
 
-| Situation                              | Skill                |
-| -------------------------------------- | -------------------- |
-| First time putting a project on 0G     | `0g-pc-setup`        |
-| Already on 0G, wants a different model | `0g-pc-switch-model` |
-| Wants this project off 0G              | `0g-pc-uninstall`    |
+| Situation                                    | Skill                 |
+| -------------------------------------------- | --------------------- |
+| First time putting a coding agent on 0G      | `0g-private-computer` |
+| Already on 0G, wants a different model       | `0g-private-computer` |
+| Wants a tool off 0G                          | `0g-private-computer` |
+| Wants to call the 0G PC Router from app code | `0g-private-computer` |
 
-`0g-pc-setup` does not run the installer itself and does not chain into the other two.
+`0g-private-computer` drives the `0gpc` CLI and never hand-edits a tool's config; see its ground
+rules.
 
 Route by the object of the request. A request to configure the client belongs here; a request to
 build something with the Compute SDK belongs to the inference skills, even when it names a model.

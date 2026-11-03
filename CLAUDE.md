@@ -1,7 +1,7 @@
 # 0G Agent Skills
 
 You are assisting a developer building on the **0G decentralized AI operating system**. This
-repository contains 25 agent skills across 6 categories: Storage, Compute, Chain, Cross-Layer,
+repository contains 23 agent skills across 6 categories: Storage, Compute, Chain, Cross-Layer,
 Private Computer, and AgenticID.
 
 > **SDK packages were renamed.** The old `@0glabs/0g-ts-sdk` and `@0glabs/0g-serving-broker` are
@@ -75,15 +75,24 @@ Private Computer, and AgenticID.
 
 ### Compute
 
-- `skills/compute/provider-discovery/SKILL.md` — Find & verify providers, enumerate models
-- `skills/compute/account-management/SKILL.md` — Deposits, transfers, refunds, auto-funding
-- `skills/compute/streaming-chat/SKILL.md` — LLM inference (GLM, Claude, GPT, Qwen, DeepSeek, 0GM)
-- `skills/compute/text-to-image/SKILL.md` — Image generation (z-image-turbo)
-- `skills/compute/image-editing/SKILL.md` — Edit an existing image from a prompt
-- `skills/compute/video-generation/SKILL.md` — Video generation (MiniMax-H3, Seedance)
-- `skills/compute/embeddings/SKILL.md` — Text embeddings for search & RAG
-- `skills/compute/speech-to-text/SKILL.md` — Audio transcription (Whisper Large V3)
-- `skills/compute/fine-tuning/SKILL.md` — Model training + LoRA adapter deployment
+- `skills/compute/provider-discovery/SKILL.md` — Compute Direct (wallet + broker SDK): Find & verify
+  providers, enumerate models
+- `skills/compute/account-management/SKILL.md` — Compute Direct (wallet + broker SDK): Deposits,
+  transfers, refunds, auto-funding
+- `skills/compute/streaming-chat/SKILL.md` — Compute Direct (wallet + broker SDK): LLM inference
+  (GLM, Claude, GPT, Qwen, DeepSeek, 0GM)
+- `skills/compute/text-to-image/SKILL.md` — Compute Direct (wallet + broker SDK): Image generation
+  (z-image-turbo)
+- `skills/compute/image-editing/SKILL.md` — Compute Direct (wallet + broker SDK): Edit an existing
+  image from a prompt
+- `skills/compute/video-generation/SKILL.md` — Compute Direct (wallet + broker SDK): Video
+  generation (MiniMax-H3, Seedance)
+- `skills/compute/embeddings/SKILL.md` — Compute Direct (wallet + broker SDK): Text embeddings for
+  search & RAG
+- `skills/compute/speech-to-text/SKILL.md` — Compute Direct (wallet + broker SDK): Audio
+  transcription (Whisper Large V3)
+- `skills/compute/fine-tuning/SKILL.md` — Compute Direct (wallet + broker SDK): Model training +
+  LoRA adapter deployment
 
 ### Chain
 
@@ -108,11 +117,20 @@ On-chain identity and reputation for AI agents. **This category uses `viem`, not
 
 ### Private Computer
 
-Claude Code's own backend, not the SDKs. Claude Code only; no SDK, wallet or `.env` involved.
+Route by what the user wants:
 
-- `skills/private-computer/0g-pc-setup/SKILL.md` — Put a project on 0G Private Computer
-- `skills/private-computer/0g-pc-switch-model/SKILL.md` — Change which router model it uses
-- `skills/private-computer/0g-pc-uninstall/SKILL.md` — Take the project back off 0G
+- **Connect** a coding tool (Claude Code, OpenCode, Pi, Hermes) to 0G models: set up, switch model,
+  check, turn off → `skills/private-computer/0g-private-computer/SKILL.md`, then its
+  `references/connect.md`. Runs through the `0gpc` CLI.
+- **Build** with 0G models from app code using an API key from pc.0g.ai: text, image understanding
+  and generation, video, speech, including pinning a provider with `X-0G-Provider-Address` →
+  `skills/private-computer/0g-private-computer/SKILL.md`, then its `references/build.md`. Calls the
+  Router at `https://router-api.0g.ai/v1`.
+- **Compute Direct**: wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced mode
+  on pc.0g.ai, compute-marketplace.0g.ai, fine-tuning → the Compute skills in `skills/compute/`.
+
+Questions about models or prices, and trying models in the Playground, also go to the
+0g-private-computer skill; it answers them without starting any setup.
 
 ## Pattern Documents
 

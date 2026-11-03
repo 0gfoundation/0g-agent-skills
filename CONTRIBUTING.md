@@ -93,9 +93,8 @@ Add the skill to the Skill Map section.
 
 These apply to skills that call a 0G SDK. A skill that configures a client rather than calling an
 SDK — `skills/private-computer/` is the one category of those today — has no TypeScript examples to
-hold to them: it writes `Not applicable` in the SDK metadata field, names its supported host
-instead, and is exempt from the ethers, `processResponse()` and `evmVersion` items in the checklist
-below.
+hold to them: it names the coding agents and CLI version it supports instead of an SDK, and is
+exempt from the ethers, `processResponse()` and `evmVersion` items in the checklist below.
 
 All code examples must:
 

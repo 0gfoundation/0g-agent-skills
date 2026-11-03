@@ -6,7 +6,7 @@ This repo turns Claude Code, Cursor, and GitHub Copilot into expert 0G developer
 a file to 0G Storage"_ or _"build a chatbot on 0G Compute"_ and get correct, working TypeScript code
 every time.
 
-**25 skills. 7 architecture references. 3 IDE setups. Zero build step.**
+**23 skills. 7 architecture references. 3 IDE setups. Zero build step.**
 
 ---
 
@@ -69,43 +69,107 @@ Ask your AI assistant anything. Try these:
 
 ## Skills Catalog
 
-The 25 skills split into three groups. Pick the one that matches what you are trying to do.
+The 23 skills split into three groups. Pick the one that matches what you are trying to do.
 
-| Group                                 | What it does                            | Count | Works in                     |
-| ------------------------------------- | --------------------------------------- | ----- | ---------------------------- |
-| [Private Computer](#private-computer) | Runs Claude Code itself on 0G models    | 3     | Claude Code only             |
-| [Build on 0G](#build-on-0g)           | Teaches your assistant to write 0G code | 17    | Claude Code, Cursor, Copilot |
-| [AgenticID](#agenticid)               | Gives AI agents a verifiable identity   | 5     | Claude Code, Cursor, Copilot |
+| Group                                 | What it does                                                                                                                  | Count | Works in                                              |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------- | ----- | ----------------------------------------------------- |
+| [Private Computer](#private-computer) | Use pc.0g.ai from your agent: connect coding tools through 0gpc, or call 0G models (text, image, video, speech) from your app | 1     | Any agent; connects Claude Code, OpenCode, Pi, Hermes |
+| [Build on 0G](#build-on-0g)           | Teaches your assistant to write 0G code                                                                                       | 17    | Claude Code, Cursor, Copilot                          |
+| [AgenticID](#agenticid)               | Gives AI agents a verifiable identity                                                                                         | 5     | Claude Code, Cursor, Copilot                          |
 
 ---
 
 ## Private Computer
 
-**Run Claude Code itself on 0G.**
+**Use 0G Private Computer from your agent.**
 
-This group changes where Claude Code sends its own requests. Instead of the Anthropic API, it talks
-to [0G Private Computer](https://pc.0g.ai): TEE-backed inference behind an Anthropic-compatible
-router.
+One skill, `0g-private-computer`, covers what you do with [0G Private Computer](https://pc.0g.ai):
+run your coding agent on 0G models, build with 0G models in your own code, or try them first. Every
+model comes from the [live catalog](https://pc.0g.ai/models), under the trust mode you choose
+(Standard, Verified or Private/TEE).
 
-No Compute SDK, no wallet, no `.env`. It is a configuration change, not code you write.
+> **Your key stays out of the chat.** The agent never asks for it: you enter it in your own terminal
+> or set it as an environment variable. Every config change is previewed first, and the agent asks
+> before anything that costs money.
 
-> **Claude Code only.** These skills configure a project's `.claude/` directory. Cursor and Copilot
-> do not read it.
+### Get started
 
-| Skill                                                               | What it does                                                                                                                | Say this to activate       |
-| ------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------- |
-| [Setup](skills/private-computer/0g-pc-setup/SKILL.md)               | Ask the router which models it serves right now, choose one on its TEE tier and context, and put the current project on it. | _"put this project on 0G"_ |
-| [Switch Model](skills/private-computer/0g-pc-switch-model/SKILL.md) | Move a project already on 0G to a different router model, context ceiling included.                                         | _"switch 0G model"_        |
-| [Uninstall](skills/private-computer/0g-pc-uninstall/SKILL.md)       | Take the project back off 0G and onto the normal Anthropic API.                                                             | _"turn 0G off"_            |
+Paste this into Claude Code, OpenCode or any agent that can run commands:
 
-Get started in one command:
-
-```bash
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key -
+```
+Read https://pc.0g.ai/skill and help me set up 0G Private Computer.
 ```
 
-See [Private Computer installer](#private-computer-installer) for what it writes, how to undo it,
-and where the file comes from.
+Or install the skill (needs Node.js 22.20 or later):
+
+```
+npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer
+```
+
+After installing, just ask in plain words (for example "connect Claude Code to 0G PC"), or type
+`/0g-private-computer` in Claude Code. Restart the tool after installing.
+
+### Run your coding agent on 0G models
+
+Works with Claude Code, OpenCode V1, Pi and Hermes Agent through the
+[`0gpc` CLI](https://www.npmjs.com/package/@0gfoundation/0gpc). Every change is previewed first and
+saved only after you confirm; restart the tool afterwards so it picks up the new model.
+
+| You want to                  | Say this                                                             | What happens                                                                                                                                 |
+| ---------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Put your coding agent on 0G  | "connect Claude Code in this project to 0G PC"                       | Checks your setup; you add your key in your own terminal, pick a model and approve the exact change                                          |
+| See which models you can use | "which models can Claude Code use on 0G PC?" · "is glm-5.3 on 0G?"   | Queries the live catalog right then, with price, context length, tool calling and Private support; no key, no cost                           |
+| Pick a model for coding      | "which 0G model is best for coding with Claude Code?"                | Recommends one model from the live catalog, plus up to two alternatives, and says why                                                        |
+| Keep your code private       | "make sure Claude Code only uses Private (TEE) inference"            | Has you set your key to Private on pc.0g.ai, then picks a model served by a TEE-attested provider                                            |
+| Switch model                 | "switch to a cheaper 0G model" · "use a model with a longer context" | Shows the options, previews the change and saves it after you confirm                                                                        |
+| Confirm it's working         | "am I on 0G now?" · "check my 0G connection"                         | Checks the local setup and points you to your requests in usage on pc.0g.ai; asks before a network check, which may cost a very small amount |
+| See what you've spent        | "how much have I spent on 0G?"                                       | Points you to usage and balance on pc.0g.ai; topping up is always your call                                                                  |
+| Replace your key             | "I need a new 0G key" · "I pasted my key into the chat"              | You create a new key on pc.0g.ai and enter it in your own terminal; every connected tool picks it up                                         |
+| Use 0G in every project      | "use 0G PC for Claude Code in all my projects"                       | Explains that this changes your global settings, previews it and asks before saving                                                          |
+| Go back to your usual setup  | "turn 0G off" · "go back to Anthropic"                               | Removes only what 0gpc added; your other settings and your key stay                                                                          |
+
+Prefer to do it yourself? Run `npx @0gfoundation/0gpc@latest` for the setup wizard.
+
+### Build with 0G models in your app
+
+Describe what you want. The agent lists the live models for that feature, you pick a model and trust
+mode, and it writes code that reads your key from the environment. It asks before any request that
+costs money.
+
+| Feature             | Say this                                                                     | Before it runs                           | Try it                                       |
+| ------------------- | ---------------------------------------------------------------------------- | ---------------------------------------- | -------------------------------------------- |
+| Chat Completions    | "add a streaming chat endpoint with 0G PC in Private mode"                   | Picks a model with you                   | [chat](https://pc.0g.ai/playground/chat)     |
+| Vision              | "extract the totals from these screenshots with 0G PC"                       | Picks a vision model                     | [chat](https://pc.0g.ai/playground/chat)     |
+| Image Generation    | "generate a 1024x1024 hero image with 0G PC"                                 | Shows the per-image price                | [image](https://pc.0g.ai/playground/image)   |
+| Image Editing       | "replace the background of photo.jpg with plain white using 0G PC"           | Shows the per-image price                | [image](https://pc.0g.ai/playground/image)   |
+| Video Generation    | "turn hero.png into a 5-second clip with 0G PC"                              | Shows duration and estimated cost        | [video](https://pc.0g.ai/playground/video)   |
+| Video Understanding | "summarize what happens in demo.mp4 with 0G PC"                              | Picks a model that accepts video         |                                              |
+| Audio Transcription | "transcribe meeting.mp3 with 0G PC"                                          | Picks a speech-to-text model             | [speech](https://pc.0g.ai/playground/speech) |
+| Text-to-Speech      | "read intro.md aloud with 0G PC and save it as intro.mp3"                    | Shows character count and estimated cost | [speech](https://pc.0g.ai/playground/speech) |
+| Embeddings          | "embed the Markdown files in ./docs with 0G PC for semantic search"          | Shows estimated tokens and cost          |                                              |
+| Decisions           | "route each ticket in tickets.csv to billing, technical or other with 0G PC" | Shows estimated tokens and cost          |                                              |
+
+The Router is at `https://router-api.0g.ai/v1` and is OpenAI-compatible.
+
+### Try or ask before you build
+
+- Ask _"which video models does 0G PC have, and which support Private?"_ The agent lists live models
+  with prices and Private support; no key, no cost.
+- Try any model without code in the Playground: [chat](https://pc.0g.ai/playground/chat),
+  [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video),
+  [speech](https://pc.0g.ai/playground/speech).
+
+### When something breaks
+
+Say _"my 0G setup stopped working"_. The agent diagnoses first, then suggests the smallest fix you
+can undo.
+
+---
+
+`0g-pc-setup`, `0g-pc-switch-model` and `0g-pc-uninstall` have been merged into
+`0g-private-computer`. The same skill is served at https://pc.0g.ai/skill. Compute Direct
+(wallet-signed calls to individual providers, Advanced mode on pc.0g.ai, fine-tuning) is a separate
+path covered by the Compute skills below.
 
 ---
 
@@ -123,6 +187,9 @@ SDKs. They work in Claude Code, Cursor, and GitHub Copilot.
 | [Merkle Verification](skills/storage/merkle-verification/SKILL.md) | Compute root hashes and cryptographically verify file integrity.                       | _"verify file integrity"_   |
 
 ### Compute: AI inference on decentralized GPUs
+
+These skills are Compute Direct: they call individual providers with a wallet and the broker SDK.
+For API-key access through pc.0g.ai, use the 0g-private-computer skill.
 
 | Skill                                                            | What it does                                                                                             | Say this to activate          |
 | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------- | ----------------------------- |
@@ -181,65 +248,6 @@ quickstart (`https://agenticid.0g.ai`) is **testnet** (16602); mainnet is
 `https://agenticid-mainnet.0g.ai`. And **reputation is testnet-only today** — the reputation
 registry is the one contract not yet deployed on mainnet. See
 [patterns/AGENTIC_ID.md](patterns/AGENTIC_ID.md).
-
----
-
-## Private Computer installer
-
-Reference for the [Private Computer](#private-computer) skills above.
-
-### Commands
-
-```bash
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key -      # install, prompt for the key
-curl -fsSL https://pc.0g.ai/install | bash -s claude --key sk-…   # install, key inline
-curl -fsSL https://pc.0g.ai/install | bash -s claude --uninstall  # undo, needs no key
-curl -fsSL https://pc.0g.ai/install | bash -s skills              # add the slash commands
-curl -fsSL https://pc.0g.ai/install | bash -s skills --uninstall  # remove the slash commands
-```
-
-**Prefer `--key -`.** It reads the key from the terminal with echo off, so it stays out of your
-shell history. `--key sk-…` puts the credential in the argv of the command you typed, where other
-users on the same machine can read it.
-
-### What it writes
-
-| Subcommand | Writes                                                                                                     |
-| ---------- | ---------------------------------------------------------------------------------------------------------- |
-| `claude`   | `.claude/settings.local.json` (mode 600) and one line in `.claude/.gitignore`, in the current project only |
-| `skills`   | The three slash commands into `~/.claude/skills`, outside the project. Takes no key                        |
-
-`claude` never touches `.claude/settings.json`, nor your global `~/.claude/settings.json`.
-
-After a successful install the script prints a `check-0g.sh` command. Running it is a separate,
-deliberate step. The installer does not fetch and execute it for you.
-
-### Where the file comes from
-
-The copy in this repo, [`skills/private-computer/install.sh`](skills/private-computer/install.sh),
-is POSIX `sh` and is here for reading and review. It is **not** what runs on a user's machine: the
-skills hand out a `curl` pointing at `0g-pc-skills/main/install.sh`, and `pc.0g.ai/install` serves
-its own copy.
-
-All four private-computer files originate in
-[0gfoundation/0g-pc-skills](https://github.com/0gfoundation/0g-pc-skills), where they are
-maintained, tested and released. Refreshing them here is a manual step, so read that repository as
-the source.
-
-> **`install.sh` is no longer a byte-for-byte copy.** It forked from `bf8751e` with two security
-> changes made during review in this repo:
->
-> 1. The API key goes to `curl` on stdin (`--config -`) instead of in its argv, where process
->    arguments are readable by any other user on the machine.
-> 2. The post-install self-check is no longer fetched from `$BASE_URL` and executed. Running remote
->    code moments after writing a credential gave away more than the endpoint pin buys back, and
->    that pin exists for exactly this class of risk.
->
-> Both belong upstream, and **until they land there users are not protected by them**, because the
-> upstream file is what actually runs. The fixes here make the reviewed copy correct and record what
-> needs upstreaming. They are not a substitute for it.
->
-> Until the two are reconciled, treat them as divergent: do not overwrite this file with `bf8751e`.
 
 ---
 
@@ -372,11 +380,13 @@ agent-skills-0g/
 │   │   ├── interact-agent/SKILL.md
 │   │   ├── agent-reputation/SKILL.md
 │   │   └── agent-accounts/SKILL.md
-│   └── private-computer/            # 3 skills, plus the installer (copy, for review)
-│       ├── install.sh
-│       ├── 0g-pc-setup/SKILL.md
-│       ├── 0g-pc-switch-model/SKILL.md
-│       └── 0g-pc-uninstall/SKILL.md
+│   └── private-computer/            # 1 skill
+│       └── 0g-private-computer/
+│           ├── SKILL.md                 # Every request: recognition, ground rules, models
+│           └── references/              # Read when a flow needs them
+│               ├── connect.md           # Connect a coding tool through 0gpc
+│               ├── build.md             # Call the Router from app code
+│               └── troubleshooting.md
 │
 ├── examples/                        # 4 runnable example projects
 │   ├── file-vault/                  # Storage: upload, download, verify
