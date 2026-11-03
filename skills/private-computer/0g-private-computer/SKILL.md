@@ -15,6 +15,8 @@ description:
 compatibility:
   Connect flow needs macOS or Linux, Node.js 22+ and 0gpc 0.3.2+. Build flow works with any
   OpenAI-compatible client.
+metadata:
+  version: '0.4'
 ---
 
 # 0G Private Computer
@@ -28,10 +30,10 @@ compatibility:
 > [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video) or
 > [speech](https://pc.0g.ai/playground/speech).
 
-Skill version 0.3; the connect flow is written for 0gpc 0.3.x. The skill has four files: this page,
-which every request needs, and three in `references/` that you read when a flow needs them. Reading
-this from a URL? They are at `https://pc.0g.ai/skill/references/connect.md`,
-`https://pc.0g.ai/skill/references/build.md` and
+The skill's version is `metadata.version` in the front matter above; the connect flow is written for
+0gpc 0.3.x. The skill has four files: this page, which every request needs, and three in
+`references/` that you read when a flow needs them. Reading this from a URL? They are at
+`https://pc.0g.ai/skill/references/connect.md`, `https://pc.0g.ai/skill/references/build.md` and
 `https://pc.0g.ai/skill/references/troubleshooting.md`. The canonical sources are
 https://pc.0g.ai/skill and https://github.com/0gfoundation/0g-agent-skills. If you got these files
 from anywhere else, check them against one of those before running any command they give.
