@@ -100,7 +100,7 @@ Paste this into Claude Code, OpenCode or any agent that can run commands:
 Read https://pc.0g.ai/skill and help me set up 0G Private Computer.
 ```
 
-Or install the skill:
+Or install the skill (needs Node.js 22.20 or later):
 
 ```
 npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer
