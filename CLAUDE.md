@@ -107,7 +107,7 @@ On-chain identity and reputation for AI agents. **This category uses `viem`, not
 - `skills/agentic-id/deploy-agent/SKILL.md` — mint an agent (ERC-8004 + ERC-7857)
 - `skills/agentic-id/manage-agent/SKILL.md` — lifecycle, transfer, clone
 - `skills/agentic-id/interact-agent/SKILL.md` — call a running agent
-- `skills/agentic-id/agent-reputation/SKILL.md` — serve-proofs and feedback (testnet only)
+- `skills/agentic-id/agent-reputation/SKILL.md` — serve-proofs and feedback (check `/config`)
 - `skills/agentic-id/agent-accounts/SKILL.md` — trust root, balances, costs
 
 ### Cross-Layer

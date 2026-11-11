@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: agentic-id
-- **SDK**: `@0gfoundation/0g-agenticid-sdk` ^0.1.6, `viem` ^2.21.0
+- **SDK**: `@0gfoundation/0g-agentdna` ^0.4.0, `viem` ^2.21.0
 - **Activation Triggers**: "rate an agent", "agent reputation", "leave feedback", "serve proof",
   "verify a proof", "ERC-8004 feedback", "agent reviews"
 
@@ -16,19 +16,26 @@ ERC-8004 registry with a TEE verification mark alongside it.
 > **This layer uses `viem`, not `ethers`.** The repo-wide ethers rule does not apply to `agentic-id`
 > skills.
 
-## Testnet only, today
+## Check the network before building on it
 
-Verified against both attestors' `GET /config`: `reputation_registry_addr` is present on **testnet
-(16602)** and **absent on mainnet (16661)**. It is the one address missing from the mainnet
-deployment; identity, sandbox and verified-feedback are deployed on both.
+Whether reputation is available is decided by the attestor's `GET /config`, not by which network you
+are on. The SDK's reputation methods need a non-null `verified_feedback_addr`; it finds the
+canonical ERC-8004 registry by asking that contract (`getCanonicalReputation`), so
+`reputation_registry_addr` in `/config` is not used by the SDK. That field is present but `null` on
+both networks (checked 2026-11-11), so never gate on its key existing, and do not treat it as proof
+the registry is missing.
 
-So reputation reads and writes work on `https://agenticid.0g.ai` and should be expected to fail on
-`https://agenticid-mainnet.0g.ai`. Check before assuming, since this will change:
+Checked on 2026-11-11: `verified_feedback_addr` and `feedback_batcher_addr` are set on testnet
+(16602) and mainnet (16661), and `getCanonicalReputation()` returns a deployed contract on both. A
+full `giveFeedback` write was not exercised on mainnet. Run it on testnet first.
 
 ```typescript
-const cfg = await (await fetch('https://agenticid-mainnet.0g.ai/config')).json();
-if (!cfg.reputation_registry_addr) console.log('reputation not deployed on this network yet');
+const cfg = await (await fetch('https://agentdna-testnet.0g.ai/config')).json();
+if (!cfg.verified_feedback_addr) throw new Error('reputation not deployed on this network');
 ```
+
+> **Mainnet (`https://agentdna.0g.ai`, 16661) spends real funds.** Examples here default to testnet;
+> try feedback there first.
 
 ## Two registries, one call
 
@@ -42,8 +49,8 @@ if (!cfg.reputation_registry_addr) console.log('reputation not deployed on this 
 ## Prerequisites
 
 - Node.js >= 20
-- `@0gfoundation/0g-agenticid-sdk` and `viem` installed
-- A network whose attestor advertises `reputation_registry_addr`
+- `@0gfoundation/0g-agentdna` and `viem` installed
+- A network whose attestor advertises `verified_feedback_addr` in `/config`
 - A wallet for writes; reads need none
 - A serve-proof, which means having called a signed `/api/*` service
 
@@ -64,7 +71,7 @@ if (!cfg.reputation_registry_addr) console.log('reputation not deployed on this 
   returns the attestation as pending
 - Capture proofs from signed `/api/*` services; chat and UI routes are unsigned by design
 - Treat serve-proofs as sensitive regardless of transport
-- Check the network has a reputation registry before building on this
+- Check `/config` has `verified_feedback_addr` before building on this
 
 ### NEVER
 
@@ -72,7 +79,7 @@ if (!cfg.reputation_registry_addr) console.log('reputation not deployed on this 
 - Expect `capture()` to yield a proof from an unsigned route; it returns `null`
 - Assume the proof's `submitter` is whoever submits; only that address can redeem it, and on-chain
   attribution is always `msg.sender`
-- Assume reputation exists on mainnet today
+- Hardcode which network has reputation; decide from the attestor's `/config` at runtime
 - Hardcode a private key
 
 ## Code Examples
@@ -80,11 +87,11 @@ if (!cfg.reputation_registry_addr) console.log('reputation not deployed on this 
 ### Capture, verify, submit
 
 ```typescript
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 import 'dotenv/config';
 
 async function rateAgent(agentId: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -122,7 +129,7 @@ async function rateAgent(agentId: bigint) {
 
 ```typescript
 async function captureManually(agentUrl: string) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai');
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai');
 
   const { response, proof } = await ag.reputation.capture(() =>
     fetch(`${agentUrl}/api/summarize`, {
@@ -142,11 +149,11 @@ async function captureManually(agentUrl: string) {
 ### Richer feedback
 
 ```typescript
-import { AgenticID, type ServeProof } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA, type ServeProof } from '@0gfoundation/0g-agentdna';
 import 'dotenv/config';
 
 async function ratedWithDetail(agentId: bigint, proof: ServeProof) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -168,7 +175,7 @@ Canonical reads see every entry; verified reads see only proof-backed ones.
 
 ```typescript
 async function readReputation(agentId: bigint, client: `0x${string}`) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai');
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai');
 
   // canonical ERC-8004 — permissionless, verified or not
   const summary = await ag.reputation.getSummary({ agentId });
@@ -209,7 +216,7 @@ per-interface.
 
 ```typescript
 async function perEndpoint(agentId: bigint, client: `0x${string}`) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai');
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai');
 
   const uri = await ag.reputation.getVerifiedEndpoint(agentId, client, 0n);
   console.log('endpoint for entry 0:', uri || '(unrevealed)');
@@ -223,12 +230,12 @@ async function perEndpoint(agentId: bigint, client: `0x${string}`) {
 ### Owner responds; client revokes
 
 ```typescript
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 import { keccak256, toBytes } from 'viem';
 import 'dotenv/config';
 
 async function respondAndRevoke(agentId: bigint, client: `0x${string}`, idx: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -251,11 +258,11 @@ async function respondAndRevoke(agentId: bigint, client: `0x${string}`, idx: big
 If the canonical write already happened, mark it proof-backed on its own.
 
 ```typescript
-import { AgenticID, type ServeProof, type TaskReveal } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA, type ServeProof, type TaskReveal } from '@0gfoundation/0g-agentdna';
 import 'dotenv/config';
 
 async function attestLater(agentId: bigint, idx: bigint, proof: ServeProof, task?: TaskReveal) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -292,20 +299,21 @@ await ag.reputation.giveFeedback({ agentId, value: 5 as never, serveProof: proof
 // BAD: taking a proof from chat and expecting it to redeem
 const { proof: p } = await agent.fetchWithProof('/v1/chat/completions', { method: 'POST' });
 
-// BAD: assuming mainnet has a reputation registry
-await AgenticID.fromAttestor('https://agenticid-mainnet.0g.ai');
+// BAD: assuming reputation exists without checking /config
+// (mainnet writes cost real funds; test on agentdna-testnet.0g.ai first)
+await ag.reputation.giveFeedback({ agentId, value: 5n, serveProof: proof });
 ```
 
 ## Common Errors & Fixes
 
-| Error                             | Cause                                 | Fix                                     |
-| --------------------------------- | ------------------------------------- | --------------------------------------- |
-| `proof` is `null`                 | Unsigned route                        | Call a signed `/api/*` service          |
-| `verifyProof` `notExpired: false` | Past the proof's `deadline`           | Re-call the service for a fresh proof   |
-| `signerMatches: false`            | Signer is not the agent's `agentSeal` | Confirm the agent id and its seal       |
-| `isVerified` false after feedback | `attestTx` not awaited                | `await waitForTransaction(fb.attestTx)` |
-| Attestation reverts               | Owner rating their own agent          | Use a different client address          |
-| Reputation calls fail on mainnet  | Registry not deployed there           | Use testnet until it lands              |
+| Error                             | Cause                                     | Fix                                              |
+| --------------------------------- | ----------------------------------------- | ------------------------------------------------ |
+| `proof` is `null`                 | Unsigned route                            | Call a signed `/api/*` service                   |
+| `verifyProof` `notExpired: false` | Past the proof's `deadline`               | Re-call the service for a fresh proof            |
+| `signerMatches: false`            | Signer is not the agent's `agentSeal`     | Confirm the agent id and its seal                |
+| `isVerified` false after feedback | `attestTx` not awaited                    | `await waitForTransaction(fb.attestTx)`          |
+| Attestation reverts               | Owner rating their own agent              | Use a different client address                   |
+| `no VerifiedFeedbackRegistry`     | `/config` has no `verified_feedback_addr` | Check `/config` first; use a network that has it |
 
 ## Related Skills
 

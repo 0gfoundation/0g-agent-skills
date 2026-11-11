@@ -18,7 +18,7 @@ export const CANONICAL_VERSIONS: Record<string, string> = {
   '@0gfoundation/0g-compute-ts-sdk': '^0.9.0',
   // AgenticID is a viem stack, not an ethers one. Both chain libraries are
   // canonical here because the two layers genuinely use different ones.
-  '@0gfoundation/0g-agenticid-sdk': '^0.1.6',
+  '@0gfoundation/0g-agentdna': '^0.4.0',
   viem: '^2.21.0',
   ethers: '6.13.1',
 };
