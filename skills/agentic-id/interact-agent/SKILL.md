@@ -132,7 +132,10 @@ async function summarize(agentId: bigint, text: string) {
 ### Chat as the owner
 
 `chat` and `chatStream` appear on the handle only when the client holds the owner key **and** the
-agent declares a chat route.
+agent declares a chat route. `logs` appears whenever the client holds the owner key. Presence
+depends on the handle and the agent's declared routes, not on which framework the agent runs, so
+always guard the call (`if (agent.chat)`) and read `agent.routes` to see what the agent declares.
+Without a guard, strict TypeScript rejects the call, since all three are optional on `AgentClient`.
 
 ```typescript
 async function chat(agentId: bigint, message: string) {
