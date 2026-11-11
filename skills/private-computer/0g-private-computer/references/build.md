@@ -14,13 +14,15 @@ models through the Router.
   and key point at the Router. For the Anthropic-compatible messages API, see the
   [endpoint table](#endpoints-by-modality).
 - **Model:** list the candidates for the modality as in
-  [List available models](../SKILL.md#list-available-models) and confirm one with the user (they can
-  compare candidates first in the Playground page for that modality), then read that model's entry
-  in `/v1/models` (its `*_capabilities` fields and, for images, `async_supported`) or open its page
-  at `https://pc.0g.ai/models/<model-id>` for the exact endpoint, fields and code. Don't write
-  endpoints or model ids from memory.
+  [List available models](../SKILL.md#list-available-models) and confirm one with the user before
+  you write any code or files (they can compare candidates first in the Playground page for that
+  modality). Recommend one and wait for the reply; don't pick it and ask afterwards. Then read that
+  model's entry in `/v1/models` (its `*_capabilities` fields and, for images, `async_supported`) or
+  open its page at `https://pc.0g.ai/models/<model-id>` for the exact endpoint, fields and code.
+  Don't write endpoints or model ids from memory.
 - **Trust mode:** send `X-0G-Provider-Trust-Mode: verified` or `private`, or rely on the key's
-  default. Recommend `private` for sensitive data when the model supports it. If the user needs
+  default. Recommend `private` for sensitive data when the model supports it; the catalog's
+  `tee_attested` is a hint, so check the model's page before relying on a mode. If the user needs
   Private (or Verified) and the model's page doesn't list that mode, stop: say so, and let the user
   pick another model or change the requirement. Never fall back to Standard on your own, and never
   send the data anyway.
