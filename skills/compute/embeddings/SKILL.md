@@ -1,3 +1,11 @@
+---
+name: embeddings
+description:
+  Turn text into vectors on 0G Compute embedding providers for semantic search, clustering and RAG.
+  Uses a wallet and the 0G Compute broker SDK (Compute Direct). For API-key access through pc.0g.ai,
+  use 0g-private-computer instead.
+---
+
 # Text Embeddings
 
 ## Metadata

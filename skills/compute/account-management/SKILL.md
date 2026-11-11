@@ -1,3 +1,11 @@
+---
+name: account-management
+description:
+  Manage 0G Compute funds, the main ledger account and per-provider sub-accounts, covering deposits,
+  transfers, refunds, balances and auto-funding. Uses a wallet and the 0G Compute broker SDK
+  (Compute Direct). For API-key access through pc.0g.ai, use 0g-private-computer instead.
+---
+
 # Account Management
 
 ## Metadata

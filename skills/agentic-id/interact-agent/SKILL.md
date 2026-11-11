@@ -1,3 +1,11 @@
+---
+name: interact-agent
+description:
+  Call a running 0G AgenticID agent, discover its endpoints, chat with it as owner, invoke its
+  signed /api services and read its logs. Use when the user wants to talk to or call an agent. Uses
+  viem, not ethers.
+---
+
 # Interact with a Running AgenticID Agent
 
 ## Metadata

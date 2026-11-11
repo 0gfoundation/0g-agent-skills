@@ -1,3 +1,11 @@
+---
+name: agent-accounts
+description:
+  Fund and account for a 0G AgenticID agent, covering the TEE trust-root acknowledgement, sandbox
+  and gas balances, runtime costs, runway and refunds. Use when the user wants to fund an agent or
+  check its balance or costs. Uses viem, not ethers.
+---
+
 # AgenticID Accounts and Costs
 
 ## Metadata

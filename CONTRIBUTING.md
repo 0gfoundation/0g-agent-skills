@@ -13,9 +13,18 @@ mkdir -p skills/<category>/<skill-name>
 
 ### 2. Write SKILL.md
 
-Every skill follows this template:
+Every skill follows this template. The frontmatter is required: `npx skills add` skips a SKILL.md
+without `name` and `description`, and `npm run ci:manifests` fails if `name` doesn't match the
+directory.
 
 ```markdown
+---
+name: <skill-name>
+description:
+  What the skill does, then when to use it ("Use when the user wants to ..."). At most 1024
+  characters. Avoid ": " in the text, or quote the value.
+---
+
 # [Skill Name]
 
 ## Metadata
@@ -166,7 +175,7 @@ before it:
 
 ## Pull Request Checklist
 
-- [ ] Skill follows the template structure
+- [ ] Skill follows the template structure, including `name` and `description` frontmatter
 - [ ] Code examples use TypeScript with ethers v6
 - [ ] No hardcoded private keys or secrets
 - [ ] `processResponse()` called after compute operations

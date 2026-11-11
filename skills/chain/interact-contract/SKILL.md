@@ -1,3 +1,11 @@
+---
+name: interact-contract
+description:
+  Read from and write to deployed contracts on 0G Chain with ethers v6, covering view calls,
+  transactions, events and gas estimation. Use when the user wants to call, read or write a contract
+  on 0G Chain.
+---
+
 # Interact with 0G Chain Contracts
 
 ## Metadata

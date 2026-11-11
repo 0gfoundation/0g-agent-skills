@@ -1,3 +1,11 @@
+---
+name: manage-agent
+description:
+  Manage an existing 0G AgenticID agent, covering start, stop and restart, recovering a failed
+  deploy, listing owned agents, transferring ownership and cloning. Use for agent lifecycle
+  requests. Uses viem, not ethers.
+---
+
 # Manage an AgenticID Agent
 
 ## Metadata
