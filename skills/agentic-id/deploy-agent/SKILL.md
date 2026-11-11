@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: agentic-id
-- **SDK**: `@0gfoundation/0g-agenticid-sdk` ^0.1.6, `viem` ^2.21.0
+- **SDK**: `@0gfoundation/0g-agentdna` ^0.4.0, `viem` ^2.21.0
 - **Activation Triggers**: "deploy an agent", "mint an agent", "create an AgenticID agent", "agent
   identity", "AgenticID", "ERC-7857", "ERC-8004"
 
@@ -19,17 +19,17 @@ mint-only deploys.
 ## Prerequisites
 
 - Node.js >= 20
-- `@0gfoundation/0g-agenticid-sdk` and `viem` installed
+- `@0gfoundation/0g-agentdna` and `viem` installed
 - A funded wallet on the network your attestor pins
 - `.env` with `PRIVATE_KEY`
 
 ```bash
-npm install @0gfoundation/0g-agenticid-sdk viem
+npm install @0gfoundation/0g-agentdna viem
 ```
 
 ## Quick Workflow
 
-1. Build the client with `AgenticID.fromAttestor(url, { account })`
+1. Build the client with `AgentDNA.fromAttestor(url, { account })`
 2. Acknowledge the trust root: `ackStatus()`, then `ack()` if anything is missing
 3. Fund the prepaid sandbox balance to at least **0.1 OG** via `deposit()`
 4. Choose a framework from the attestor's `frameworks[]` and a model from `listModels()`
@@ -42,7 +42,9 @@ npm install @0gfoundation/0g-agenticid-sdk viem
 
 - Use `viem`, never `ethers`, in this category
 - Let `fromAttestor()` fill contract addresses; never hardcode them
-- Check the attestor URL before deploying: `https://agenticid.0g.ai` is **testnet** (16602)
+- Check the attestor URL before deploying: `https://agentdna-testnet.0g.ai` is **testnet** (16602)
+  and the examples default to it. `https://agentdna.0g.ai` is **mainnet** (16661) and spends REAL
+  funds; only use it when the user explicitly asks for mainnet
 - Acknowledge the trust root and fund the sandbox balance before deploying; `deploy()` preflights
   both and fails synchronously if either is missing
 - Pick `framework` from the attestor's advertised `frameworks[]` and the model from `listModels()`
@@ -63,13 +65,13 @@ npm install @0gfoundation/0g-agenticid-sdk viem
 ### Deploy end to end
 
 ```typescript
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 import { parseEther, formatEther } from 'viem';
 import 'dotenv/config';
 
 async function deployAgent() {
   // The attestor URL pins the network. This one is TESTNET (chain 16602).
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -116,7 +118,7 @@ minute. Bring it online later with `start()`.
 
 ```typescript
 async function mintOnly() {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -145,7 +147,7 @@ This is the cheapest way to exercise the identity path. Verified on testnet: it 
 
 ```typescript
 async function deferredWait() {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -173,7 +175,7 @@ synthesizes nothing. Omit it and the SDK builds a default from `name`/`descripti
 
 ```typescript
 async function deployWithCustomIData() {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -204,7 +206,7 @@ Pass a stable `idempotencyKey` so a retried call dedupes server-side instead of 
 
 ```typescript
 async function idempotentDeploy(key: string) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -220,7 +222,7 @@ async function idempotentDeploy(key: string) {
 
 ```typescript
 async function costs() {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -252,10 +254,10 @@ console.log(accepted.agentId); // undefined — needs wait: 'minted'
 await ag.agent.deploy({ ...params, sandbox: undefined }, { wait: 'running' });
 
 // BAD: hardcoding contract addresses instead of letting the attestor supply them
-const ag2 = new AgenticID({ addresses: { agenticId: '0x3449...' } as never });
+const ag2 = new AgentDNA({ addresses: { agenticId: '0x3449...' } as never });
 
-// BAD: assuming the default attestor is mainnet
-await AgenticID.fromAttestor('https://agenticid.0g.ai'); // this is TESTNET 16602
+// BAD: pointing at mainnet while testing — agentdna.0g.ai is chain 16661 and spends real funds
+await AgentDNA.fromAttestor('https://agentdna.0g.ai');
 
 // BAD: funding the wrong balance when a deploy is gated on the sandbox floor
 await ag.agent.topUpAgentSeal(seal, parseEther('0.2')); // that is the agent's gas
@@ -263,15 +265,15 @@ await ag.agent.topUpAgentSeal(seal, parseEther('0.2')); // that is the agent's g
 
 ## Common Errors & Fixes
 
-| Error                               | Cause                                     | Fix                                                          |
-| ----------------------------------- | ----------------------------------------- | ------------------------------------------------------------ |
-| preflight fails naming missing acks | Trust root not acknowledged               | `await ag.ack()`, then wait for the receipt                  |
-| preflight fails on balance          | Prepaid sandbox balance below 0.1 OG      | `ag.deposit({ amountWei: parseEther('0.15') })`              |
-| Attestor rejects the framework      | Name not in the attestor's `frameworks[]` | Read `GET /config` / use an advertised name                  |
-| `agentId` is `undefined`            | No `wait: 'minted'`                       | Pass the wait level, or use `waitForMint()`                  |
-| `url` is `null`                     | Mint-only deploy, or not yet provisioned  | `start(sealId, { apiKey })` to provision                     |
-| Deploy stuck in phase `failed`      | Provision error                           | `retry(sealId, { apiKey })`, never `deploy()`                |
-| Wrote to the wrong network          | Attestor URL chose it                     | Testnet `agenticid.0g.ai`, mainnet `agenticid-mainnet.0g.ai` |
+| Error                               | Cause                                     | Fix                                                        |
+| ----------------------------------- | ----------------------------------------- | ---------------------------------------------------------- |
+| preflight fails naming missing acks | Trust root not acknowledged               | `await ag.ack()`, then wait for the receipt                |
+| preflight fails on balance          | Prepaid sandbox balance below 0.1 OG      | `ag.deposit({ amountWei: parseEther('0.15') })`            |
+| Attestor rejects the framework      | Name not in the attestor's `frameworks[]` | Read `GET /config` / use an advertised name                |
+| `agentId` is `undefined`            | No `wait: 'minted'`                       | Pass the wait level, or use `waitForMint()`                |
+| `url` is `null`                     | Mint-only deploy, or not yet provisioned  | `start(sealId, { apiKey })` to provision                   |
+| Deploy stuck in phase `failed`      | Provision error                           | `retry(sealId, { apiKey })`, never `deploy()`              |
+| Wrote to the wrong network          | Attestor URL chose it                     | Testnet `agentdna-testnet.0g.ai`, mainnet `agentdna.0g.ai` |
 
 ## Related Skills
 

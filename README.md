@@ -240,13 +240,13 @@ so "this agent is what it claims to be" becomes checkable rather than asserted. 
 | [Agent Accounts](skills/agentic-id/agent-accounts/SKILL.md)     | Acknowledge the trust root, fund the sandbox balance, read costs and runway.           | _"fund my agent"_         |
 
 ```bash
-npm install @0gfoundation/0g-agenticid-sdk viem
+npm install @0gfoundation/0g-agentdna viem
 ```
 
-Two things to know before you start. The attestor URL picks the network, and the one in every
-quickstart (`https://agenticid.0g.ai`) is **testnet** (16602); mainnet is
-`https://agenticid-mainnet.0g.ai`. And **reputation is testnet-only today** — the reputation
-registry is the one contract not yet deployed on mainnet. See
+Two things to know before you start. The attestor URL picks the network: the one in every quickstart
+(`https://agentdna-testnet.0g.ai`) is **testnet** (16602), and mainnet
+(`https://agentdna.0g.ai`, 16661) spends **real funds**. And whether reputation works is decided by
+the attestor's `/config` (`verified_feedback_addr`), not by network. See
 [patterns/AGENTIC_ID.md](patterns/AGENTIC_ID.md).
 
 ---

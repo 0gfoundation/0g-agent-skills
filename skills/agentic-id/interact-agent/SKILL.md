@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: agentic-id
-- **SDK**: `@0gfoundation/0g-agenticid-sdk` ^0.1.6, `viem` ^2.21.0
+- **SDK**: `@0gfoundation/0g-agentdna` ^0.4.0, `viem` ^2.21.0
 - **Activation Triggers**: "call an agent", "chat with an agent", "talk to my agent", "agent
   endpoints", "agent services", "agent logs"
 
@@ -30,7 +30,7 @@ to leave feedback, call a **service**, not chat.
 ## Prerequisites
 
 - Node.js >= 20
-- `@0gfoundation/0g-agenticid-sdk` and `viem` installed
+- `@0gfoundation/0g-agentdna` and `viem` installed
 - An agent in phase `running`
 - A wallet only for owner-scoped calls (`chat`, `chatStream`, `logs`); public calls need none
 
@@ -68,11 +68,11 @@ to leave feedback, call a **service**, not chat.
 `sayHi()` needs only the URL and no wallet.
 
 ```typescript
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 import 'dotenv/config';
 
 async function discover(agentId: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai');
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai');
 
   // connect() is the explicit PUBLIC handle: never attaches a token.
   const agent = await ag.agent.connect(agentId);
@@ -95,7 +95,7 @@ Or straight from a URL, without touching chain:
 
 ```typescript
 async function greet(agentUrl: string) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai');
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai');
   const { hello, verification } = await ag.agent.sayHi(agentUrl);
   console.log(hello.agent, hello.owner, hello.message);
   console.log('verification:', JSON.stringify(verification));
@@ -109,7 +109,7 @@ This is the call that produces a redeemable serve-proof.
 
 ```typescript
 async function summarize(agentId: bigint, text: string) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai');
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai');
   const agent = await ag.agent.connect(agentId);
 
   const { response, proof } = await agent.fetchWithProof('/api/summarize', {
@@ -136,7 +136,7 @@ agent declares a chat route.
 
 ```typescript
 async function chat(agentId: bigint, message: string) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -160,7 +160,7 @@ Streaming yields content deltas:
 
 ```typescript
 async function streamChat(agentId: bigint, message: string) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -179,7 +179,7 @@ async function streamChat(agentId: bigint, message: string) {
 
 ```typescript
 async function inspect(agentId: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -200,7 +200,7 @@ async function inspect(agentId: bigint) {
 
 ```typescript
 async function handles(agentId: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 

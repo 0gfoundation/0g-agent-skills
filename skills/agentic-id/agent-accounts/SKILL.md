@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: agentic-id
-- **SDK**: `@0gfoundation/0g-agenticid-sdk` ^0.1.6, `viem` ^2.21.0
+- **SDK**: `@0gfoundation/0g-agentdna` ^0.4.0, `viem` ^2.21.0
 - **Activation Triggers**: "fund an agent", "agent balance", "sandbox balance", "acknowledge trust
   root", "agent runtime cost", "withdraw agent funds", "agent refund"
 
@@ -29,7 +29,7 @@ Funding the wrong one looks like the right fix and changes nothing.
 ## Prerequisites
 
 - Node.js >= 20
-- `@0gfoundation/0g-agenticid-sdk` and `viem` installed
+- `@0gfoundation/0g-agentdna` and `viem` installed
 - `.env` with `PRIVATE_KEY`
 
 ## Quick Workflow
@@ -65,11 +65,11 @@ The TEE trust root spans several components (attestor, KMS, sandbox provider). O
 whatever is missing, and returns `null` when nothing was.
 
 ```typescript
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 import 'dotenv/config';
 
 async function acknowledge() {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -97,12 +97,12 @@ On a fresh wallet this reported three missing components (`0g-agentic-id`, `0g-k
 ### Fund the sandbox balance
 
 ```typescript
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 import { parseEther, formatEther } from 'viem';
 import 'dotenv/config';
 
 async function fundSandbox() {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -123,7 +123,7 @@ mid-settlement, which is what actually determines whether a deploy proceeds.
 
 ```typescript
 async function accountView() {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -147,7 +147,7 @@ async function accountView() {
 
 ```typescript
 async function costs(agentId: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -177,7 +177,7 @@ own on-chain writes, such as committing an iData update.
 
 ```typescript
 async function fundAgentGas(agentId: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -195,7 +195,7 @@ Two steps with a time lock between them: request, wait for the unlock, then with
 
 ```typescript
 async function withdraw(amount: string) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -222,7 +222,7 @@ async function withdraw(amount: string) {
 
 ```typescript
 async function ready(): Promise<boolean> {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 

@@ -6,7 +6,7 @@ asserted.
 
 Source: [`0gfoundation/0g-agentic-id`](https://github.com/0gfoundation/0g-agentic-id). The
 TypeScript client is
-[`@0gfoundation/0g-agenticid-sdk`](https://www.npmjs.com/package/@0gfoundation/0g-agenticid-sdk).
+[`@0gfoundation/0g-agentdna`](https://www.npmjs.com/package/@0gfoundation/0g-agentdna).
 
 ## This layer uses viem, not ethers
 
@@ -73,13 +73,13 @@ One entry point, two namespaces, plus top-level ops:
 the appIds. **The attestor URL alone pins the network** — there is no separate chainId argument.
 
 ```typescript
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 
 // read-only: no account needed, and no wallet is ever created
-const ro = await AgenticID.fromAttestor('https://agenticid.0g.ai');
+const ro = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai');
 
 // read-write
-const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
   account: process.env.PRIVATE_KEY as `0x${string}`,
 });
 ```
@@ -91,23 +91,26 @@ container management needs the attestor URL (which `fromAttestor` supplies by de
 
 Verified live against both attestors' `GET /config`:
 
-| Attestor URL                      | Chain ID | RPC                            | Reputation registry |
-| --------------------------------- | -------- | ------------------------------ | ------------------- |
-| `https://agenticid.0g.ai`         | 16602    | `https://evmrpc-testnet.0g.ai` | deployed            |
-| `https://agenticid-mainnet.0g.ai` | 16661    | `https://evmrpc.0g.ai`         | **not deployed**    |
+| Attestor URL                     | Chain ID | RPC                            | Funds    |
+| -------------------------------- | -------- | ------------------------------ | -------- |
+| `https://agentdna-testnet.0g.ai` | 16602    | `https://evmrpc-testnet.0g.ai` | test     |
+| `https://agentdna.0g.ai`         | 16661    | `https://evmrpc.0g.ai`         | **REAL** |
+
+Older `agenticid*` hostnames seen in earlier docs are not the testnet: one aliases mainnet and the
+other does not resolve. Always use the two URLs in the table.
 
 Two things follow from this table:
 
-- **The default URL in every quickstart is testnet.** `agenticid.0g.ai` is chain 16602. Reaching
-  mainnet requires `agenticid-mainnet.0g.ai` explicitly, so it is hard to hit mainnet by accident
-  and easy to believe you are on it when you are not.
-- **Reputation is testnet-only today.** `reputation_registry_addr` is the one address absent from
-  the mainnet config. Everything else (identity, sandbox, clone gate, TEE data verifier, verified
-  feedback) is deployed on both. Skills that write or read canonical ERC-8004 feedback must say
-  this.
+- **Mainnet spends real funds.** Every example in these skills defaults to `agentdna-testnet.0g.ai`.
+  Only use `agentdna.0g.ai` when the user explicitly asks for mainnet, and say so before any deploy
+  or deposit.
+- **Reputation is decided by `/config`, not by network.** The reputation methods need
+  `verified_feedback_addr`, which both networks advertise (checked 2026-11-11). The canonical
+  ERC-8004 registry address is read from that contract, so `reputation_registry_addr` in `/config`
+  may be `null` and reputation still works. Check at runtime instead of hard-coding.
 
-Frameworks advertised on both networks: `openclaw`, `hermes`, `prime-agent`, `dsh`. Read them from
-`GET /config`'s `frameworks[]` rather than hardcoding — the attestor rejects unsupported names
+Frameworks advertised on both networks: `openclaw`, `hermes`, `prime-agent`, `0g-harness`. Read them
+from `GET /config`'s `frameworks[]` rather than hardcoding — the attestor rejects unsupported names
 before mint.
 
 ## Two balances, easy to conflate
@@ -209,14 +212,14 @@ natively; the local VerifiedFeedbackRegistry separately records which entries we
 ```
 ALWAYS use viem for this layer, never ethers.
 ALWAYS let fromAttestor() fill addresses; never hardcode contract addresses.
-ALWAYS remember the attestor URL picks the network, and the common one is TESTNET.
+ALWAYS remember the attestor URL picks the network; default to TESTNET, mainnet spends real funds.
 ALWAYS ack the trust root and fund the sandbox balance (>= 0.1 OG) before deploying.
 ALWAYS read frameworks and models from the attestor / router at runtime.
 ALWAYS await waitForTransaction() after a bare write before reading state back.
 ALWAYS call retry(sealId) on a failed deploy, never deploy() again.
 
 NEVER confuse deposit() (sandbox runtime) with topUpAgentSeal() (the agent's own gas).
-NEVER assume reputation works on mainnet; the registry is testnet-only today.
+NEVER hard-code which network has reputation; check /config for verified_feedback_addr.
 NEVER expect a serve-proof from chat/UI routes; only /api/* services are signed.
 NEVER hardcode a private key; load it from the environment.
 ```

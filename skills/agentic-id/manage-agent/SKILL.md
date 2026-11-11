@@ -3,7 +3,7 @@
 ## Metadata
 
 - **Category**: agentic-id
-- **SDK**: `@0gfoundation/0g-agenticid-sdk` ^0.1.6, `viem` ^2.21.0
+- **SDK**: `@0gfoundation/0g-agentdna` ^0.4.0, `viem` ^2.21.0
 - **Activation Triggers**: "stop an agent", "start an agent", "restart agent", "transfer an agent",
   "clone an agent", "fork an agent", "agent lifecycle", "list my agents"
 
@@ -24,13 +24,13 @@ and transfers take the **`agentId`**. Convert with `getSealId()` / `getAgentIdBy
 ## Prerequisites
 
 - Node.js >= 20
-- `@0gfoundation/0g-agenticid-sdk` and `viem` installed
+- `@0gfoundation/0g-agentdna` and `viem` installed
 - Ownership of the agent for owner-signed operations
 - `.env` with `PRIVATE_KEY`
 
 ## Quick Workflow
 
-1. Build the client with `AgenticID.fromAttestor(url, { account })`
+1. Build the client with `AgentDNA.fromAttestor(url, { account })`
 2. Find the agent: `listMyDeployments()` for full detail, or convert an `agentId` to a `sealId`
 3. Act: `stop` / `start` / `reset` / `retry`, or `transferFrom` / `clone`
 
@@ -59,11 +59,11 @@ and transfers take the **`agentId`**. Convert with `getSealId()` / `getAgentIdBy
 ### List what you own
 
 ```typescript
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 import 'dotenv/config';
 
 async function listMine() {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -86,7 +86,7 @@ The on-chain identity is untouched by either; only the runtime stops.
 
 ```typescript
 async function stopThenResume(agentId: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -112,7 +112,7 @@ A mint-only agent has an identity and no container. Its first `start()` takes op
 
 ```typescript
 async function bringOnline(agentId: bigint) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -131,7 +131,7 @@ async function bringOnline(agentId: bigint) {
 
 ```typescript
 async function recover(sealId: `0x${string}`) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -156,7 +156,7 @@ identity.
 
 ```typescript
 async function recreate(agentId: bigint, framework: string) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -172,7 +172,7 @@ ERC-7857, so the familiar ERC-721 shape. The attestor re-keys the sealed data fo
 
 ```typescript
 async function transfer(agentId: bigint, to: `0x${string}`) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -192,7 +192,7 @@ The source owner mints a copy for someone else; the attestor re-keys the sealed 
 
 ```typescript
 async function cloneTo(sourceAgentId: bigint, targetOwner: `0x${string}`) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
@@ -213,7 +213,7 @@ allow it. Useful when the right to fork is sold rather than granted by hand.
 ```typescript
 async function buyerFork(sourceAgentId: bigint, buyer: `0x${string}`, receipt: `0x${string}`) {
   // The connected wallet must BE the buyer / targetOwner here.
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.BUYER_PRIVATE_KEY as `0x${string}`,
   });
 
@@ -232,7 +232,7 @@ Owner-side controls for the same flow:
 
 ```typescript
 async function ownerGrants(sourceAgentId: bigint, buyer: `0x${string}`) {
-  const ag = await AgenticID.fromAttestor('https://agenticid.0g.ai', {
+  const ag = await AgentDNA.fromAttestor('https://agentdna-testnet.0g.ai', {
     account: process.env.PRIVATE_KEY as `0x${string}`,
   });
 
