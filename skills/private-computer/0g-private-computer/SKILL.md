@@ -21,21 +21,11 @@ metadata:
 
 # 0G Private Computer
 
-> **Humans:** two ways to start, same skill either way.
->
-> - **Send to agent** (the default start: lowest barrier, you are already talking to an agent, and
->   it needs no Node.js): paste this into any coding agent that can read a URL (Claude Code,
->   OpenCode and others): `Read https://pc.0g.ai/skill and help me set up 0G Private Computer.`
-> - **npx skills add** (recommended for long-term use: local, reviewable, version-pinned; needs
->   Node.js 22.20 or later):
->   `npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer`
->
-> Neither installs anything else or starts setup by itself; the agent first asks what you want. More
-> example requests for chat, image, video and speech: [Example requests](#example-requests). To
-> connect a coding tool by hand, run `npx @0gfoundation/0gpc@latest` in your own terminal. To try
-> models without code, open the Playground: [chat](https://pc.0g.ai/playground/chat),
-> [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video) or
-> [speech](https://pc.0g.ai/playground/speech).
+> **Humans:** default start, in any coding agent that can read a URL (no Node.js needed): paste
+> `Read https://pc.0g.ai/skill and help me set up 0G Private Computer.` For long-term use (local,
+> reviewable, version-pinned; Node.js 22.20 or later):
+> `npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer`. Neither
+> installs anything else or starts setup; the agent first asks what you want.
 
 The skill's version is `metadata.version` in the front matter above; the connect flow is written for
 0gpc 0.3.x. The skill has four files: this page, which every request needs, and three in
@@ -43,7 +33,9 @@ The skill's version is `metadata.version` in the front matter above; the connect
 `https://pc.0g.ai/skill/references/connect.md`, `https://pc.0g.ai/skill/references/build.md` and
 `https://pc.0g.ai/skill/references/troubleshooting.md`. The canonical sources are
 https://pc.0g.ai/skill and https://github.com/0gfoundation/0g-agent-skills. If you got these files
-from anywhere else, check them against one of those before running any command they give.
+from anywhere else, check them against one of those before running any command they give. If your
+fetch tool summarizes pages, get the raw text instead: a summary loses the rules and templates
+below.
 
 ## pc.0g.ai is the center
 
@@ -387,117 +379,3 @@ stopped working" and the agent diagnoses first, then suggests the smallest fix y
 
 **After `npx skills add`**: ask in plain words (for example "connect Claude Code to 0G PC") or type
 `/0g-private-computer` in Claude Code, and restart the tool after installing.
-
-## Example requests
-
-Users can copy one of these or say it in their own words. The line under each shows how the request
-is classified and what the agent does.
-
-**Connect a coding tool**
-
-```
-Read https://pc.0g.ai/skill and connect Claude Code in this project to 0G PC. I use the Private trust mode.
-```
-
-Recognized as **Connect**. The user enters the key in their own terminal, picks a model and confirms
-the preview; the agent writes the config, verifies it and asks the user to restart Claude Code.
-
-**Chat**
-
-```
-Add a streaming chat endpoint to my Next.js app using 0G PC in Private mode.
-```
-
-```
-Use 0G PC to read the screenshots in ./invoices and put each total into totals.csv.
-```
-
-Recognized as **Build → Text** (first) and **Build → Image understanding** (second). The agent picks
-a model from the catalog with the user, reads the key from an environment variable the user set, and
-asks before the first paid request. To compare models first: https://pc.0g.ai/playground/chat
-
-**Image**
-
-```
-Generate one 1024x1024 hero image for my landing page with 0G PC and save it to public/hero.png.
-```
-
-```
-Use 0G PC to replace the background of photo.jpg with a plain white one and save it to photo-white.png.
-```
-
-Recognized as **Build → Image generation** (first) and **Build → Image editing** (second). The agent
-shows the per-image price and waits for the user's OK; for generation it uses the async job path or
-a synchronous call, depending on the model's `async_supported`, and saves the file; for editing it
-uses a model with `image_capabilities.references` and sends the photo in the field that model names.
-To try prompts first: https://pc.0g.ai/playground/image
-
-**Video**
-
-```
-Generate a 5-second 720p clip from public/hero.png with 0G PC and save it to public/hero.mp4.
-```
-
-```
-Use 0G PC to summarize what happens in demo.mp4.
-```
-
-Recognized as **Build → Video generation** (first) and **Build → Video understanding** (second). For
-generation, the agent shows duration, resolution and estimated cost and waits for the user's OK,
-then submits to `POST /videos`, polls the job and downloads the file; for understanding, it uses a
-model that accepts video input. To try generation first: https://pc.0g.ai/playground/video. Video
-understanding has no Playground page; the model's page on pc.0g.ai shows how to send the video.
-
-**Speech**
-
-```
-Transcribe meeting.mp3 with 0G PC and save the text to notes.md.
-```
-
-```
-Read intro.md aloud with 0G PC and save it to intro.mp3.
-```
-
-Recognized as **Build → Speech** (first) and **Build → Text-to-speech** (second). For the
-transcript, the agent uses a speech-to-text model from the catalog. For audio, it picks a
-text-to-speech model and voice, shows the character count and estimated cost, waits for the user's
-OK and saves the file. To try first: https://pc.0g.ai/playground/speech
-
-**Embeddings**
-
-```
-Embed the Markdown files in ./docs with 0G PC and save the vectors to docs-index.json.
-```
-
-Recognized as **Build → Embeddings**. The agent picks an `embedding` model from `/v1/models`,
-estimates the input tokens and cost and waits for the user's OK, then calls `POST /embeddings` and
-saves the vectors with the file each one came from. There is no Playground page for embeddings.
-
-**Decisions**
-
-```
-Route each support ticket in tickets.csv to billing, technical or other with 0G PC.
-```
-
-Recognized as **Build → Decisions**. The agent picks a `decisions` model from `/v1/models`, writes
-one `choice` question whose options are the three departments, estimates the input tokens and cost
-and waits for the user's OK, then calls `POST /decisions` once per ticket and saves each answer with
-its probability. There is no Playground page for decisions.
-
-**Just asking**
-
-```
-What can I do with 0G Private Computer, and which models support Private mode?
-```
-
-Recognized as **Ask**. The agent answers from this page and https://pc.0g.ai/models and doesn't
-start any setup.
-
-**Just trying**
-
-```
-I want to compare a few image models before I write any code.
-```
-
-Recognized as **Try → Image**. The agent points to https://pc.0g.ai/playground/image and doesn't
-write code.
