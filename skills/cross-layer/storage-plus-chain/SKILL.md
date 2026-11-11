@@ -1,3 +1,11 @@
+---
+name: storage-plus-chain
+description:
+  Store data on 0G Storage and anchor its root hash in a 0G Chain contract, for NFT metadata,
+  content registries and verifiable documents. Use when the user wants on-chain references to
+  off-chain data on 0G.
+---
+
 # Storage + Chain Integration
 
 ## Metadata

@@ -1,3 +1,10 @@
+---
+name: deploy-contract
+description:
+  Compile and deploy Solidity contracts to 0G Chain (mainnet or testnet) with Hardhat, Foundry or
+  ethers v6, and verify them. Use when the user wants to deploy a smart contract to 0G Chain.
+---
+
 # Deploy Contract to 0G Chain
 
 ## Metadata

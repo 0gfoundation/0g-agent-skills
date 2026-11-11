@@ -12,6 +12,10 @@
  *  - package.json's agentSkills.skillCount matches the real total
  *  - the category folders on disk match the categories declared in the manifest
  *  - SDK versions in marketplace.json match patterns/NETWORK_CONFIG.md canon
+ *  - every SKILL.md opens with frontmatter whose `name` equals its directory and whose
+ *    `description` is non-empty and at most 1024 characters. `npx skills add` skips a
+ *    SKILL.md without both fields ("No valid skills found"), which went unnoticed for
+ *    every skill except 0g-private-computer until it was tried by hand.
  */
 
 import * as fs from 'fs';
@@ -42,6 +46,43 @@ function discoverSkills(): Map<string, string[]> {
     found.set(category.name, names.sort());
   }
   return found;
+}
+
+/**
+ * Check the YAML frontmatter `npx skills add` requires. Deliberately small (no YAML
+ * dependency): it reads top-level `key: value` lines and indented continuation lines,
+ * which is the only shape prettier leaves these fields in.
+ */
+function checkFrontmatter(category: string, skill: string): string[] {
+  const rel = `skills/${category}/${skill}/SKILL.md`;
+  const text = fs.readFileSync(path.join(ROOT, rel), 'utf-8');
+  const match = /^---\n([\s\S]*?)\n---\n/.exec(text);
+  if (!match) return [`${rel} has no frontmatter (needs name and description)`];
+
+  const fields: Record<string, string> = {};
+  let current: string | null = null;
+  for (const line of match[1].split('\n')) {
+    const top = /^([A-Za-z_][\w-]*):\s*(.*)$/.exec(line);
+    if (top) {
+      current = top[1];
+      fields[current] = top[2].trim();
+    } else if (current && /^\s+\S/.test(line)) {
+      fields[current] = `${fields[current]} ${line.trim()}`.trim();
+    } else {
+      current = null;
+    }
+  }
+
+  const errors: string[] = [];
+  if (fields.name !== skill) {
+    errors.push(`${rel} frontmatter name is "${fields.name ?? ''}", expected "${skill}"`);
+  }
+  const description = fields.description ?? '';
+  if (!description) errors.push(`${rel} frontmatter has no description`);
+  if (description.length > 1024) {
+    errors.push(`${rel} description is ${description.length} characters (max 1024)`);
+  }
+  return errors;
 }
 
 function main() {
@@ -87,6 +128,11 @@ function main() {
         );
       }
     }
+  }
+
+  // Frontmatter that `npx skills add` requires
+  for (const [category, skills] of onDisk) {
+    for (const skill of skills) errors.push(...checkFrontmatter(category, skill));
   }
 
   // Counts

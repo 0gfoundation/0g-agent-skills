@@ -1,3 +1,11 @@
+---
+name: scaffold-project
+description:
+  Scaffold a new 0G TypeScript project with the correct SDK versions (ethers pinned to 6.13.1),
+  tsconfig, .env template and starter code for storage, compute and chain. Use when the user wants
+  to start, initialize or set up a new 0G project.
+---
+
 # Scaffold 0G Project
 
 ## Metadata

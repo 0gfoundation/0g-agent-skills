@@ -1,3 +1,11 @@
+---
+name: image-editing
+description:
+  Edit an existing image from a prompt (image-to-image, inpainting) on 0G Compute image-editing
+  providers. Uses a wallet and the 0G Compute broker SDK (Compute Direct). For API-key access
+  through pc.0g.ai, use 0g-private-computer instead.
+---
+
 # Image Editing
 
 ## Metadata

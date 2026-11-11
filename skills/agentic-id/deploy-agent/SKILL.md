@@ -1,3 +1,11 @@
+---
+name: deploy-agent
+description:
+  Mint an AI agent with an on-chain identity on 0G AgenticID (ERC-8004 and ERC-7857), optionally
+  provisioning a TEE container to run it. Use when the user wants to deploy, mint or create an
+  AgenticID agent. Uses viem, not ethers.
+---
+
 # Deploy an AgenticID Agent
 
 ## Metadata

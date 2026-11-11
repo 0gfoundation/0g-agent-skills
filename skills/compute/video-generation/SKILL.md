@@ -1,3 +1,11 @@
+---
+name: video-generation
+description:
+  Generate video clips from a text prompt or reference image on 0G Compute video-generation
+  providers (MiniMax, Seedance). Uses a wallet and the 0G Compute broker SDK (Compute Direct). For
+  API-key access through pc.0g.ai, use 0g-private-computer instead.
+---
+
 # Video Generation
 
 ## Metadata

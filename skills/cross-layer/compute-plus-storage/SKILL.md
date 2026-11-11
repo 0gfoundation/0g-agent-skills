@@ -1,3 +1,12 @@
+---
+name: compute-plus-storage
+description:
+  Build AI pipelines that combine 0G Compute inference with 0G Storage, such as generating content
+  and persisting it, or loading data from storage and processing it with AI. Uses a wallet and the
+  0G Compute broker SDK (Compute Direct). For API-key access through pc.0g.ai, use
+  0g-private-computer instead.
+---
+
 # Compute + Storage Integration
 
 ## Metadata

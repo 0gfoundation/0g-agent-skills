@@ -1,3 +1,12 @@
+---
+name: streaming-chat
+description:
+  Run streaming and non-streaming LLM chat inference (GLM, Claude, GPT, Qwen, DeepSeek, 0GM) on 0G
+  Compute providers, including processResponse() billing settlement. Uses a wallet and the 0G
+  Compute broker SDK (Compute Direct). For API-key access through pc.0g.ai, use 0g-private-computer
+  instead.
+---
+
 # Streaming Chat Inference
 
 ## Metadata

@@ -1,3 +1,11 @@
+---
+name: speech-to-text
+description:
+  Transcribe audio (Whisper Large V3) on 0G Compute speech-to-text providers, with JSON, text or SRT
+  output. Uses a wallet and the 0G Compute broker SDK (Compute Direct). For API-key access through
+  pc.0g.ai, use 0g-private-computer instead.
+---
+
 # Speech-to-Text Transcription
 
 ## Metadata
