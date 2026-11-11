@@ -94,11 +94,13 @@ them when they differ from the notes below.
 
 - Stream (`stream: true`) for anything a person watches, such as a chat UI, and for long outputs.
 - Use tool calling only on models whose catalog entry shows that capability.
-- Use the Anthropic-compatible `POST /messages` only when the client or SDK speaks that format and
-  the model's `supported_formats` includes `anthropic`. If the client appends `/v1/messages` itself,
-  set its base URL to `https://router-api.0g.ai` (without `/v1`), so the path isn't doubled. The key
-  can go in `x-api-key` (what Anthropic SDKs send) or in `Authorization: Bearer`. The model's page
-  shows the exact request and headers.
+- Use the Anthropic-compatible `POST /messages` only when the client or SDK speaks that format.
+  Prefer a model whose catalog entry lists `anthropic` in `supported_formats`; for a model that
+  doesn't, don't assume `/messages` works (and don't claim it is blocked): use
+  `POST /chat/completions`, or ask the user before trying. If the client appends `/v1/messages`
+  itself, set its base URL to `https://router-api.0g.ai` (without `/v1`), so the path isn't doubled.
+  The key can go in `x-api-key` (what Anthropic SDKs send) or in `Authorization: Bearer`. The
+  model's page shows the exact request and headers.
 
 **Image understanding.**
 
@@ -279,8 +281,12 @@ invalid key, so no request was billed:
   /v1/messages to its base URL, so the base URL must be https://router-api.0g.ai, without /v1.
   Confirmed by 0gpc itself: `0gpc apply claude --dry-run` (preview only, nothing written) sets
   ANTHROPIC_BASE_URL to https://router-api.0g.ai. The SDK itself was not run.
-- The `supported_formats` check is not yet verified against a published docs page; confirm before
-  release.
+- `supported_formats` is a field of the live /v1/models catalog, not of any published docs page.
+  On 2026-11-11, 22 of 100 chat models listed `anthropic` (the others listed only `openai`, or
+  `openai` and `responses`). Whether a model without `anthropic` is rejected on /messages is
+  unverified: it needs a request with a valid key, which was not available. The guide therefore
+  says "prefer" and "don't assume", not "only works if". Confirm with the Router team, then tighten
+  or drop the wording.
 
 Error handling and rate-limit rules follow
 https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/errors and
