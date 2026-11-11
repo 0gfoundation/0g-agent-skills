@@ -1,3 +1,11 @@
+---
+name: fine-tuning
+description:
+  Fine-tune models on 0G Compute (upload data, configure and monitor training, download the result)
+  and deploy the output as a LoRA adapter. Use when the user wants to fine-tune or train a model, or
+  deploy an adapter, on 0G.
+---
+
 # Model Fine-Tuning
 
 ## Metadata

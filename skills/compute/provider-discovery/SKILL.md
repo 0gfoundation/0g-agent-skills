@@ -1,3 +1,11 @@
+---
+name: provider-discovery
+description:
+  List, filter and verify 0G Compute providers, enumerate the models each one serves, and check TEE
+  signer status. Uses a wallet and the 0G Compute broker SDK (Compute Direct). For API-key access
+  through pc.0g.ai, use 0g-private-computer instead.
+---
+
 # Provider Discovery
 
 ## Metadata

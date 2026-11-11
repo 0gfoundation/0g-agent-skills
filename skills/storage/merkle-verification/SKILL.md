@@ -1,3 +1,11 @@
+---
+name: merkle-verification
+description:
+  Compute 0G Storage root hashes and verify file integrity with Merkle proofs, before upload or
+  after download. Use when the user wants to verify a file, check data integrity, compute a root
+  hash or work with Merkle proofs on 0G.
+---
+
 # Merkle Verification
 
 ## Metadata

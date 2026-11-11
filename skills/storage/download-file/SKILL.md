@@ -1,3 +1,10 @@
+---
+name: download-file
+description:
+  Download files from 0G Storage by root hash, with Merkle-proof verification of the bytes received.
+  Use when the user wants to download, retrieve or fetch a file from 0G Storage.
+---
+
 # Download File from 0G Storage
 
 ## Metadata

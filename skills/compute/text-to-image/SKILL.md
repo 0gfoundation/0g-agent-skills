@@ -1,3 +1,11 @@
+---
+name: text-to-image
+description:
+  Generate images from text prompts on 0G Compute text-to-image providers. Uses a wallet and the 0G
+  Compute broker SDK (Compute Direct). For API-key access through pc.0g.ai, use 0g-private-computer
+  instead.
+---
+
 # Text-to-Image Generation
 
 ## Metadata

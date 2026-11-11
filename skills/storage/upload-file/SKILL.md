@@ -1,3 +1,11 @@
+---
+name: upload-file
+description:
+  Upload files to 0G Storage with the 0G Storage TypeScript SDK (ZgFile and Indexer), get back the
+  root hash and transaction hash, and handle fragmented uploads. Use when the user wants to upload a
+  file, store data on 0G, or save something to 0G Storage.
+---
+
 # Upload File to 0G Storage
 
 ## Metadata
