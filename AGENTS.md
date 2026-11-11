@@ -213,7 +213,8 @@ AUTO: agent-accounts -> deploy-agent -> manage-agent | interact-agent -> agent-r
 3. Then, by intent: `manage-agent` for lifecycle, `interact-agent` to call it
 4. `agent-reputation` once there is a signed `/api/*` call to attest
 
-This category is **viem**, not ethers. Testnet is the default target and reputation is testnet-only.
+This category is **viem**, not ethers. Testnet is the default target; mainnet spends real funds.
+Reputation availability is decided by `/config` (`verified_feedback_addr`).
 
 ---
 
@@ -322,9 +323,9 @@ NEVER translate an agentic-id example into ethers, or an ethers example into vie
 ### AgenticID
 
 ```
-ALWAYS let AgenticID.fromAttestor() supply contract addresses; never hardcode them.
-ALWAYS check which network the attestor URL pins. https://agenticid.0g.ai is TESTNET (16602);
-  mainnet is https://agenticid-mainnet.0g.ai (16661).
+ALWAYS let AgentDNA.fromAttestor() supply contract addresses; never hardcode them.
+ALWAYS check which network the attestor URL pins. https://agentdna-testnet.0g.ai is TESTNET (16602);
+  mainnet is https://agentdna.0g.ai (16661) and spends REAL funds. Default to testnet.
 ALWAYS ack the trust root and fund the prepaid sandbox balance to >= 0.1 OG before deploying.
 ALWAYS await waitForTransaction() after a bare write (ack / deposit / topUpAgentSeal) before
   reading state back.
@@ -333,7 +334,7 @@ ALWAYS read frameworks from the attestor and models from listModels() at runtime
 
 NEVER call deploy() again to fix a failed deploy — it orphans the mint already paid for.
 NEVER confuse deposit() (prepaid sandbox runtime) with topUpAgentSeal() (the agent's own gas).
-NEVER assume reputation works on mainnet; reputation_registry_addr is testnet-only today.
+NEVER hard-code which network has reputation; check /config for verified_feedback_addr.
 NEVER expect a serve-proof from a chat or UI route; only signed /api/* services carry one.
 NEVER mix up the three identifiers: agentId (bigint) for reads and transfers, sealId (bytes32)
   for runtime control, agentSeal (address) for the agent's own wallet.
