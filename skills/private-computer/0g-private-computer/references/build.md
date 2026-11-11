@@ -11,7 +11,8 @@ models through the Router.
   are in `.gitignore`.
 - **Endpoint:** base URL `https://router-api.0g.ai/v1`, auth `Authorization: Bearer <key>`. If the
   client appends `/v1` itself, don't add it twice. The official OpenAI SDKs work once the base URL
-  and key point at the Router.
+  and key point at the Router. For the Anthropic-compatible messages API, see the
+  [endpoint table](#endpoints-by-modality).
 - **Model:** list the candidates for the modality as in
   [List available models](../SKILL.md#list-available-models) and confirm one with the user (they can
   compare candidates first in the Playground page for that modality), then read that model's entry
@@ -19,51 +20,83 @@ models through the Router.
   at `https://pc.0g.ai/models/<model-id>` for the exact endpoint, fields and code. Don't write
   endpoints or model ids from memory.
 - **Trust mode:** send `X-0G-Provider-Trust-Mode: verified` or `private`, or rely on the key's
-  default. Recommend `private` for sensitive data when the model supports it.
+  default. Recommend `private` for sensitive data when the model supports it. If the user needs
+  Private (or Verified) and the model's page doesn't list that mode, stop: say so, and let the user
+  pick another model or change the requirement. Never fall back to Standard on your own, and never
+  send the data anyway.
 - **Provider (optional):** to pin one, list the model's providers as in
   [List available models](../SKILL.md#list-available-models) and send
   `X-0G-Provider-Address: <address>` from the row you pick. Billing still comes from the Router
   balance.
-- **First request:** a real request costs money. Ask before running one, then point the user to
-  usage at https://pc.0g.ai/dashboard/overview.
+- **Cost:** a real request costs money. Before any request the user hasn't already approved the cost
+  of, tell them the unit price from the catalog and an estimate (see the table below), and wait for
+  their OK. The first request always needs one. Afterwards, point the user to usage at
+  https://pc.0g.ai/dashboard/overview.
+
+  | Modality                                       | Estimate from                                |
+  | ---------------------------------------------- | -------------------------------------------- |
+  | Text, image understanding, video understanding | Expected input and output tokens             |
+  | Embeddings, decisions                          | Input tokens                                 |
+  | Image generation and editing                   | Number of images                             |
+  | Transcription                                  | Seconds of audio                             |
+  | Text-to-speech                                 | Characters of input                          |
+  | Video generation                               | Duration and resolution (the most expensive) |
+
+  Ask once per task, not once per request: when the user approved a batch (for example 200 tickets
+  at the quoted price), run it without asking again. Ask again if the count or the model changes.
+
+- **If a request fails** (401, 402, 429, 5xx, a timeout, one model failing): don't retry blindly.
+  Follow [Retries and timeouts](#retries-and-timeouts) and [Troubleshooting](troubleshooting.md);
+  for a model that may be down, check https://pc.0g.ai/status first.
+
+## Retries and timeouts
+
+Paid requests are billed by what the provider actually ran, not by whether your connection stayed
+open. So a timeout does not mean the request didn't happen.
+
+| Situation                                                | Rule                                                                                                                                   |
+| -------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `400`, `401`, `402`, `403`                               | Don't retry until the request, key or balance has changed. See [Troubleshooting](troubleshooting.md).                                  |
+| `429`                                                    | Wait for the `Retry-After` header (seconds), then retry. Never retry in a tight loop.                                                  |
+| `502`                                                    | Retry once; a provider may have recovered.                                                                                             |
+| `503`                                                    | Don't loop. Check https://pc.0g.ai/status; use another model, or wait.                                                                 |
+| `500`                                                    | Don't loop. Report it with the `request_id` from the error body.                                                                       |
+| A paid request times out (image, TTS, video submit)      | Don't resend automatically. The request may still have run and been billed: check usage first, tell the user, and ask before retrying. |
+| An async job (image async, video) times out on your side | Keep polling the same job id. Don't submit again.                                                                                      |
+| Long text output                                         | Use `stream: true`; long non-streaming requests can time out.                                                                          |
+
+Each modality below lists only what is specific to it.
 
 ## Endpoints by modality
 
-| The user wants                                       | Modality            | Endpoint                                                                                                                           | Catalog service type                                         |
-| ---------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ |
-| Chat, code, reasoning, tool calls                    | Text                | `POST /chat/completions`                                                                                                           | `chatbot`                                                    |
-| Read a screenshot, photo, chart or scanned page      | Image understanding | `POST /chat/completions` with image content                                                                                        | `chatbot` (model whose `input_modalities` include `image`)   |
-| Create an image from a description                   | Image generation    | `POST /images/generations`; for models with `async_supported: true`, `POST /async/images/generations`, then `GET /async/jobs/{id}` | `text-to-image`                                              |
-| Change an existing image                             | Image editing       | `POST /images/generations` with reference images (synchronous)                                                                     | `text-to-image` (model with `image_capabilities.references`) |
-| Turn speech into text                                | Transcription       | `POST /audio/transcriptions`                                                                                                       | `speech-to-text`                                             |
-| Read text aloud                                      | Text-to-speech      | `POST /audio/speech`                                                                                                               | `text-to-speech`                                             |
-| Create a video from text or images                   | Video generation    | `POST /videos`, then `GET /videos/{id}`, then `GET /videos/{id}/content`                                                           | `video-generation`                                           |
-| Ask questions about a video                          | Video understanding | See the model's page                                                                                                               | `chatbot` (model whose `input_modalities` include `video`)   |
-| Turn text into vectors for search, clustering or RAG | Embeddings          | `POST /embeddings`                                                                                                                 | `embedding`                                                  |
-| Classify, route, score or flag a text                | Decisions           | `POST /decisions`                                                                                                                  | `decisions`                                                  |
+| The user wants                                       | Modality            | Endpoint                                                                                                                           | Catalog service type                                                           |
+| ---------------------------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------ |
+| Chat, code, reasoning, tool calls                    | Text                | `POST /chat/completions`, or the Anthropic-compatible `POST /messages` (for Anthropic SDKs and tools)                              | `chatbot` (`supported_formats` lists `openai` and, where offered, `anthropic`) |
+| Read a screenshot, photo, chart or scanned page      | Image understanding | `POST /chat/completions` with image content                                                                                        | `chatbot` (model whose `input_modalities` include `image`)                     |
+| Create an image from a description                   | Image generation    | `POST /images/generations`; for models with `async_supported: true`, `POST /async/images/generations`, then `GET /async/jobs/{id}` | `text-to-image`                                                                |
+| Change an existing image                             | Image editing       | `POST /images/generations` with reference images (synchronous)                                                                     | `text-to-image` (model with `image_capabilities.references`)                   |
+| Turn speech into text                                | Transcription       | `POST /audio/transcriptions`                                                                                                       | `speech-to-text`                                                               |
+| Read text aloud                                      | Text-to-speech      | `POST /audio/speech`                                                                                                               | `text-to-speech`                                                               |
+| Create a video from text or images                   | Video generation    | `POST /videos`, then `GET /videos/{id}`, then `GET /videos/{id}/content`                                                           | `video-generation`                                                             |
+| Ask questions about a video                          | Video understanding | See the model's page                                                                                                               | `chatbot` (model whose `input_modalities` include `video`)                     |
+| Turn text into vectors for search, clustering or RAG | Embeddings          | `POST /embeddings`                                                                                                                 | `embedding`                                                                    |
+| Classify, route, score or flag a text                | Decisions           | `POST /decisions`                                                                                                                  | `decisions`                                                                    |
 
 Classify the request first with [step 2](../SKILL.md#step-2-which-modality-build-and-try-only); this
 table only maps the result to an endpoint. The service type column is the `type` of the model in
 `/v1/models` (and the `service_type` of its rows in `/v1/providers`). Paths are relative to the base
-URL. Sources, checked on 2026-10-31: image generation against
-[Image Generation](https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/features/image-generation)
-and the `async_supported` field in `/v1/models`; image editing against
-`image_capabilities.references` in `/v1/models` and the model pages (for example
-https://pc.0g.ai/models/bytedance/seedream-5.0-lite); transcription against
-[Audio Transcription](https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/features/audio);
-embeddings against `supported_parameters` and `context_length` in `/v1/models` and the model pages
-(for example https://pc.0g.ai/models/qwen3-embedding-8b), since docs.0g.ai has no embeddings page;
-decisions against the model descriptions in `/v1/models` and the model pages (for example
-https://pc.0g.ai/models/laya), since docs.0g.ai has no decisions page either; video generation and
-text-to-speech against `video_capabilities` and `speech_capabilities` in `/v1/models` and the model
-pages (for example https://pc.0g.ai/models/bytedance/seedance-2.5 and
-https://pc.0g.ai/models/minimax-speech-2.8-turbo). Each model's `/v1/models` entry and its page have
-the fields and limits for that model; follow them when they differ from the notes below.
+URL. Each model's `/v1/models` entry and its page have the fields and limits for that model; follow
+them when they differ from the notes below.
 
 **Text.**
 
-- Stream (`stream: true`) for anything a person watches, such as a chat UI.
+- Stream (`stream: true`) for anything a person watches, such as a chat UI, and for long outputs.
 - Use tool calling only on models whose catalog entry shows that capability.
+- Use the Anthropic-compatible `POST /messages` only when the client or SDK speaks that format and
+  the model's `supported_formats` includes `anthropic`. If the client appends `/v1/messages` itself,
+  set its base URL to `https://router-api.0g.ai` (without `/v1`), so the path isn't doubled. The key
+  can go in `x-api-key` (what Anthropic SDKs send) or in `Authorization: Bearer`. The model's page
+  shows the exact request and headers.
 
 **Image understanding.**
 
@@ -74,7 +107,7 @@ the fields and limits for that model; follow them when they differ from the note
 **Image generation.**
 
 1. Tell the user the number of images and the per-image price from the catalog, and wait for their
-   OK.
+   OK (see [Cost](#setup)).
 2. Choose the path by the model's `async_supported` field in `/v1/models` (or its page at
    `https://pc.0g.ai/models/<model-id>`). Send `model`, `prompt`, `n` and `size`;
    `image_capabilities` gives `max_n` and the supported sizes.
@@ -85,9 +118,8 @@ the fields and limits for that model; follow them when they differ from the note
      can take tens of seconds, so set a long client timeout.
 3. Save the result in the form the response gives: base64 in `data[].b64_json` (decode it), or a URL
    (download it). Save to a file path the user agreed on; don't paste base64 into the conversation.
-4. Billing follows the provider's execution, not your connection. If an async client times out, keep
-   polling the same job. If a synchronous call times out, don't resend it automatically: tell the
-   user the request may still have run and been billed, and ask before retrying.
+4. For timeouts, follow [Retries and timeouts](#retries-and-timeouts): keep polling an async job;
+   don't resend a synchronous call without asking.
 
 **Image editing.**
 
@@ -100,8 +132,8 @@ the fields and limits for that model; follow them when they differ from the note
    `references.accepts` lists (`url` or `data_uri`). Convert a local file to a
    `data:image/...;base64,...` URI. For how many images and how large, see `references.max`,
    `image_capabilities.size` and the model's page at `https://pc.0g.ai/models/<model-id>`.
-4. These models don't take async jobs. Handle a timeout as image generation does for a synchronous
-   call (step 4 above).
+4. These models don't take async jobs. Handle a timeout as for any synchronous paid call (see
+   [Retries and timeouts](#retries-and-timeouts)).
 5. Save the result as in image generation (step 3 above).
 6. The source image goes to the provider; check which trust modes the model offers before sending a
    private photo.
@@ -111,6 +143,8 @@ the fields and limits for that model; follow them when they differ from the note
 - Send the audio file to `POST /audio/transcriptions` as a multipart upload, with a speech-to-text
   model from the catalog. Use the optional `prompt` field for names and terms the model might
   mishear.
+- Pricing is per second of audio. For a long recording or a batch of files, tell the user the total
+  duration and the estimated cost first.
 - Recordings can be sensitive; check which trust modes the model offers.
 
 **Text-to-speech.**
@@ -148,7 +182,7 @@ the fields and limits for that model; follow them when they differ from the note
    `video_jobs_in_flight_limit` on submit means the account already has the maximum number of
    unfinished jobs; wait for earlier ones to finish.
 7. Video models often run through official vendor APIs. Tell the user if Private isn't among the
-   model's trust modes.
+   model's trust modes, and follow the Trust mode rule in [Setup](#setup).
 
 **Video understanding.**
 
@@ -213,3 +247,39 @@ Key:         read from <environment variable name> (value never shown)
 Changed:     <files>
 Test:        <request run with the user's OK | not run>
 ```
+
+<!--
+Maintainer notes (not instructions for the agent).
+
+Sources, checked on 2026-10-31: image generation against
+https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/features/image-generation
+and the `async_supported` field in /v1/models; image editing against
+`image_capabilities.references` in /v1/models and the model pages; transcription against
+https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/features/audio; embeddings
+against `supported_parameters` and `context_length` in /v1/models and the model pages, since
+docs.0g.ai has no embeddings page; decisions against the model descriptions in /v1/models and the
+model pages, since docs.0g.ai has no decisions page either; video generation and text-to-speech
+against `video_capabilities` and `speech_capabilities` in /v1/models and the model pages.
+
+Example model pages used when this was written (they may be removed; the live catalog is the
+source of truth, so re-check before relying on them):
+- https://pc.0g.ai/models/bytedance/seedream-5.0-lite
+- https://pc.0g.ai/models/qwen3-embedding-8b
+- https://pc.0g.ai/models/laya
+- https://pc.0g.ai/models/bytedance/seedance-2.5
+- https://pc.0g.ai/models/minimax-speech-2.8-turbo
+
+Messages API (added 2026-11-11), checked with curl against https://router-api.0g.ai using an
+invalid key, so no request was billed:
+- POST /v1/messages reaches key validation with either `x-api-key` or `Authorization: Bearer`
+  (both answer 401 invalid_api_key in Anthropic's error format).
+- POST /messages (no /v1) and POST /v1/v1/messages both answer 404. The Anthropic SDK appends
+  /v1/messages to its base URL, so the base URL must be https://router-api.0g.ai, without /v1.
+  This last step is from how the SDK builds the path; it was not run with the SDK itself.
+- The `supported_formats` check is not yet verified against a published docs page; confirm before
+  release.
+
+Error handling and rate-limit rules follow
+https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/errors and
+https://docs.0g.ai/developer-hub/building-on-0g/compute-network/router/rate-limits.
+-->
