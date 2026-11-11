@@ -16,15 +16,22 @@ compatibility:
   Connect flow needs macOS or Linux, Node.js 22+ and 0gpc 0.3.2+. Build flow works with any
   OpenAI-compatible client.
 metadata:
-  version: '0.4'
+  version: '0.5'
 ---
 
 # 0G Private Computer
 
-> **Humans:** paste this into your coding agent (Claude Code, OpenCode and others):
-> `Read https://pc.0g.ai/skill and help me set up 0G Private Computer.` To install it as a skill
-> instead: `npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer`
-> More example requests for chat, image, video and speech: [Example requests](#example-requests). To
+> **Humans:** two ways to start, same skill either way.
+>
+> - **Send to agent** (the default start: lowest barrier, you are already talking to an agent, and
+>   it needs no Node.js): paste this into any coding agent that can read a URL (Claude Code,
+>   OpenCode and others): `Read https://pc.0g.ai/skill and help me set up 0G Private Computer.`
+> - **npx skills add** (recommended for long-term use: local, reviewable, version-pinned; needs
+>   Node.js 22.20 or later):
+>   `npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer`
+>
+> Neither installs anything else or starts setup by itself; the agent first asks what you want. More
+> example requests for chat, image, video and speech: [Example requests](#example-requests). To
 > connect a coding tool by hand, run `npx @0gfoundation/0gpc@latest` in your own terminal. To try
 > models without code, open the Playground: [chat](https://pc.0g.ai/playground/chat),
 > [image](https://pc.0g.ai/playground/image), [video](https://pc.0g.ai/playground/video) or
@@ -66,9 +73,11 @@ by the API key's default:
 
 ### List available models
 
-The live catalog is public: listing it needs no key and costs nothing, so run it whenever you need
-model ids, prices or capabilities, in any flow. List models from `/v1/models` alone; use
-`/v1/providers` only for the providers behind a model.
+When the user asks which models exist or what they cost, give https://pc.0g.ai/models first (it
+shows the catalog per modality, and `https://pc.0g.ai/models/<model-id>` one model), then add the
+detail below. The live catalog is public: listing it needs no key and costs nothing, so run it
+whenever you need model ids, prices or capabilities, in any flow. List models from `/v1/models`
+alone; use `/v1/providers` only for the providers behind a model.
 
 | To get                                                                  | Run                                                                                                                              |
 | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -127,8 +136,9 @@ These keep the user's key private, their setup recoverable and their money under
 request seems to ask for something else, explain why you won't do it that way.
 
 1. **Keep the key out of agent context.** Never request, read, echo, log, or handle the user's API
-   key in agent context. Have the user enter it directly through hidden terminal input using
-   `0gpc key set`, or configure an environment variable themselves. Do not pipe secrets through
+   key in agent context. The user creates it at https://pc.0g.ai/dashboard/api-keys and sets it
+   themselves: in Connect, through hidden terminal input with `0gpc key set`; in Build, as an
+   environment variable. Don't assume `0gpc` is installed. Do not pipe secrets through
    agent-generated commands. If the user pastes a key into the chat, don't use it: tell them it is
    now in the conversation history, suggest replacing it at https://pc.0g.ai/dashboard/api-keys, and
    continue with hidden input or an environment variable.
@@ -151,11 +161,54 @@ request seems to ask for something else, explain why you won't do it that way.
 6. **Read the catalog, don't remember it.** Take model ids, prices, capabilities and trust-mode
    support from the live catalog at the time of the request (see
    [List available models](#list-available-models)). Never make up a model id.
-7. **Don't install or update anything on your own.** If a tool or Node.js is missing, show the
-   official install command and let the user decide.
+7. **Don't install or update anything on your own, and keep the CLI for Connect.** If a tool or
+   Node.js is missing, show the official install command and let the user decide. Node.js, `npx` and
+   `0gpc` come into play only in Connect (or Fix, for a tool that is already connected), and only
+   after the user chose it. Ask, Try, Build and Compute Direct never need them; a request to "set up
+   0G Private Computer" without a coding tool named is not a Connect request.
 8. **Evidence over claims.** A model saying which model it is proves nothing. Use 0gpc's checks,
    response metadata and usage on pc.0g.ai.
 9. **Speak the user's language.** Keep commands, paths and model ids exactly as they are.
+
+## When there is no request yet
+
+Loading this skill is not a request, whether it came from the pasted line, `npx skills add` or a
+bare "set up 0G Private Computer". Run no command, read no file in `references/`, install nothing.
+Reply with the template below, in the user's language, with commands, paths, links and model ids
+unchanged. Fill `<version>` from `metadata.version` and `<source>` with `https://pc.0g.ai/skill` or
+`local install`. Keep the `npx skills add` line only when `<source>` is the URL. Then wait.
+
+```
+0G Private Computer skill v<version> (read from <source>).
+For long-term use, install it: npx skills add 0gfoundation/0g-agent-skills/skills/private-computer/0g-private-computer
+(a local, reviewable, version-pinned copy; needs Node.js 22.20 or later).
+
+What do you want to do?
+1. Ask: what 0G PC is, which models, what they cost.
+   Say: "which models support Private mode?"  Models: https://pc.0g.ai/models
+2. Try: compare models in the Playground, no code.
+   chat https://pc.0g.ai/playground/chat · image https://pc.0g.ai/playground/image
+   video https://pc.0g.ai/playground/video · speech https://pc.0g.ai/playground/speech
+3. Connect: put Claude Code, OpenCode, Pi or Hermes Agent on 0G models (uses the 0gpc CLI).
+   Say: "connect Claude Code in this project to 0G PC"
+4. Build: add 0G to your app or script (text, image, video, speech, embeddings, decisions).
+   Say: "add a streaming chat endpoint with 0G PC in Private mode"
+5. Compute Direct: wallet-signed calls, broker SDK, sub-accounts, fine-tuning (the Compute skills,
+   not this one). https://github.com/0gfoundation/0g-agent-skills/tree/main/skills/compute
+   Install: npx skills add 0gfoundation/0g-agent-skills/skills/compute/<skill>, for example
+   streaming-chat or fine-tuning.
+6. Fix: a 401, a balance problem, a model that seems down (status: https://pc.0g.ai/status),
+   or a tool still on the old model.
+   Say: "my 0G key gives a 401"
+
+You need an API key for Connect and Build: create one at https://pc.0g.ai/dashboard/api-keys. It
+never goes through me; you keep it in your own terminal or environment. Nothing is installed or
+changed until you pick one.
+```
+
+Ask for a trust mode (Standard, Verified, Private) only after the user picks Connect or Build. If
+the user's first message already carries a request, skip the template and classify it below. If the
+user asks how to use the skill, show the [Usage guide](#usage-guide).
 
 ## Recognize the request
 
@@ -164,14 +217,14 @@ user can correct it.
 
 ### Step 1: which flow
 
-| Signals in the request                                                                                                                                | Flow                                                                                                                                                                                                                                                                                            |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| A question with no task: what is, which models, how much, does it support, what's the difference                                                      | **Ask**: answer from this page and https://pc.0g.ai/models. No CLI, no code.                                                                                                                                                                                                                    |
-| Try, test, compare, play with, see what it can do, without code                                                                                       | **Try**: the Playground page for that modality, from the [table](#modalities-playground-and-router). Video understanding, embeddings and decisions have none: say so, link `https://pc.0g.ai/models/<model-id>`, and offer one request through the Build flow once the user agrees to the cost. |
-| A coding tool is the subject (Claude Code, OpenCode, Pi, Hermes, "my agent"), with set up, connect, switch model, use 0G as my model, turn off, check | **Connect**: [Connect flow](references/connect.md)                                                                                                                                                                                                                                              |
-| An app, API, endpoint, script, SDK or backend; or a file to process (screenshot, `.png`, `.mp3`, `.mp4`)                                              | **Build**: [Build flow](references/build.md), then step 2                                                                                                                                                                                                                                       |
-| Wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced mode on pc.0g.ai, compute-marketplace.0g.ai, fine-tuning                     | **Compute Direct**: not this skill; use the Compute skills in https://github.com/0gfoundation/0g-agent-skills                                                                                                                                                                                   |
-| Error, not working, 401, stuck, balance, still on the old model                                                                                       | **Fix**: [Troubleshooting](references/troubleshooting.md)                                                                                                                                                                                                                                       |
+| Signals in the request                                                                                                                                | Flow                                                                                                                                                                                                                                                                                                                                                         |
+| ----------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| A question with no task: what is, which models, how much, does it support, what's the difference                                                      | **Ask**: answer from this page, giving the link https://pc.0g.ai/models first (for one model, `https://pc.0g.ai/models/<model-id>`), then details from the live catalog, and common questions from [Answers for Ask](#answers-for-ask). No CLI, no code.                                                                                                     |
+| Try, test, compare, play with, see what it can do, without code                                                                                       | **Try**: always give the Playground link for that modality, from the [table](#modalities-playground-and-router), and the model's page on https://pc.0g.ai/models. Video understanding, embeddings and decisions have none: say so, link `https://pc.0g.ai/models/<model-id>`, and offer one request through the Build flow once the user agrees to the cost. |
+| A coding tool is the subject (Claude Code, OpenCode, Pi, Hermes, "my agent"), with set up, connect, switch model, use 0G as my model, turn off, check | **Connect**: [Connect flow](references/connect.md)                                                                                                                                                                                                                                                                                                           |
+| An app, API, endpoint, script, SDK or backend; or a file to process (screenshot, `.png`, `.mp3`, `.mp4`)                                              | **Build**: [Build flow](references/build.md), then step 2                                                                                                                                                                                                                                                                                                    |
+| Wallet-signed calls, the broker SDK, per-provider sub-accounts, Advanced mode on pc.0g.ai, compute-marketplace.0g.ai, fine-tuning                     | **Compute Direct**: not this skill; use the Compute skills in https://github.com/0gfoundation/0g-agent-skills                                                                                                                                                                                                                                                |
+| Error, not working, 401, stuck, balance, still on the old model, is a model down, one model keeps failing                                             | **Fix**: [Troubleshooting](references/troubleshooting.md)                                                                                                                                                                                                                                                                                                    |
 
 Tie-breakers:
 
@@ -247,15 +300,93 @@ If the user corrects it, reclassify and continue.
 
 ## Read the flow file before acting
 
-| Flow                     | Read before the first command or code change                                      |
-| ------------------------ | --------------------------------------------------------------------------------- |
-| Connect                  | [references/connect.md](references/connect.md)                                    |
-| Build                    | [references/build.md](references/build.md)                                        |
-| Fix                      | [references/troubleshooting.md](references/troubleshooting.md)                    |
-| Ask, Try, Compute Direct | Nothing more: answer, point to the Playground, or hand over to the Compute skills |
+Read a flow file from the local copy, or from its URL when you read this page from a URL (relative
+links don't resolve there).
 
-Don't run `0gpc apply` or `0gpc reset`, write integration code, or submit a paid job from this page
-alone. Everything here still applies inside those files, especially the ground rules.
+| Flow                     | Read before the first command or code change                                               |
+| ------------------------ | ------------------------------------------------------------------------------------------ |
+| Connect                  | `references/connect.md`, or `https://pc.0g.ai/skill/references/connect.md`                 |
+| Build                    | `references/build.md`, or `https://pc.0g.ai/skill/references/build.md`                     |
+| Fix                      | `references/troubleshooting.md`, or `https://pc.0g.ai/skill/references/troubleshooting.md` |
+| Ask, Try, Compute Direct | Nothing more: answer, point to the Playground, or hand over to the Compute skills          |
+
+Read only the file for the flow the user chose; don't open the other two. Don't run `0gpc apply` or
+`0gpc reset`, write integration code, or submit a paid job from this page alone. Everything here
+still applies inside those files, especially the ground rules.
+
+## Answers for Ask
+
+Short answers to common questions; for prices and model lists, read the live catalog instead.
+
+- **Why a router:** providers differ in price, uptime and trust level, and each is a separate
+  integration. The Router puts them behind one OpenAI-compatible API (also an Anthropic-compatible
+  messages API), moves a request to another healthy provider if one fails, and enforces the trust
+  mode, so a Private request never lands outside the Private set and a retry stays inside it.
+- **0G's own models:** the 0GM family, for example `0gm-1.0-35b-a3b` (agentic coding and tool use)
+  and `0gm-1.0-35b-a3b-sia` (text-only, adds per-token reward guidance). Both run in TEE-attested
+  environments, so they work in Private mode. Context and prices: the live catalog. 0G PC also
+  serves official model APIs and open models.
+- **Modes differ per model:** a model hosted only on official APIs can't run in Private mode. Check
+  the model's page on https://pc.0g.ai/models before relying on a mode.
+- **Where requests run:** Private runs only on TEE-backed GPUs (0G or third-party). Verified can
+  also use official model APIs, with the route verified; privacy follows that provider's policy.
+  Standard adds community hosts and vetted resellers, which are not disclosed.
+- **Payment:** 0G Mode (deposits, balance and charges in 0G) or USD Mode (fiat through Stripe,
+  balance and charges in USD). No subscription fee; you pay per use.
+- **Versus going direct to a provider:** one account, one bill, one API, failover between providers
+  of the same model, and in Verified or Private mode evidence instead of a policy statement. In
+  Standard mode you get coverage and price, but no verification or privacy guarantee beyond the
+  serving provider's own policy.
+- **Other tools:** the 0gpc CLI connects Claude Code, OpenCode, Pi and Hermes Agent. Any tool that
+  speaks the OpenAI-compatible or Anthropic-compatible API can call the Router with an API key.
+  Don't promise support for other named tools.
+
+## Usage guide
+
+Short version of what to say and what happens. Show it when the user asks how to use the skill. The
+agent previews every change first and saves only after the user confirms.
+
+**Run a coding agent on 0G models** (Claude Code, OpenCode V1, Pi, Hermes Agent, through the 0gpc
+CLI; restart the tool afterwards so it picks up the new model)
+
+| You want to                  | Say this                                                             | What happens                                                                                                                                 |
+| ---------------------------- | -------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| Put your coding agent on 0G  | "connect Claude Code in this project to 0G PC"                       | Checks setup; you add your key in your own terminal, pick a model and approve the exact change                                               |
+| See which models you can use | "which models can Claude Code use on 0G PC?" · "is glm-5.3 on 0G?"   | Queries the live catalog right then, with price, context length, tool calling and Private support; no key, no cost                           |
+| Pick a model for coding      | "which 0G model is best for coding with Claude Code?"                | Recommends one model from the live catalog, plus up to two alternatives, and says why                                                        |
+| Keep your code private       | "make sure Claude Code only uses Private (TEE) inference"            | Has you set your key to Private on pc.0g.ai, then picks a model served by a TEE-attested provider                                            |
+| Switch model                 | "switch to a cheaper 0G model" · "use a model with a longer context" | Shows the options, previews the change and saves it after you confirm                                                                        |
+| Confirm it's working         | "am I on 0G now?" · "check my 0G connection"                         | Checks the local setup and points you to your requests in usage on pc.0g.ai; asks before a network check, which may cost a very small amount |
+| See what you've spent        | "how much have I spent on 0G?"                                       | Points you to usage and balance on pc.0g.ai; topping up is always your call                                                                  |
+| Replace your key             | "I need a new 0G key" · "I pasted my key into the chat"              | You create a new key on pc.0g.ai and enter it in your own terminal; every connected tool picks it up                                         |
+| Use 0G in every project      | "use 0G PC for Claude Code in all my projects"                       | Explains that this changes your global settings, previews it and asks before saving                                                          |
+| Go back to your usual setup  | "turn 0G off" · "go back to Anthropic"                               | Removes only what 0gpc added; your other settings and your key stay                                                                          |
+
+**Build with 0G models in your app** (the agent lists live models, you pick a model and trust mode;
+the code reads your key from the environment; it asks before any request that costs money)
+
+| Feature             | Say this                                                            | Before it runs                    | Try it                                       |
+| ------------------- | ------------------------------------------------------------------- | --------------------------------- | -------------------------------------------- |
+| Chat                | "add a streaming chat endpoint with 0G PC in Private mode"          | Picks a model with you            | [chat](https://pc.0g.ai/playground/chat)     |
+| Vision              | "extract the totals from these screenshots with 0G PC"              | Picks a vision model              | [chat](https://pc.0g.ai/playground/chat)     |
+| Image generation    | "generate a 1024x1024 hero image with 0G PC"                        | Shows the per-image price         | [image](https://pc.0g.ai/playground/image)   |
+| Image editing       | "replace the background of photo.jpg with white using 0G PC"        | Shows the per-image price         | [image](https://pc.0g.ai/playground/image)   |
+| Video generation    | "turn hero.png into a 5-second clip with 0G PC"                     | Shows duration and estimated cost | [video](https://pc.0g.ai/playground/video)   |
+| Video understanding | "summarize what happens in demo.mp4 with 0G PC"                     | Picks a model that accepts video  | none                                         |
+| Transcription       | "transcribe meeting.mp3 with 0G PC"                                 | Picks a speech-to-text model      | [speech](https://pc.0g.ai/playground/speech) |
+| Text-to-speech      | "read intro.md aloud with 0G PC and save it as intro.mp3"           | Shows characters and cost         | [speech](https://pc.0g.ai/playground/speech) |
+| Embeddings          | "embed the Markdown files in ./docs with 0G PC for semantic search" | Shows estimated tokens and cost   | none                                         |
+| Decisions           | "route each ticket in tickets.csv to billing, technical or other"   | Shows estimated tokens and cost   | none                                         |
+
+Prefer to do it yourself? Run `npx @0gfoundation/0gpc@latest` in your own terminal for the setup
+wizard.
+
+**Try, ask or fix**: say "which video models does 0G PC have, and which support Private?" for a live
+list with prices (no key, no cost), try any model in the Playground first, or say "my 0G setup
+stopped working" and the agent diagnoses first, then suggests the smallest fix you can undo.
+
+**After `npx skills add`**: ask in plain words (for example "connect Claude Code to 0G PC") or type
+`/0g-private-computer` in Claude Code, and restart the tool after installing.
 
 ## Example requests
 
