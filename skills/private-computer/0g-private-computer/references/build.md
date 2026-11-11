@@ -275,7 +275,8 @@ invalid key, so no request was billed:
   (both answer 401 invalid_api_key in Anthropic's error format).
 - POST /messages (no /v1) and POST /v1/v1/messages both answer 404. The Anthropic SDK appends
   /v1/messages to its base URL, so the base URL must be https://router-api.0g.ai, without /v1.
-  This last step is from how the SDK builds the path; it was not run with the SDK itself.
+  Confirmed by 0gpc itself: `0gpc apply claude --dry-run` (preview only, nothing written) sets
+  ANTHROPIC_BASE_URL to https://router-api.0g.ai. The SDK itself was not run.
 - The `supported_formats` check is not yet verified against a published docs page; confirm before
   release.
 
