@@ -2,8 +2,8 @@
 name: agent-reputation
 description:
   Capture and verify TEE-signed serve-proofs from 0G AgenticID agents and submit ERC-8004 feedback,
-  checking the attestor config for a reputation registry first. Use when the user wants to rate an
-  agent or work with agent reputation. Uses viem, not ethers.
+  checking the attestor config first. Use when the user wants to rate an agent or work with agent
+  reputation. Uses viem, not ethers.
 ---
 
 # AgenticID Reputation and Serve-Proofs
