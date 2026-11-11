@@ -45,7 +45,7 @@ import {
 // being dismissed as an unresolved-name partial. parseEther and formatEther
 // come from viem here; ethers exports the same names, but its copies are
 // reached through the ethers namespace import above, so there is no collision.
-import { AgenticID } from '@0gfoundation/0g-agenticid-sdk';
+import { AgentDNA } from '@0gfoundation/0g-agentdna';
 import { parseEther, formatEther } from 'viem';
 import * as fs from 'fs';
 import * as path from 'path';

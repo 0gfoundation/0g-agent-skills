@@ -91,8 +91,8 @@
       "purpose": "Chain interaction"
     },
     {
-      "name": "@0gfoundation/0g-agenticid-sdk",
-      "version": "^0.1.6",
+      "name": "@0gfoundation/0g-agentdna",
+      "version": "^0.4.0",
       "purpose": "AgenticID agent identity and reputation"
     },
     {
